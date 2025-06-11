@@ -43,7 +43,7 @@ export type MaybeBearerToken = string | null
 // ** Copied from CCE codebase - END **
 
 
-export interface MetaData {
+export interface MetaData  {
   prod_name: string;
   param_short_name: string;
   param_name: string;
@@ -54,7 +54,15 @@ export interface MetaData {
   lon: string;
 }
 
-export interface CacheData {
+export interface CacheData  {
   data: { date: string; value: number }[];
   metaData: MetaData;
 }
+
+export type dataParams = {
+  variable: string
+  begin_time: string;
+  end_time: string;
+  lat: number;
+  lon: number;
+};

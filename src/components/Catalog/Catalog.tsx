@@ -10,16 +10,6 @@ import Variables from "./Variables";
 
 import "./Catalog.css";
 
-// [
-//     {
-//         "topic": "Atmosphere",
-//         "categories": ["Precipitation", "Water Vapor", "Aerosal Properties", "Cloud Properties", "Trace Gases"],
-//         "variables": [
-
-//         ]
-//     }
-// ]
-
 const Catalog: React.FC = () => {
   const history = useHistory();
 

@@ -1,9 +1,9 @@
 export const DefaultParams = {
-  Latitude: 33.9375,
-  Longitude: -86.9375,
-  Variable: "GPM:GPM_3IMERGHH_06:precipitationCal",
-  Date_start: "2009-03-27T00",
-  Date_end: "2010-11-23T00"
+  Latitude: 38.8951, // Default to Washington, DC
+  Longitude: -77.0364, // Default to Washington, DC
+  Variable: "GPM_3IMERGDF_07_precipitation",
+  Begin_time: "2019-01-01T00:00:00",
+  End_time: "2020-01-01T00:00:00"
 } as const;
 
 export type DefaultParams = typeof DefaultParams[keyof typeof DefaultParams];

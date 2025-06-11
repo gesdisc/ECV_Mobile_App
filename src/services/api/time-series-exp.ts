@@ -12,11 +12,10 @@ import type {
     TimeSeriesMetadata,
     Variable,
     VariableDbEntry,
+    dataParams
 } from './time-series.types'
 
-// Shared by Amber
-// https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=M2T1NXSLV_5_12_4_V50M&lat=40&lon=120&time_start=2024-03-05T00%3A00%3A00&time_end=2024-03-06T00%3A00%3A00
-const url = `https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=M2T1NXSLV_5_12_4_V50M&lat=40&lon=120&time_start=2024-03-05T00%3A00%3A00&time_end=2024-03-06T00%3A00%3A00`;
+
 
 /**
    * Navigates to a new pathname
@@ -44,26 +43,17 @@ const parseTimeSeriesCsv = (text: string) => {
     return { metadata, data } as TimeSeriesData;
 }
 
-export const fetchData = async () => {
+export const fetchData = async (dataParams: dataParams) => {
     const bearerToken: MaybeBearerToken = null;
-    // bearerToken = bearerToken;
-    // console.log("bearerToken", bearerToken);
-    //    let collection: Collection;
-    let variable: Variable;
-    let startDate: string;
-    let endDate: string;
-    //    let location: Location;
-    let lat: number;
-    let lon: number;
+    const {variable, lat, lon, begin_time, end_time} = dataParams;
+  
+    // Shared by Amber
+    // https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=M2T1NXSLV_5_12_4_V50M&lat=40&lon=120&time_start=2024-03-05T00%3A00%3A00&time_end=2024-03-06T00%3A00%3A00
+    // const url = `https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=M2T1NXSLV_5_12_4_V50M&lat=40&lon=120&time_start=2024-03-05T00%3A00%3A00&time_end=2024-03-06T00%3A00%3A00`;
+    const url = `https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=${variable}&lat=${lat}&lon=${lon}&time_start=${begin_time}&time_end=${end_time}`;
+ 
 
     try {
-        
-        variable = "GPM_3IMERGDF_07_precipitation";
-        startDate = "2019-01-01T00:00:00";
-        endDate = "2020-01-01T00:00:00";
-        lat  = 29.75;
-        lon = -89.14;
-
         // fetch the time series as a CSV
         const response = await fetch(url, {
             mode: 'cors',
@@ -83,12 +73,10 @@ export const fetchData = async () => {
         }
 
         const csvData = await response.text();
-        const parsedData = parseTimeSeriesCsv(csvData);
+        // const parsedData = parseTimeSeriesCsv(csvData);
         
         // return response;
-        return parsedData;
-
-
+        return csvData;
     } catch (error) {
         console.log(error)
     }

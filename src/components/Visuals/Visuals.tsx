@@ -30,32 +30,34 @@ import {
   CacheData,
 } from "../../services/api/time-series.types";
 
+import { DefaultParams } from "../../constants/time-series";
+
+import Header from "../Layout/Header";
+import DatePicker from "../UI/DatePicker";
 // import TimeSeries from './TimeSeries';
 
 import "./Plot.css";
-import Header from "../Layout/Header";
 
-const Tab3: React.FC = () => {
+const variable = "GPM_3IMERGDF_07_precipitation";
+const begin_time = "2019-01-01T00:00:00";
+const end_time = "2020-01-01T00:00:00";
+const lat = 29.75;
+const lon = -89.14;
+
+// the system will use the deafult params
+// the system will check the internet connection first
+// if there is no internet connection, the system will use the latest/cached data (w/ default params if user never )
+const Visuals: React.FC = () => {
   // const { latitude, longitude } = useLocation();
   const location = useLocation();
   const state = location.state;
   console.log(state);
   // const {variable} = location.state;
-  // const defaultLatitude = 38.8951; // Default to Washington, DC
-  // const defaultLongitude = -77.0364; // Default to Washington, DC
   const [data, setData] = useState<{ date: string; value: number }[]>([]);
   const [metaData, setMetaData] = useState<MetaData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [startDate, setStartDate] = useState<string>(
-    new Date("2009-03-27").toISOString()
-  );
-  const [endDate, setEndDate] = useState<string>(
-    new Date("2010-11-23").toISOString()
-  );
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string>("");
+  // const [toastMessage, setToastMessage] = useState<string>("");
   const workerRef = useRef<Worker | null>(null);
   const [plotReady, setPlotReady] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
@@ -134,67 +136,77 @@ const Tab3: React.FC = () => {
   //   }
   // };
 
-  useEffect(() => {
-    const checkCacheOnMount = async () => {
-      const cacheKey = `CapacitorStorage.plotData_recent_data`;
-      console.log("Checking cache on mount with key:", cacheKey);
+  // useEffect(() => {
+  //   const checkCacheOnMount = async () => {
+  //     const cacheKey = `CapacitorStorage.plotData_recent_data`;
+  //     console.log("Checking cache on mount with key:", cacheKey);
 
-      const cachedData = await getItem(cacheKey);
-      if (cachedData) {
-        console.log("Using cached data on mount.");
-        setData(cachedData.data);
-        setMetaData(cachedData.metaData);
-        setPlotReady(true);
-      } else {
-        console.log("No cached data found.");
-      }
-    };
+  //     const cachedData = await getItem(cacheKey);
+  //     if (cachedData) {
+  //       console.log("Using cached data on mount.");
+  //       setData(cachedData.data);
+  //       setMetaData(cachedData.metaData);
+  //       setPlotReady(true);
+  //     } else {
+  //       console.log("No cached data found.");
+  //     }
+  //   };
 
-    if (typeof Worker !== "undefined") {
-      workerRef.current = new Worker(
-        new URL("./dataWorker.js", import.meta.url)
-      );
-      workerRef.current.onmessage = (e) => {
-        const { metaData, data } = e.data;
-        // console.log('Worker data:', data);
-        // console.log('Worker metaData:', metaData);
-        setMetaData(metaData);
-        setData(data);
-        const cacheKey = `CapacitorStorage.plotData_recent_data`;
-        clearOldCache().then(() => {
-          setItem(cacheKey, { data, metaData });
-          setPlotReady(true);
-        });
-      };
-    }
+  //   if (typeof Worker !== "undefined") {
+  //     workerRef.current = new Worker(
+  //       new URL("./dataWorker.js", import.meta.url)
+  //     );
+  //     workerRef.current.onmessage = (e) => {
+  //       const { metaData, data } = e.data;
+  //       // console.log('Worker data:', data);
+  //       // console.log('Worker metaData:', metaData);
+  //       setMetaData(metaData);
+  //       setData(data);
+  //       const cacheKey = `CapacitorStorage.plotData_recent_data`;
+  //       clearOldCache().then(() => {
+  //         setItem(cacheKey, { data, metaData });
+  //         setPlotReady(true);
+  //       });
+  //     };
+  //   }
 
-    checkCacheOnMount();
+  //   checkCacheOnMount();
 
-    return () => {
-      if (workerRef.current) {
-        workerRef.current.terminate();
-      }
-    };
-  }, []);
+  //   return () => {
+  //     if (workerRef.current) {
+  //       workerRef.current.terminate();
+  //     }
+  //   };
+  // }, []);
 
   const handlePlotData = async () => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // const start = new Date(startDate);
+    // const end = new Date(endDate);
 
-    if (start > end) {
-      setAlertMessage("Your start-date cannot be after the end-date.");
-      return;
-    }
-
-    // console.log('Plot data clicked: Fetching data...');
+    // if (start > end) {
+    //   setAlertMessage("Your start-date cannot be after the end-date.");
+    //   return;
+    // }
 
     // fetchData(start, end, false);
 
     try {
-      const data = await fetchData();
+      setLoading(true);
+      // setError(null);
+      const data = await fetchData({
+        variable,
+        begin_time,
+        end_time,
+        lat,
+        lon,
+      });
+      console.log(data);
       // console.log(data?.data[0].timestamp);
     } catch (error) {
+      //  setError(error.message);
       console.log("Tab 3 Err: ", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -217,12 +229,12 @@ const Tab3: React.FC = () => {
           spinner="circles"
           cssClass="custom-loading"
         />
-        <IonToast
+        {/* <IonToast
           isOpen={!!toastMessage}
           message={toastMessage || undefined}
           duration={5000}
           onDidDismiss={() => setToastMessage("")}
-        />
+        /> */}
         {alertMessage && (
           <IonAlert
             isOpen={!!alertMessage}
@@ -238,42 +250,12 @@ const Tab3: React.FC = () => {
         {/* { plotReady && metaData && <TimeSeries data={data} metaData={metaData} />} */}
         <IonGrid>
           <IonRow>
-            <IonCol>
-              <IonButton
-                color="primary"
-                onClick={() => setShowStartDatePicker(true)}
-              >
-                Select Start Date
-              </IonButton>
-              {showStartDatePicker && (
-                <IonDatetime
-                  presentation="date"
-                  value={startDate}
-                  onIonChange={(e) => {
-                    setStartDate(e.detail.value as string);
-                    setShowStartDatePicker(false);
-                  }}
-                />
-              )}
-            </IonCol>
-            <IonCol className="ion-text-end">
-              <IonButton
-                color="primary"
-                onClick={() => setShowEndDatePicker(true)}
-              >
-                Select End Date
-              </IonButton>
-              {showEndDatePicker && (
-                <IonDatetime
-                  presentation="date"
-                  value={endDate}
-                  onIonChange={(e) => {
-                    setEndDate(e.detail.value as string);
-                    setShowEndDatePicker(false);
-                  }}
-                />
-              )}
-            </IonCol>
+            <DatePicker label="Select Start Date" defaultDate="2009-03-27" />
+            <DatePicker
+              label="Select End Date"
+              containerClass="ion-text-end"
+              defaultDate="2010-11-23"
+            />
           </IonRow>
           <IonRow>
             <IonCol>
@@ -288,4 +270,4 @@ const Tab3: React.FC = () => {
   );
 };
 
-export default Tab3;
+export default Visuals;
