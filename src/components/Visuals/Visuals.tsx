@@ -29,7 +29,7 @@ import {
   CacheData,
   LocationState,
 } from "../../services/api/time-series.types";
-import { formatDate } from "../utils/Date";
+import { formatDate } from "../../utils/Date";
 
 import Header from "../Layout/Header";
 import DatePicker from "../UI/DatePicker";
@@ -227,7 +227,7 @@ const Visuals: React.FC = () => {
   // POST u2u5qu332rhmxpiazjcqz6gkdm.appsync-api.us-east-1.amazonaws.com/graphql
   // Headers:
   // Content-Type: application/json
-  // x-api-key: da2-hg7462xbijdjvocfgx2xlxuytq
+  // x-api-key: // add api key
   // Body
   // {"query":"{\n  getVariables { variables { dataFieldId, dataFieldLongName } } }"}
   // const fetchCatalog = async () => {
@@ -239,7 +239,7 @@ const Visuals: React.FC = () => {
   //     method: "POST",
   //     headers: {
   //       "Content-Type": "application/json",
-  //       "x-api-key": "da2-hg7462xbijdjvocfgx2xlxuytq",
+  //       "x-api-key": // add api key,
   //     },
   //     body: JSON.stringify({ query }),
   //   };
