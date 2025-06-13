@@ -16,7 +16,7 @@ import {
   IonRow,
   IonCol,
 } from "@ionic/react";
-// import { useLocation } from "../../UpdateLocation";
+import { useDataParams } from "../../store/DataParamsContext";
 import { setItem, getItem, clearOldCache } from "../../services/indexDBService";
 import { Network } from "@capacitor/network";
 
@@ -26,41 +26,40 @@ import {
   TimeSeriesDataRow,
   TimeSeriesData,
   TimeSeriesMetadata,
-  MetaData,
   CacheData,
+  LocationState,
 } from "../../services/api/time-series.types";
-
-import { DefaultParams } from "../../constants/time-series";
+import { formatDate } from "../utils/Date";
 
 import Header from "../Layout/Header";
 import DatePicker from "../UI/DatePicker";
-// import TimeSeries from './TimeSeries';
+import TimeSeries from "./TimeSeries";
 
 import "./Plot.css";
 
-const variable = "GPM_3IMERGDF_07_precipitation";
-const begin_time = "2019-01-01T00:00:00";
-const end_time = "2020-01-01T00:00:00";
-const lat = 29.75;
-const lon = -89.14;
-
-// the system will use the deafult params
-// the system will check the internet connection first
-// if there is no internet connection, the system will use the latest/cached data (w/ default params if user never )
 const Visuals: React.FC = () => {
-  // const { latitude, longitude } = useLocation();
-  const location = useLocation();
-  const state = location.state;
-  console.log(state);
-  // const {variable} = location.state;
-  const [data, setData] = useState<{ date: string; value: number }[]>([]);
-  const [metaData, setMetaData] = useState<MetaData | null>(null);
+  const {
+    latitude,
+    longitude,
+    beginTime,
+    endTime,
+    variable,
+    setEndTime,
+    setBeginTime,
+    // setVariable,
+  } = useDataParams();
+
+  // const [data, setData] = useState<{ date: string; value: number }[]>([]);
+  // const [metaData, setMetaData] = useState<TimeSeriesDataRow | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   // const [toastMessage, setToastMessage] = useState<string>("");
-  const workerRef = useRef<Worker | null>(null);
-  const [plotReady, setPlotReady] = useState<boolean>(false);
+  // const workerRef = useRef<Worker | null>(null);
+  // const [plotReady, setPlotReady] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
+
+  // experimental
+  const [expData, setExpData] = useState<TimeSeriesDataRow[] | undefined>([]);
 
   // const fetchData = async (start: Date, end: Date, useCache = true) => {
   //   const cacheKey = `CapacitorStorage.plotData_${start.toISOString()}_${end.toISOString()}_${latitude || defaultLatitude}_${longitude || defaultLongitude}_data`;
@@ -189,18 +188,21 @@ const Visuals: React.FC = () => {
     // }
 
     // fetchData(start, end, false);
-
+    setExpData([]);
     try {
       setLoading(true);
       // setError(null);
       const data = await fetchData({
         variable,
-        begin_time,
-        end_time,
-        lat,
-        lon,
+        begin_time: beginTime,
+        end_time: endTime,
+        lat: latitude,
+        lon: longitude,
       });
-      console.log(data);
+      // console.log("visuals: ", data);
+      // TODO: check if data is empty
+      const displayData = data?.data;
+      setExpData(displayData);
       // console.log(data?.data[0].timestamp);
     } catch (error) {
       //  setError(error.message);
@@ -210,14 +212,93 @@ const Visuals: React.FC = () => {
     }
   };
 
-  // const formatDate = (isoDateString: string) => {
-  //   const date = new Date(isoDateString);
-  //   return date.toISOString().split('T')[0];
-  // };
+  const beginDateUpdateHandler = (selectedDate: string) =>
+    setBeginTime(selectedDate);
+  const endDateUpdateHandler = (selectedDate: string) =>
+    setEndTime(selectedDate);
 
   if (error) {
     return <div>Error: {error}</div>;
   }
+
+  /**
+   * @GraphQl
+   */
+  // POST u2u5qu332rhmxpiazjcqz6gkdm.appsync-api.us-east-1.amazonaws.com/graphql
+  // Headers:
+  // Content-Type: application/json
+  // x-api-key: da2-hg7462xbijdjvocfgx2xlxuytq
+  // Body
+  // {"query":"{\n  getVariables { variables { dataFieldId, dataFieldLongName } } }"}
+  // const fetchCatalog = async () => {
+  //   // prettier-ignore
+  //   const query = {
+  //     "query": "{\n  getVariables { variables { dataFieldId, dataFieldLongName } } }",
+  //   };
+  //   const requestOptions = {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       "x-api-key": "da2-hg7462xbijdjvocfgx2xlxuytq",
+  //     },
+  //     body: JSON.stringify({ query }),
+  //   };
+
+  //   try {
+  //     console.log("loading catalog data...");
+  //     // setError(null);
+  //     const response = await fetch(
+  //       "u2u5qu332rhmxpiazjcqz6gkdm.appsync-api.us-east-1.amazonaws.com/graphql",
+  //       requestOptions
+  //     );
+  //     console.log(response);
+  //   } catch (error) {
+  //     console.log("Catalog error: ", error);
+  //   } finally {
+  //     console.log("catalog data loaded...");
+  //   }
+  // };
+
+  /**
+   * @Data_Rods
+   */
+  // const fetchCatalog = async () => {
+  //   const requestOptions = {
+  //     method: "GET",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //   };
+
+  //   try {
+  //     console.log("loading catalog data...");
+  //     // setError(null);
+  //     const response = await fetch(
+  //       "https://lb.gesdisc.eosdis.nasa.gov/windmill/api/r/website/data-rods-variables"
+  //     );
+  //     const data = await response.json();
+  //     const newCatalogItem = data.response.docs.filter(
+  //       (v) => v["Variable.Id"] == "M2T1NXSLV_5_12_4_SLP"
+  //     );
+  //     console.log(newCatalogItem);
+  //     console.log(newCatalogItem[0]);
+  //     // type catType = {
+  //     //   topic: string;
+  //     //   category: string;
+  //     //   variable: string;
+  //     //   description: string;
+  //     // };
+  //     // const jsonObj: catType[] = catalog;
+  //     // const newJSONCatalog = catalog;
+  //     // console.log(newJSONCatalog);
+  //     // newJSONCatalog.push(newCatalogItem[0]);
+  //     // console.log(newJSONCatalog);
+  //   } catch (error) {
+  //     console.log("Catalog error: ", error);
+  //   } finally {
+  //     console.log("catalog data loaded...");
+  //   }
+  // };
 
   return (
     <IonPage>
@@ -247,14 +328,19 @@ const Visuals: React.FC = () => {
         {/* {plotReady && metaData && data.length > 0 && (
           < TimeSeries />
         )} */}
-        {/* { plotReady && metaData && <TimeSeries data={data} metaData={metaData} />} */}
+        {expData && <TimeSeries metaData={expData} />}
         <IonGrid>
           <IonRow>
-            <DatePicker label="Select Start Date" defaultDate="2009-03-27" />
+            <DatePicker
+              label="Select Start Date"
+              defaultDate="2009-03-27"
+              onDateUpdate={beginDateUpdateHandler}
+            />
             <DatePicker
               label="Select End Date"
               containerClass="ion-text-end"
               defaultDate="2010-11-23"
+              onDateUpdate={endDateUpdateHandler}
             />
           </IonRow>
           <IonRow>
@@ -262,6 +348,27 @@ const Visuals: React.FC = () => {
               <IonButton expand="block" fill="outline" onClick={handlePlotData}>
                 Plot Data
               </IonButton>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+
+        <IonGrid>
+          <IonRow>
+            <IonCol
+              // size="9"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
+            >
+              <h3>Selected Parameters:</h3>
+              <div>Variable: {variable}</div>
+              <div>Begin time: {formatDate(beginTime)}</div>
+              <div>End time: {formatDate(endTime)}</div>
+              <div>
+                Coordiantes: {latitude}, {longitude}
+              </div>
             </IonCol>
           </IonRow>
         </IonGrid>

@@ -1,63 +1,23 @@
 [
     {
         "topic": "Atmosphere",
-        "category": "Precipitation",
-        "variable": "Rain",
-        "description": "https://..."
+        "label": "Precipitation",
+        "variable": "GPM_3IMERGHH_07_precipitation"
     },
     {
         "topic": "Atmosphere",
-        "category": "Precipitation",
-        "variable": "Snow",
-        "description": "https://..."
+        "label": "Sea Level Pressure",
+        "variable": "M2T1NXSLV_5_12_4_SLP"
     },
     {
         "topic": "Atmosphere",
-        "category": "Precipitation",
-        "variable": "Sleet",
-        "description": "https://..."
-    },
-    {
-        "topic": "Atmosphere",
-        "category": "Precipitation",
-        "variable": "Hail",
-        "description": "https://..."
-    },
-    {
-        "topic": "Atmosphere",
-        "category": "Water Vapor",
-        "variable": "variable 1",
-        "description": "https://..."
-    },
-    {
-        "topic": "Atmosphere",
-        "category": "Aerosal Properties",
-        "variable": "variable 1",
-        "description": "https://..."
-    },
-    {
-        "topic": "Atmosphere",
-        "category": "Cloud Properties",
-        "variable": "variable 1",
-        "description": "https://..."
-    },
-    {
-        "topic": "Atmosphere",
-        "category": "Trace Gases",
-        "variable": "variable 1",
-        "description": "https://..."
-    },
-    {
-        "topic": "Ocean",
-        "category": "Category 1",
-        "variable": "variable 1",
-        "description": "https://..."
+        "label": "Surface Temperture",
+        "variable": "M2IMNXASM_5_12_4_T2M"
     },
     {
         "topic": "Land",
-        "category": "Category 1",
-        "variable": "variable 1",
-        "description": "https://..."
+        "label": "Groundwater",
+        "variable": "GRACEDADM_CLSM0125US_7D_4_0_gws_inst"
     }
 ]
 

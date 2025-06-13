@@ -1,21 +1,13 @@
 
-import { format } from 'date-fns'
+// import { format } from 'date-fns'
 
 import type {
-    Collection,
-    EndDate,
-    Location,
     MaybeBearerToken,
-    StartDate,
     TimeSeriesData,
     TimeSeriesDataRow,
     TimeSeriesMetadata,
-    Variable,
-    VariableDbEntry,
-    dataParams
+    DataParams,
 } from './time-series.types'
-
-
 
 /**
    * Navigates to a new pathname
@@ -23,10 +15,15 @@ import type {
    */
 const parseTimeSeriesCsv = (text: string) => {
     const lines = text.split('\n')
+
+    // get dates only
+    const dateLines = lines.slice(lines.indexOf("")+2);
+
+    // don't need partial??
     const metadata: Partial<TimeSeriesMetadata> = {}
     const data: TimeSeriesDataRow[] = []
 
-    lines.forEach(line => {
+    dateLines.forEach(line => {
         if (line.includes('=')) {
             const [key, value] = line.split('=')
             metadata[key] = value
@@ -37,13 +34,13 @@ const parseTimeSeriesCsv = (text: string) => {
             }
         }
     })
-    console.log(metadata)
+    console.log("metadata: ", metadata)
     console.log("data: ", data)
 
     return { metadata, data } as TimeSeriesData;
 }
 
-export const fetchData = async (dataParams: dataParams) => {
+export const fetchData = async (dataParams: DataParams) => {
     const bearerToken: MaybeBearerToken = null;
     const {variable, lat, lon, begin_time, end_time} = dataParams;
   
@@ -73,10 +70,10 @@ export const fetchData = async (dataParams: dataParams) => {
         }
 
         const csvData = await response.text();
-        // const parsedData = parseTimeSeriesCsv(csvData);
+        const parsedData = parseTimeSeriesCsv(csvData);
         
         // return response;
-        return csvData;
+        return parsedData;
     } catch (error) {
         console.log(error)
     }

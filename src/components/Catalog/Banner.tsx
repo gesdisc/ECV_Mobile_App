@@ -5,7 +5,7 @@ const Banner: React.FC = () => {
   return (
     <IonGrid>
       <IonRow>
-        <IonCol size="3" style={{ display: "flex", alignItems: "center" }}>
+        <IonCol size="2" style={{ display: "flex", alignItems: "center" }}>
           <img
             src="/assets/gesDiscLogo.png"
             alt="gesDisc Logo"
@@ -13,7 +13,7 @@ const Banner: React.FC = () => {
           />
         </IonCol>
         <IonCol
-          size="9"
+          size="10"
           style={{
             display: "flex",
             flexDirection: "column",
@@ -24,12 +24,12 @@ const Banner: React.FC = () => {
             style={{
               fontSize: "24px",
               fontWeight: "bold",
-              textAlign: "right",
+              textAlign: "left",
             }}
           >
             GES DISC
           </div>
-          <div style={{ fontSize: "14px", textAlign: "right" }}>
+          <div style={{ fontSize: "14px", textAlign: "left" }}>
             Essential Climate Variables
           </div>
         </IonCol>

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
-import { IonContent, IonPage, IonLoading } from "@ionic/react";
+import { IonContent, IonPage } from "@ionic/react";
 
-import { fetchData } from "../../services/api/time-series-exp";
+import { TabMenuLabels } from "../../constants/time-series";
+import { useDataParams } from "../../store/DataParamsContext";
 
 import Header from "../Layout/Header";
 import Banner from "./Banner";
@@ -11,10 +12,12 @@ import Variables from "./Variables";
 import "./Catalog.css";
 
 const Catalog: React.FC = () => {
+  const { setVariable } = useDataParams();
   const history = useHistory();
 
   const variableChangeHandler = (variable: string) => {
-    history.push("/Plot", { variable });
+    setVariable(variable);
+    history.push(`/${TabMenuLabels.Visuals}`);
   };
 
   return (

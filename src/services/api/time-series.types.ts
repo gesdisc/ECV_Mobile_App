@@ -1,18 +1,18 @@
 // ** Copied from CCE codebase - START **
 
-export type Collection = string
-export type Variable = string
-export type StartDate = Date
-export type EndDate = Date
-export type Location = string
+// export type Collection = string
+// export type Variable = string
+// export type StartDate = Date
+// export type EndDate = Date
+// export type Location = string
 
-export type VariableDbEntry = TimeSeriesData & {
-    variableEntryId: string
-    startDate: string
-    endDate: string
-    /** unique key to identify unique record */
-    key: string
-}
+// export type VariableDbEntry = TimeSeriesData & {
+//     variableEntryId: string
+//     startDate: string
+//     endDate: string
+//     /** unique key to identify unique record */
+//     key: string
+// }
 
 export type TimeSeriesData = {
     metadata: TimeSeriesMetadata
@@ -36,33 +36,25 @@ export type TimeSeriesMetadata = {
     [key: string]: string | number
 }
 
-export type MenuNames = 'download' | 'help' | 'information' | null
+// export type MenuNames = 'download' | 'help' | 'information' | null
 
 export type MaybeBearerToken = string | null
 
 // ** Copied from CCE codebase - END **
 
-
-export interface MetaData  {
-  prod_name: string;
-  param_short_name: string;
-  param_name: string;
-  unit: string;
-  begin_time: string;
-  end_time: string;
-  lat: string;
-  lon: string;
-}
-
 export interface CacheData  {
   data: { date: string; value: number }[];
-  metaData: MetaData;
+  metaData: TimeSeriesMetadata;
 }
 
-export type dataParams = {
-  variable: string
-  begin_time: string;
-  end_time: string;
-  lat: number;
-  lon: number;
-};
+export interface LocationState {
+  variable: string | undefined
+}
+
+export type DataParams = {
+  variable: string | LocationState 
+  begin_time: string
+  end_time: string
+  lat: number
+  lon: number
+}

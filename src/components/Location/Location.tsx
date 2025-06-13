@@ -20,7 +20,7 @@ import {
 import L from "leaflet";
 
 import Header from "../Layout/Header";
-import { useLocation } from "../../UpdateLocation";
+import { useDataParams } from "../../store/DataParamsContext";
 
 // Import the marker images
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -38,7 +38,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const Location: React.FC = () => {
-  const { latitude, longitude, setLatitude, setLongitude } = useLocation(); // using custom location hook
+  const { latitude, longitude, setLatitude, setLongitude } = useDataParams(); // using custom location hook
 
   const handleLatChange = (e: CustomEvent) => {
     const newLat = parseFloat(e.detail.value); // get new latitude
