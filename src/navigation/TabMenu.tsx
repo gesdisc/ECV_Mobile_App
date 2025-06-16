@@ -27,47 +27,47 @@ const TabMenu: React.FC = () => (
   <IonReactRouter>
     <IonTabs>
       <IonRouterOutlet>
-        <Route exact path={`/${TabMenuLabels.Catalog}`}>
+        <Route exact path={`/${TabMenuLabels.CATALOG}`}>
           <CatalogPage />
         </Route>
-        <Route exact path={`/${TabMenuLabels.Location}`}>
+        <Route exact path={`/${TabMenuLabels.LOCATION}`}>
           <LocationPage />
         </Route>
-        <Route exact path={`/${TabMenuLabels.Date}`}>
-          {/* <Date /> */}
-        </Route>
-        <Route exact path={`/${TabMenuLabels.Visuals}`}>
+        {/* <Route exact path={`/${TabMenuLabels.Date}`}>
+          <Date />
+        </Route> */}
+        <Route exact path={`/${TabMenuLabels.VISUALS}`}>
           <VisualsPage />
         </Route>
         <Route exact path="/">
-          <Redirect to={`/${TabMenuLabels.Catalog}`} />
+          <Redirect to={`/${TabMenuLabels.CATALOG}`} />
         </Route>
       </IonRouterOutlet>
       <IonTabBar slot="bottom">
         <IonTabButton
-          tab={TabMenuLabels.Catalog}
-          href={`/${TabMenuLabels.Catalog}`}
+          tab={TabMenuLabels.CATALOG}
+          href={`/${TabMenuLabels.CATALOG}`}
         >
           <IonIcon aria-hidden="true" icon={rainyOutline} />
-          <IonLabel>{TabMenuLabels.Catalog}</IonLabel>
+          <IonLabel>{TabMenuLabels.CATALOG}</IonLabel>
         </IonTabButton>
         <IonTabButton
-          tab={TabMenuLabels.Location}
-          href={`/${TabMenuLabels.Location}`}
+          tab={TabMenuLabels.LOCATION}
+          href={`/${TabMenuLabels.LOCATION}`}
         >
           <IonIcon aria-hidden="true" icon={globeOutline} />
-          <IonLabel>{TabMenuLabels.Location}</IonLabel>
+          <IonLabel>{TabMenuLabels.LOCATION}</IonLabel>
         </IonTabButton>
-        <IonTabButton tab={TabMenuLabels.Date} href={`/${TabMenuLabels.Date}`}>
+        {/* <IonTabButton tab={TabMenuLabels.Date} href={`/${TabMenuLabels.Date}`}>
           <IonIcon aria-hidden="true" icon={calendarOutline} />
           <IonLabel>{TabMenuLabels.Date}</IonLabel>
-        </IonTabButton>
+        </IonTabButton> */}
         <IonTabButton
-          tab={TabMenuLabels.Visuals}
-          href={`/${TabMenuLabels.Visuals}`}
+          tab={TabMenuLabels.VISUALS}
+          href={`/${TabMenuLabels.VISUALS}`}
         >
           <IonIcon aria-hidden="true" icon={analyticsOutline} />
-          <IonLabel>{TabMenuLabels.Visuals}</IonLabel>
+          <IonLabel>{TabMenuLabels.VISUALS}</IonLabel>
         </IonTabButton>
       </IonTabBar>
     </IonTabs>

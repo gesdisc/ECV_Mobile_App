@@ -3,7 +3,6 @@ import Plot from "react-plotly.js";
 
 import { TimeSeriesDataRow } from "../../services/api/time-series.types";
 
-// TODO: check props data
 interface TimeSeriesProps {
   //   data: [],
   // metaData: MetaData;
@@ -11,7 +10,6 @@ interface TimeSeriesProps {
 }
 
 const TimeSeries: React.FC<TimeSeriesProps> = ({ metaData }) => {
-  console.log("data from visuals", metaData);
   return (
     <Plot
       data={[

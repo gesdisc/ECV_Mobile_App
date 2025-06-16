@@ -46,7 +46,6 @@ const Visuals: React.FC = () => {
     variable,
     setEndTime,
     setBeginTime,
-    // setVariable,
   } = useDataParams();
 
   // const [data, setData] = useState<{ date: string; value: number }[]>([]);
@@ -56,7 +55,7 @@ const Visuals: React.FC = () => {
   // const [toastMessage, setToastMessage] = useState<string>("");
   // const workerRef = useRef<Worker | null>(null);
   // const [plotReady, setPlotReady] = useState<boolean>(false);
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  // const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   // experimental
   const [expData, setExpData] = useState<TimeSeriesDataRow[] | undefined>([]);
@@ -178,20 +177,12 @@ const Visuals: React.FC = () => {
   //   };
   // }, []);
 
-  const handlePlotData = async () => {
-    // const start = new Date(startDate);
-    // const end = new Date(endDate);
-
-    // if (start > end) {
-    //   setAlertMessage("Your start-date cannot be after the end-date.");
-    //   return;
-    // }
-
-    // fetchData(start, end, false);
+  const plotDataHandler = async () => {
     setExpData([]);
+    setError(null);
+
     try {
       setLoading(true);
-      // setError(null);
       const data = await fetchData({
         variable,
         begin_time: beginTime,
@@ -199,14 +190,14 @@ const Visuals: React.FC = () => {
         lat: latitude,
         lon: longitude,
       });
-      // console.log("visuals: ", data);
+
       // TODO: check if data is empty
       const displayData = data?.data;
       setExpData(displayData);
-      // console.log(data?.data[0].timestamp);
     } catch (error) {
-      //  setError(error.message);
-      console.log("Tab 3 Err: ", error);
+      if (error instanceof Error) {
+        setError(error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -223,80 +214,35 @@ const Visuals: React.FC = () => {
 
   /**
    * @GraphQl
+   * https://mhgvull9sa.execute-api.us-east-1.amazonaws.com/SIT
    */
-  // POST u2u5qu332rhmxpiazjcqz6gkdm.appsync-api.us-east-1.amazonaws.com/graphql
-  // Headers:
-  // Content-Type: application/json
-  // x-api-key: // add api key
-  // Body
-  // {"query":"{\n  getVariables { variables { dataFieldId, dataFieldLongName } } }"}
   // const fetchCatalog = async () => {
   //   // prettier-ignore
   //   const query = {
-  //     "query": "{\n  getVariables { variables { dataFieldId, dataFieldLongName } } }",
+  //     "query":"{\n  getVariables { variables { dataFieldId, dataFieldLongName } } }",
   //   };
   //   const requestOptions = {
   //     method: "POST",
   //     headers: {
   //       "Content-Type": "application/json",
-  //       "x-api-key": // add api key,
+  //       "x-api-key": "",
   //     },
-  //     body: JSON.stringify({ query }),
+  //     // body: "query":"{\n  getVariables { variables { dataFieldId, dataFieldLongName } } }",
+  //     // body: JSON.stringify({ query }),
   //   };
 
   //   try {
   //     console.log("loading catalog data...");
   //     // setError(null);
   //     const response = await fetch(
-  //       "u2u5qu332rhmxpiazjcqz6gkdm.appsync-api.us-east-1.amazonaws.com/graphql",
+  //       "https://mhgvull9sa.execute-api.us-east-1.amazonaws.com/SIT",
   //       requestOptions
   //     );
   //     console.log(response);
   //   } catch (error) {
   //     console.log("Catalog error: ", error);
   //   } finally {
-  //     console.log("catalog data loaded...");
-  //   }
-  // };
-
-  /**
-   * @Data_Rods
-   */
-  // const fetchCatalog = async () => {
-  //   const requestOptions = {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   };
-
-  //   try {
-  //     console.log("loading catalog data...");
-  //     // setError(null);
-  //     const response = await fetch(
-  //       "https://lb.gesdisc.eosdis.nasa.gov/windmill/api/r/website/data-rods-variables"
-  //     );
-  //     const data = await response.json();
-  //     const newCatalogItem = data.response.docs.filter(
-  //       (v) => v["Variable.Id"] == "M2T1NXSLV_5_12_4_SLP"
-  //     );
-  //     console.log(newCatalogItem);
-  //     console.log(newCatalogItem[0]);
-  //     // type catType = {
-  //     //   topic: string;
-  //     //   category: string;
-  //     //   variable: string;
-  //     //   description: string;
-  //     // };
-  //     // const jsonObj: catType[] = catalog;
-  //     // const newJSONCatalog = catalog;
-  //     // console.log(newJSONCatalog);
-  //     // newJSONCatalog.push(newCatalogItem[0]);
-  //     // console.log(newJSONCatalog);
-  //   } catch (error) {
-  //     console.log("Catalog error: ", error);
-  //   } finally {
-  //     console.log("catalog data loaded...");
+  //     // console.log("catalog data loaded...");
   //   }
   // };
 
@@ -316,7 +262,7 @@ const Visuals: React.FC = () => {
           duration={5000}
           onDidDismiss={() => setToastMessage("")}
         /> */}
-        {alertMessage && (
+        {/* {alertMessage && (
           <IonAlert
             isOpen={!!alertMessage}
             header="Alert"
@@ -324,7 +270,7 @@ const Visuals: React.FC = () => {
             buttons={["OK"]}
             onDidDismiss={() => setAlertMessage(null)}
           />
-        )}
+        )} */}
         {/* {plotReady && metaData && data.length > 0 && (
           < TimeSeries />
         )} */}
@@ -333,19 +279,23 @@ const Visuals: React.FC = () => {
           <IonRow>
             <DatePicker
               label="Select Start Date"
-              defaultDate="2009-03-27"
+              defaultDate={beginTime}
               onDateUpdate={beginDateUpdateHandler}
             />
             <DatePicker
               label="Select End Date"
               containerClass="ion-text-end"
-              defaultDate="2010-11-23"
+              defaultDate={endTime}
               onDateUpdate={endDateUpdateHandler}
             />
           </IonRow>
           <IonRow>
             <IonCol>
-              <IonButton expand="block" fill="outline" onClick={handlePlotData}>
+              <IonButton
+                expand="block"
+                fill="outline"
+                onClick={plotDataHandler}
+              >
                 Plot Data
               </IonButton>
             </IonCol>
@@ -355,7 +305,6 @@ const Visuals: React.FC = () => {
         <IonGrid>
           <IonRow>
             <IonCol
-              // size="9"
               style={{
                 display: "flex",
                 flexDirection: "column",

@@ -15,11 +15,11 @@ interface DataParamsContextType {
 }
 
 const initialContextValue: DataParamsContextType = {
-  latitude: DefaultParams.Latitude,
-  longitude: DefaultParams.Longitude,
-  variable: DefaultParams.Variable,
-  beginTime: DefaultParams.Begin_time,
-  endTime: DefaultParams.End_time,
+  latitude: DefaultParams.LATITUDE,
+  longitude: DefaultParams.LONGITUDE,
+  variable: DefaultParams.VARIABLE,
+  beginTime: DefaultParams.BEGIN_TIME,
+  endTime: DefaultParams.END_TIME,
   setLatitude: () => {},
   setLongitude: () => {},
   setVariable: () => {},
@@ -32,11 +32,16 @@ const DataParams = createContext<DataParamsContextType>(initialContextValue);
 export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [latitude, setLatitude] = useState(initialContextValue.latitude);
-  const [longitude, setLongitude] = useState(initialContextValue.longitude);
-  const [variable, setVariable] = useState(initialContextValue.variable);
-  const [beginTime, setBeginTime] = useState(initialContextValue.beginTime);
-  const [endTime, setEndTime] = useState(initialContextValue.endTime);
+  const [latitude, setLatitude] = useState(DefaultParams.LATITUDE);
+  const [longitude, setLongitude] = useState(DefaultParams.LONGITUDE);
+  const [variable, setVariable] = useState(DefaultParams.VARIABLE);
+  const [beginTime, setBeginTime] = useState(DefaultParams.BEGIN_TIME);
+  const [endTime, setEndTime] = useState(DefaultParams.END_TIME);
+
+  // if (start > end) {
+  //   setAlertMessage("Your start-date cannot be after the end-date.");
+  //   return;
+  // }
 
   const contextValue: DataParamsContextType = {
     latitude,

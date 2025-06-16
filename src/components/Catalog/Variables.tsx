@@ -5,6 +5,7 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonListHeader,
 } from "@ionic/react";
 
 import catalog from "./catalog.json";
@@ -12,6 +13,13 @@ import catalog from "./catalog.json";
 interface VariablesProps {
   onVariableChange: (value: string) => void;
 }
+
+// const topics = [
+//   { group: "Atmosphere", subgroups: ["Surface", "Atmospheric Composition"] },
+//   { group: "Land", subgroup: ["Hydrology", "Cryosphere", "Biology"] },
+//   { group: "Ocean", subgroup: "" },
+// ];
+const topics = ["Atmosphere", "Land", "Ocean"];
 
 const Variables: React.FC<VariablesProps> = ({ onVariableChange }) => {
   // const [expanded, setExpanded] = useState<string>("");
@@ -26,26 +34,24 @@ const Variables: React.FC<VariablesProps> = ({ onVariableChange }) => {
   //     }
   //   };
 
-  const topics = ["Atmosphere", "Land"];
-
-  const displayCatalog = topics.map((cat) => {
+  const displayCatalog = topics.map((topic) => {
     return (
-      <IonAccordion key={cat} value={cat}>
+      <IonAccordion key={topic} value={topic}>
         <IonItem slot="header" color="primary">
-          <IonLabel>{cat}</IonLabel>
+          <IonLabel>{topic}</IonLabel>
         </IonItem>
         <IonList slot="content">
           {catalog
-            .filter((obj) => obj.topic === cat)
-            .map((obj) => {
+            .filter((data) => data.group === topic)
+            .map((data) => {
               return (
                 <IonItem
                   button
-                  onClick={handleClick.bind(null, obj.variable)}
-                  key={obj.label}
+                  onClick={handleClick.bind(null, data.dataFieldId)}
+                  key={data.label}
                   color="light"
                 >
-                  <IonLabel>{obj.label}</IonLabel>
+                  <IonLabel>{data.label}</IonLabel>
                 </IonItem>
               );
             })}
