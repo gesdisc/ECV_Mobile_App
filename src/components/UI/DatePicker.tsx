@@ -10,12 +10,16 @@ interface DatePickerProps {
   label: string;
   defaultDate: string;
   containerClass?: string;
+  minDatetimeAllowed?: string;
+  maxDatetimeAllowed?: string;
   onDateUpdate: (date: string) => void;
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({
   label,
   defaultDate,
+  minDatetimeAllowed = "",
+  maxDatetimeAllowed = "",
   containerClass = "",
   onDateUpdate,
 }) => {
@@ -23,7 +27,6 @@ const DatePicker: React.FC<DatePickerProps> = ({
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const datePickHandler = (event: CustomEvent<DatetimeChangeEventDetail>) => {
-    // TODO: check type
     const selectedDate = event.detail.value as string;
     onDateUpdate(selectedDate);
     setDate(selectedDate);
@@ -43,6 +46,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
           presentation="date"
           value={date}
           onIonChange={datePickHandler}
+          max={maxDatetimeAllowed}
+          min={minDatetimeAllowed}
         />
       )}
     </IonCol>

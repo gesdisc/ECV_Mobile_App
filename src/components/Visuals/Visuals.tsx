@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useLocation } from "react-router-dom";
 import axios from "axios";
 import {
   IonContent,
@@ -29,7 +28,7 @@ import {
   CacheData,
   LocationState,
 } from "../../services/api/time-series.types";
-import { formatDate } from "../../utils/Date";
+import { formatDate } from "../../utils/date";
 
 import Header from "../Layout/Header";
 import DatePicker from "../UI/DatePicker";
@@ -55,7 +54,7 @@ const Visuals: React.FC = () => {
   // const [toastMessage, setToastMessage] = useState<string>("");
   // const workerRef = useRef<Worker | null>(null);
   // const [plotReady, setPlotReady] = useState<boolean>(false);
-  // const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   // experimental
   const [expData, setExpData] = useState<TimeSeriesDataRow[] | undefined>([]);
@@ -178,11 +177,11 @@ const Visuals: React.FC = () => {
   // }, []);
 
   const plotDataHandler = async () => {
+    setLoading(true);
     setExpData([]);
     setError(null);
 
     try {
-      setLoading(true);
       const data = await fetchData({
         variable,
         begin_time: beginTime,
@@ -191,8 +190,12 @@ const Visuals: React.FC = () => {
         lon: longitude,
       });
 
-      // TODO: check if data is empty
       const displayData = data?.data;
+
+      if (!Array.isArray(displayData) || !displayData.length) {
+        throw new Error("Couldn't find data!");
+      }
+
       setExpData(displayData);
     } catch (error) {
       if (error instanceof Error) {
@@ -207,44 +210,6 @@ const Visuals: React.FC = () => {
     setBeginTime(selectedDate);
   const endDateUpdateHandler = (selectedDate: string) =>
     setEndTime(selectedDate);
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  /**
-   * @GraphQl
-   * https://mhgvull9sa.execute-api.us-east-1.amazonaws.com/SIT
-   */
-  // const fetchCatalog = async () => {
-  //   // prettier-ignore
-  //   const query = {
-  //     "query":"{\n  getVariables { variables { dataFieldId, dataFieldLongName } } }",
-  //   };
-  //   const requestOptions = {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       "x-api-key": "",
-  //     },
-  //     // body: "query":"{\n  getVariables { variables { dataFieldId, dataFieldLongName } } }",
-  //     // body: JSON.stringify({ query }),
-  //   };
-
-  //   try {
-  //     console.log("loading catalog data...");
-  //     // setError(null);
-  //     const response = await fetch(
-  //       "https://mhgvull9sa.execute-api.us-east-1.amazonaws.com/SIT",
-  //       requestOptions
-  //     );
-  //     console.log(response);
-  //   } catch (error) {
-  //     console.log("Catalog error: ", error);
-  //   } finally {
-  //     // console.log("catalog data loaded...");
-  //   }
-  // };
 
   return (
     <IonPage>
@@ -262,6 +227,15 @@ const Visuals: React.FC = () => {
           duration={5000}
           onDidDismiss={() => setToastMessage("")}
         /> */}
+        {error && (
+          <IonAlert
+            isOpen={!!error}
+            header="Error!"
+            message={error}
+            buttons={["OK"]}
+            onDidDismiss={() => setError(null)}
+          />
+        )}
         {/* {alertMessage && (
           <IonAlert
             isOpen={!!alertMessage}

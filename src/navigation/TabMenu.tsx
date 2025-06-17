@@ -14,7 +14,7 @@ import {
   globeOutline,
   rainyOutline,
   analyticsOutline,
-  calendarOutline,
+  // calendarOutline,
 } from "ionicons/icons";
 
 import { TabMenuLabels } from "../constants/time-series";
