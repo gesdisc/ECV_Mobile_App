@@ -30,7 +30,7 @@ const Banner: React.FC = () => {
             GES DISC
           </div>
           <div style={{ fontSize: "14px", textAlign: "left" }}>
-            Essential Climate Variables
+            Giovanni Mobile
           </div>
         </IonCol>
       </IonRow>

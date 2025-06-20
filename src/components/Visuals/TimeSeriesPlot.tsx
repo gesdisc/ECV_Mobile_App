@@ -1,31 +1,34 @@
 import React from "react";
 import Plot from "react-plotly.js";
-
-import { TimeSeriesDataRow } from "../../services/api/time-series.types";
+import {
+  TimeSeriesDataRow,
+  TimeSeriesMetadata,
+  TimeSeriesData,
+} from "../../services/api/time-series.types";
 
 interface TimeSeriesProps {
-  //   data: [],
-  // metaData: MetaData;
-  metaData: TimeSeriesDataRow[];
+  metadata: TimeSeriesMetadata | undefined;
+  data: TimeSeriesDataRow[];
 }
 
-const TimeSeries: React.FC<TimeSeriesProps> = ({ metaData }) => {
+/**
+ * if metadata/data is undefined, labels on the plot will print undefined
+ */
+const TimeSeriesPlot: React.FC<TimeSeriesProps> = ({ metadata, data }) => {
   return (
     <Plot
       data={[
         {
-          x: metaData.map((d) => d.timestamp),
-          y: metaData.map((d) => d.value),
+          x: data.map((d) => d.timestamp),
+          y: data.map((d) => d.value),
           type: "scatter",
           mode: "lines",
           line: { color: "blue" },
-          // name: metaData.param_short_name || "Precipitation",
+          name: metadata?.param_short_name,
         },
       ]}
       layout={{
-        // title: `${metaData.param_name || "Precipitation"} (${
-        //   metaData.prod_name
-        // })`,
+        title: `${metadata?.param_name} (${metadata?.prod_name})`,
         xaxis: {
           title: "Date & Time",
           rangeslider: { visible: true, bgcolor: "#000" },
@@ -48,9 +51,7 @@ const TimeSeries: React.FC<TimeSeriesProps> = ({ metaData }) => {
           },
         },
         yaxis: {
-          // title: `${metaData.param_short_name || "Precipitation"} (${
-          //   metaData.unit || "mm/hr"
-          // })`,
+          title: `${metadata?.param_short_name} (${metadata?.unit})`,
         },
         showlegend: true,
         legend: { x: 0, y: 1 },
@@ -62,7 +63,7 @@ const TimeSeries: React.FC<TimeSeriesProps> = ({ metaData }) => {
             xanchor: "left",
             y: 1,
             yanchor: "bottom",
-            // text: `Lat: ${metaData.lat}, Lon: ${metaData.lon}`,
+            text: `Lat: ${metadata?.lat}, Lon: ${metadata?.lon}`,
             showarrow: false,
           },
         ],
@@ -74,4 +75,4 @@ const TimeSeries: React.FC<TimeSeriesProps> = ({ metaData }) => {
   );
 };
 
-export default TimeSeries;
+export default TimeSeriesPlot;

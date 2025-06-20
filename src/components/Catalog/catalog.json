@@ -89,7 +89,7 @@
         "dataFieldUnits": "m s-1",
         "dataProductDescriptionUrl": "https://disc.gsfc.nasa.gov/datacollection/M2T1NXFLX_5.12.4.html",
         "dataFieldDescriptionUrl": "https://disc.gsfc.nasa.gov/information/glossary?keywords=giovanni%20measurements&title=Giovanni%20Measurement%20Definitions%3A%20Wind",
-        "label": "Mean Wind Spead",
+        "label": "Mean Wind Speed",
         "param": "surface wind speed time averaged",
         "group": "Atmosphere",
         "subgroup": "Surface"
