@@ -3,7 +3,6 @@ import Plot from "react-plotly.js";
 import {
   TimeSeriesDataRow,
   TimeSeriesMetadata,
-  TimeSeriesData,
 } from "../../services/api/time-series.types";
 
 interface TimeSeriesProps {
@@ -11,9 +10,6 @@ interface TimeSeriesProps {
   data: TimeSeriesDataRow[];
 }
 
-/**
- * if metadata/data is undefined, labels on the plot will print undefined
- */
 const TimeSeriesPlot: React.FC<TimeSeriesProps> = ({ metadata, data }) => {
   return (
     <Plot
@@ -24,14 +20,16 @@ const TimeSeriesPlot: React.FC<TimeSeriesProps> = ({ metadata, data }) => {
           type: "scatter",
           mode: "lines",
           line: { color: "blue" },
-          name: metadata?.param_short_name,
+          name: metadata?.param_short_name || "",
         },
       ]}
       layout={{
-        title: `${metadata?.param_name} (${metadata?.prod_name})`,
+        title: metadata?.param_name
+          ? `${metadata?.param_name} (${metadata?.prod_name})`
+          : "Select a variable to plot.",
         xaxis: {
           title: "Date & Time",
-          rangeslider: { visible: true, bgcolor: "#000" },
+          // rangeslider: { visible: true, bgcolor: "blue" },
           rangeselector: {
             buttons: [
               {
@@ -51,7 +49,9 @@ const TimeSeriesPlot: React.FC<TimeSeriesProps> = ({ metadata, data }) => {
           },
         },
         yaxis: {
-          title: `${metadata?.param_short_name} (${metadata?.unit})`,
+          title: metadata?.param_short_name
+            ? `${metadata?.param_short_name} (${metadata?.unit})`
+            : "",
         },
         showlegend: true,
         legend: { x: 0, y: 1 },
@@ -63,7 +63,10 @@ const TimeSeriesPlot: React.FC<TimeSeriesProps> = ({ metadata, data }) => {
             xanchor: "left",
             y: 1,
             yanchor: "bottom",
-            text: `Lat: ${metadata?.lat}, Lon: ${metadata?.lon}`,
+            text:
+              metadata?.lat && metadata?.lon
+                ? `Lat: ${metadata?.lat}, Lon: ${metadata?.lon}`
+                : "",
             showarrow: false,
           },
         ],

@@ -54,10 +54,6 @@ const Visuals: React.FC = () => {
   // const [plotReady, setPlotReady] = useState<boolean>(false);
   // const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
-  // const [timeSeriesData, setTimeSeriesData] = useState<
-  //   TimeSeriesDataRow[] | undefined
-  // >([]);
-
   const currentVariableData = catalog.find(
     (data) => data.dataFieldId === variable
   );
@@ -186,20 +182,10 @@ const Visuals: React.FC = () => {
   //   };
   // }, []);
 
-  // const abortRequestHandler = () => {
-  //   controller.abort();
-  //   console.log("canceled");
-  // };
-  // const controller = new AbortController();
-
   const cancelRequest = () =>
     abortController.current && abortController.current.abort();
 
   const plotDataHandler = async () => {
-    // console.log("Using: _________");
-    // console.log("variable: ", variable);
-    // console.log("enddate: ", endTime);
-    // console.log("begin time: ", beginTime);
     setIsLoading(true);
     setData([]);
     setMetaData(undefined);
@@ -218,14 +204,8 @@ const Visuals: React.FC = () => {
         abortController.current.signal
       );
 
-      console.log("data in visuals: ", data);
       const plotData = data?.data;
       const meta = data?.metadata;
-
-      // if (controller.signal.aborted) {
-      //   console.log("aborted");
-      //   return;
-      // }
 
       if (!Array.isArray(plotData) || !plotData.length) {
         throw new Error("Couldn't Find Data!");
@@ -235,10 +215,6 @@ const Visuals: React.FC = () => {
       setData(plotData);
     } catch (error) {
       if (error instanceof Error) {
-        if (error.name === "AbortError") {
-          console.log("Request canceled by User");
-        }
-
         setError(error.message);
       }
     } finally {
@@ -255,15 +231,8 @@ const Visuals: React.FC = () => {
     <IonPage>
       <Header title="Time Series Data" />
       <IonContent className="ion-padding">
-        {/* <IonLoading
-          isOpen={isLoading}
-          message={"Loading..."}
-          spinner="circles"
-          cssClass="custom-loading"
-        /> */}
         <IonAlert
           isOpen={isLoading}
-          // header="Loading..."
           trigger="present-alert"
           buttons={[
             {
@@ -275,13 +244,11 @@ const Visuals: React.FC = () => {
             },
           ]}
           message="Loading, please wait..."
-          onDidDismiss={({ detail }) =>
-            console.log(`Dismissed with role: ${detail.role}`)
-          }
+          backdropDismiss={false}
         ></IonAlert>
         {error && (
           <IonAlert
-            isOpen={!!error}
+            isOpen={abortController.current?.signal.aborted ? false : !!error}
             header="Error!"
             message={error}
             buttons={["OK"]}
@@ -297,10 +264,7 @@ const Visuals: React.FC = () => {
             onDidDismiss={() => setAlertMessage(null)}
           />
         )} */}
-        {/* {plotReady && metaData && data.length > 0 && (
-          < TimeSeriesPlot />
-        )} */}
-        {data && <TimeSeriesPlot metadata={metaData} data={data} />}
+        {<TimeSeriesPlot metadata={metaData} data={data} />}
         <IonGrid>
           <IonRow>
             <DatePicker
