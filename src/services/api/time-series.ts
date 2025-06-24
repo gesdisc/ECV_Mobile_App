@@ -36,7 +36,7 @@ const handleApiError = (response: Response): string => {
     return errorMessage;
 }
 
-export const fetchData = async (dataParams: DataParams, signal: AbortSignal) => {
+export const fetchData = async (dataParams: DataParams, signal?: AbortSignal) => {
     const bearerToken: MaybeBearerToken = null;
     const { variable, lat, lon, begin_time, end_time } = dataParams;
     // URL https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=M2T1NXSLV_5_12_4_V50M&lat=40&lon=120&time_start=2024-03-05T00%3A00%3A00&time_end=2024-03-06T00%3A00%3A00
