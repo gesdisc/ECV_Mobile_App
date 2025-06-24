@@ -78,7 +78,7 @@ const Tab3: React.FC = () => {
     try {
       const url = 'http://localhost:9000/hydro1/daac-bin/access/timeseries.cgi';
       const params = {
-        variable: 'GPM:GPM_3IMERGHH_06:precipitationCal',
+        variable: 'GPM:GPM_3IMERGHH_07:precipitationCal',
         startDate: start.toISOString().split('T')[0] + 'T00',
         endDate: end.toISOString().split('T')[0] + 'T00',
         location: `GEOM:POINT(${longitude || defaultLongitude},%20${latitude || defaultLatitude})`,
@@ -91,7 +91,7 @@ const Tab3: React.FC = () => {
       const response = await axios.get(fullRequestUrl);
       console.log('API response:', response.data);
 
-      if (response.data.includes('Metadata for Requested Time Series: prod_name=GPM_3IMERGHH_06 param_short_name=precipitationCal param_name= unit=')) {
+      if (response.data.includes('Metadata for Requested Time Series: prod_name=GPM_3IMERGHH_07 param_short_name=precipitationCal param_name= unit=')) {
         setData([]);
         setMetaData(null);
       } else if (workerRef.current) {

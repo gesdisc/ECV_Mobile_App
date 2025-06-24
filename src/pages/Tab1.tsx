@@ -33,7 +33,7 @@ const Tab1: React.FC = () => {
         "http://localhost:9000/hydro1/daac-bin/access/timeseries.cgi",
         {
           params: {
-            variable: "GPM:GPM_3IMERGHH_06:precipitationCal",
+            variable: "GPM:GPM_3IMERGHH_07:precipitationCal",
             // variable,
             startDate: "2009-03-27T00",
             endDate: "2010-11-23T00",
@@ -110,7 +110,7 @@ const Tab1: React.FC = () => {
                 GES DISC
               </div>
               <div style={{ fontSize: "14px", textAlign: "right" }}>
-                Essential Climate Variables
+                Giovanni Mobile
               </div>
             </IonCol>
           </IonRow>
