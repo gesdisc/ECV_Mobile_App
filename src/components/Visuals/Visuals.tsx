@@ -73,88 +73,84 @@ const Visuals: React.FC = () => {
     (data) => data.dataFieldId === variable
   );
 
-  // const fetchOldData = async (start: Date, end: Date, useCache = true) => {
-  //   const cacheKey = `CapacitorStorage.plotData_${start.toISOString()}_${end.toISOString()}_${
-  //     latitude || defaultLatitude
-  //   }_${longitude || defaultLongitude}_data`;
-  //   console.log("cacheKey: ", cacheKey);
-  //   const status = await Network.getStatus();
-  //   const isOffline = !status.connected;
+  const fetchOldData = async (useCache = true) => {
+    const cacheKey = `CapacitorStorage.plotData_${new Date(
+      beginTime
+    ).toISOString()}_${new Date(endTime).toISOString()}_${
+      latitude || defaultLatitude
+    }_${longitude || defaultLongitude}_data`;
+    console.log("cacheKey: ", cacheKey);
+    const status = await Network.getStatus();
+    const isOffline = !status.connected;
 
-  //   if (useCache || isOffline) {
-  //     console.log("Checking local storage for cached data with key:", cacheKey);
-  //     const cachedData = await getItem(cacheKey);
-  //     if (cachedData) {
-  //       console.log("Using cached data.");
-  //       setData(cachedData.data);
-  //       setMetaData(cachedData.metaData);
-  //       setPlotReady(true);
-  //       return;
-  //     } else {
-  //       console.log("No cached data found.");
-  //       if (isOffline) {
-  //         setAlertMessage(
-  //           "You are offline and no cached data is available to plot."
-  //         );
-  //       }
-  //     }
-  //   }
+    if (useCache || isOffline) {
+      console.log("Checking local storage for cached data with key:", cacheKey);
+      const cachedData = await getItem(cacheKey);
+      if (cachedData) {
+        console.log("Using cached data.");
+        setData(cachedData.data);
+        setMetaData(cachedData.metaData);
+        // setPlotReady(true);
+        return;
+      } else {
+        console.log("No cached data found.");
+        if (isOffline) {
+          setAlertMessage(
+            "You are offline and no cached data is available to plot."
+          );
+        }
+      }
+    }
 
-  //   if (isOffline) {
-  //     return;
-  //   }
+    if (isOffline) {
+      return;
+    }
 
-  //   console.log("Fetching data with the following parameters:");
-  //   console.log("Latitude:", latitude || defaultLatitude);
-  //   console.log("Longitude:", longitude || defaultLongitude);
-  //   console.log("Start Date:", start.toISOString());
-  //   console.log("End Date:", end.toISOString());
+    // console.log("Fetching data with the following parameters:");
+    // console.log("Latitude:", latitude || defaultLatitude);
+    // console.log("Longitude:", longitude || defaultLongitude);
+    // console.log("Start Date:", start.toISOString());
+    // console.log("End Date:", end.toISOString());
 
-  //   // Online???
-  //   setIsLoading(true);
-  //   setError(null);
-  //   try {
+    // Online???
+    setIsLoading(true);
+    setError(null);
+    try {
+      const bearerToken = null;
+      // const { variable, lat, lon, begin_time, end_time } = dataParams;
+      // URL https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=M2T1NXSLV_5_12_4_V50M&lat=40&lon=120&time_start=2024-03-05T00%3A00%3A00&time_end=2024-03-06T00%3A00%3A00
+      const url = `https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=${variable}&lat=${latitude}&lon=${longitude}&time_start=${beginTime}&time_end=${endTime}`;
 
-  //     const url = "http://localhost:9000/hydro1/daac-bin/access/timeseries.cgi";
-  //     const params = {
-  //       variable: "GPM:GPM_3IMERGHH_06:precipitationCal",
-  //       startDate: start.toISOString().split("T")[0] + "T00",
-  //       endDate: end.toISOString().split("T")[0] + "T00",
-  //       location: `GEOM:POINT(${longitude || defaultLongitude},%20${
-  //         latitude || defaultLatitude
-  //       })`,
-  //       type: "asc2",
-  //     };
+      const response = await fetch(url, {
+        mode: "cors",
+        // signal,
+        headers: {
+          Accept: "application/json",
+          ...(bearerToken ? { Authorization: `Bearer: ${bearerToken}` } : {}),
+        },
+      });
 
-  //     const fullRequestUrl = `${url}?variable=${params.variable}&startDate=${params.startDate}&endDate=${params.endDate}&location=${params.location}&type=${params.type}`;
-  //     // console.log('Request URL:', fullRequestUrl);
+      if (!response.ok) throw new Error("NEW API: failed to fetch");
 
-  //     const response = await axios.get(fullRequestUrl);
-  //     console.log('API response:', response);
+      const csvData = await response.text();
+      console.log(csvData);
 
-  //     if (
-  //       response.data.includes(
-  //         "Metadata for Requested Time Series: prod_name=GPM_3IMERGHH_06 param_short_name=precipitationCal param_name= unit="
-  //       )
-  //     ) {
-  //       setData([]);
-  //       setMetaData(undefined);
-  //     } else if (workerRef.current) {
-  //       console.log("data posted using workerRef: ", response.data)
-  //       workerRef.current.postMessage(response.data);
-  //     }
-  //   } catch (err) {
-  //     if (err instanceof Error) {
-  //       console.error("Error fetching data:", err);
-  //       setError(err.message);
-  //     } else {
-  //       console.error("Unexpected error", err);
-  //       setError("An unexpected error occurred");
-  //     }
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+      if (workerRef.current) {
+        console.log("data posted using workerRef: ", csvData);
+        workerRef.current.postMessage(csvData);
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error("Error fetching data:", err);
+        setError(err.message);
+      } else {
+        console.error("Unexpected error", err);
+        setError("An unexpected error occurred");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   /**
    * The app should check the cached data first (on mount)
@@ -180,10 +176,6 @@ const Visuals: React.FC = () => {
       }
     };
 
-    checkCacheOnMount();
-  }, []);
-
-  useEffect(() => {
     /**
      * dataWorker.js formats CSV data in the background using Web Worker
      * more: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
@@ -191,7 +183,7 @@ const Visuals: React.FC = () => {
 
     if (typeof Worker !== "undefined") {
       workerRef.current = new Worker(
-        new URL("./dataWorker.js", import.meta.url)
+        new URL("./dataWorker.ts", import.meta.url)
       );
       console.log(workerRef.current);
       workerRef.current.onmessage = (e) => {
@@ -200,86 +192,89 @@ const Visuals: React.FC = () => {
         const { metaData, data } = e.data;
         console.log("Worker data:", data);
         console.log("Worker metaData:", metaData);
-        // setMetaData(metaData);
-        // setData(data);
-        // const cacheKey = `CapacitorStorage.plotData_recent_data`;
-        // clearOldCache().then(() => {
-        //   console.log("setting data: ", data);
-        //   setItem(cacheKey, { data, metaData });
-        //   // setPlotReady(true);
-        // });
+        setMetaData(metaData);
+        setData(data);
+        const cacheKey = `CapacitorStorage.plotData_recent_data`;
+        clearOldCache().then(() => {
+          console.log("setting data: ", data);
+          setItem(cacheKey, { data, metaData });
+          // setPlotReady(true);
+        });
+      };
+
+      checkCacheOnMount();
+
+      return () => {
+        if (workerRef.current) {
+          workerRef.current.terminate();
+        }
       };
     }
-
-    return () => {
-      if (workerRef.current) {
-        workerRef.current.terminate();
-      }
-    };
   }, []);
 
-  //  const handlePlotData = () => {
-  //   const start = new Date(beginTime);
-  //   const end = new Date(endTime);
+  const handlePlotData = () => {
+    // const start = new Date(beginTime);
+    // const end = new Date(endTime);
 
-  //   if (start > end) {
-  //     setAlertMessage("Your start-date cannot be after the end-date.");
-  //     return;
-  //   }
+    // if (start > end) {
+    //   setAlertMessage("Your start-date cannot be after the end-date.");
+    //   return;
+    // }
 
-  //   console.log('Plot data clicked: Fetching data...');
-  //   fetchOldData(start, end, false);
-  // };
+    console.log("Plot data clicked: Fetching data...");
+    fetchOldData(false);
+  };
 
   const cancelRequest = () =>
     abortController.current && abortController.current.abort();
 
-  const plotDataHandler = async () => {
-    const status = await Network.getStatus();
-    const isOffline = !status.connected;
-    setIsLoading(true);
-    setData([]);
-    setMetaData(undefined);
-    setError(null);
-    abortController.current = new AbortController();
+  // const fetchOldData = async () => {
+  //   const status = await Network.getStatus();
+  //   const isOffline = !status.connected;
+  //   setIsLoading(true);
+  //   setData([]);
+  //   setMetaData(undefined);
+  //   setError(null);
+  //   abortController.current = new AbortController();
 
-    if (!isOffline) {
-      try {
-        const data = await fetchData(
-          {
-            variable,
-            begin_time: beginTime,
-            end_time: endTime,
-            lat: latitude,
-            lon: longitude,
-          },
-          abortController.current.signal
-        );
+  //   if (!isOffline) {
+  //     try {
+  //       const data = await fetchData(
+  //         {
+  //           variable,
+  //           begin_time: beginTime,
+  //           end_time: endTime,
+  //           lat: latitude,
+  //           lon: longitude,
+  //         },
+  //         abortController.current.signal
+  //       );
 
-        const plotData = data?.data;
-        const meta = data?.metadata;
+  //       const plotData = data?.data;
+  //       const meta = data?.metadata;
 
-        if (!Array.isArray(plotData) || !plotData.length) {
-          throw new Error("Couldn't Find Data!");
-        }
+  //       if (!Array.isArray(plotData) || !plotData.length) {
+  //         throw new Error("Couldn't Find Data!");
+  //       }
 
-        setMetaData(meta);
-        setData(plotData);
-      } catch (error) {
-        if (error instanceof Error) {
-          setError(error.message);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
+  //       setMetaData(meta);
+  //       setData(plotData);
+  //     } catch (error) {
+  //       if (error instanceof Error) {
+  //         setError(error.message);
+  //       }
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   }
+  // };
 
   const beginDateUpdateHandler = (selectedDate: string) =>
     setBeginTime(selectedDate);
   const endDateUpdateHandler = (selectedDate: string) =>
     setEndTime(selectedDate);
-
+  console.log("metaData: ", metaData);
+  console.log("data: ", data);
   return (
     <IonPage>
       <Header title="Time Series Data" />
@@ -341,7 +336,7 @@ const Visuals: React.FC = () => {
               <IonButton
                 expand="block"
                 fill="outline"
-                onClick={plotDataHandler}
+                onClick={handlePlotData}
                 disabled={isLoading}
               >
                 {isLoading ? "Wait..." : "Plot Data"}
