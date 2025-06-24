@@ -1,4 +1,5 @@
 self.onmessage = function (e) {
+  console.log("worker runss!!!")
   const rawData = e.data;
   const lines = rawData.split('\n').map((line) => line.trim()).filter((line) => line);
   const dataIndex = lines.findIndex((line) => line.startsWith('Date&Time'));
