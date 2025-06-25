@@ -1,19 +1,3 @@
-// ** Copied from CCE codebase - START **
-
-// export type Collection = string
-// export type Variable = string
-// export type StartDate = Date
-// export type EndDate = Date
-// export type Location = string
-
-// export type VariableDbEntry = TimeSeriesData & {
-//     variableEntryId: string
-//     startDate: string
-//     endDate: string
-//     /** unique key to identify unique record */
-//     key: string
-// }
-
 export type TimeSeriesData = {
     metadata: TimeSeriesMetadata
     data: TimeSeriesDataRow[]
@@ -37,8 +21,6 @@ export type TimeSeriesMetadata = {
 }
 
 export type MaybeBearerToken = string | null
-
-// ** Copied from CCE codebase - END **
 
 export interface CacheData  {
   data: { date: string; value: number }[];

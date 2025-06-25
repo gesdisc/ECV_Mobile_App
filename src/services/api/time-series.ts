@@ -1,10 +1,9 @@
 
-import { parseTimeSeriesCsv } from '../../utils/time-series';
-
+import { parseTimeSeriesCsv } from '../../helpers/time-series';
 import type {
     MaybeBearerToken,
     DataParams,
-} from './time-series.types'
+} from '../../types/time-series.types'
 
 const handleApiError = (response: Response): string => {
     const statusCode = response.status;
@@ -70,7 +69,7 @@ export const fetchData = async (dataParams: DataParams, signal?: AbortSignal) =>
 }
 
 /**
- * fetching data from graphql
+ * fetching graphql data
  */
 // pass variable id
 // {"query":"{\n  getVariables(variableEntryIds: [\"OMAERUVd_003_FinalAerosolAbsOpticalDepth388\"]) { variables { dataFieldId, dataFieldLongName } } }"}

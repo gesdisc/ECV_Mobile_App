@@ -1,30 +1,21 @@
-import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import React, { useState, useRef } from "react";
 import {
   IonContent,
   IonPage,
   IonButton,
-  IonLoading,
   IonAlert,
   IonGrid,
   IonRow,
   IonCol,
 } from "@ionic/react";
-import { useDataParams } from "../../store/DataParamsContext";
-import { setItem, getItem, clearOldCache } from "../../services/indexDBService";
-import { Network } from "@capacitor/network";
-
-import { fetchData } from "../../services/api/time-series";
 
 import {
   TimeSeriesDataRow,
-  TimeSeriesData,
   TimeSeriesMetadata,
-  CacheData,
-  LocationState,
-} from "../../services/api/time-series.types";
+} from "../../types/time-series.types";
+import { useDataParams } from "../../store/DataParamsContext";
+import { fetchData } from "../../services/api/time-series";
 import { formatDate } from "../../utils/date";
-
 import catalog from "../Catalog/catalog.json";
 
 import Header from "../Layout/Header";
@@ -303,15 +294,6 @@ const Visuals: React.FC = () => {
             onDidDismiss={() => setError(null)}
           />
         )}
-        {/* {alertMessage && (
-          <IonAlert
-            isOpen={!!alertMessage}
-            header="Alert"
-            message={alertMessage}
-            buttons={["OK"]}
-            onDidDismiss={() => setAlertMessage(null)}
-          />
-        )} */}
         {<TimeSeriesPlot metadata={metaData} data={data} />}
         <IonGrid>
           <IonRow>
