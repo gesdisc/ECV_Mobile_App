@@ -1,12 +1,5 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  // useEffect,
-} from "react";
+import React, { createContext, useContext, useState, ReactNode } from "react";
 import { DefaultParams } from "../constants/time-series";
-// import catalog from "../components/Catalog/catalog.json";
 
 interface DataParamsContextType {
   latitude: number;
@@ -60,7 +53,7 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   // );
 
   /**
-   * @BUG
+   * FIXME:
    * 1. select date
    * 2. change variable
    * 3. Date-picker UI will reflect the change and update the date
@@ -72,7 +65,7 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
    */
 
   /**
-   * @Check if default begin time is before the selected (or default) variable begin time
+   * if default begin time is before the selected (or default) variable begin time
    */
   // const defaultBeginTime = (
   //   new Date(DefaultParams.BEGIN_TIME) <
@@ -82,7 +75,7 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   // ) as string;
 
   /**
-   * @Check if default end time is after the selected (or default) variable end time
+   * if default end time is after the selected (or default) variable end time
    */
   // const defaultEndTime = (
   //   new Date(DefaultParams.END_TIME) >
@@ -96,7 +89,7 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   // console.log("correct Time: __________");
 
   /**
-   * @BUG
+   * FIXME:
    * 1. select date
    * 2. change variable
    * selected date remains the same in date-picker UI

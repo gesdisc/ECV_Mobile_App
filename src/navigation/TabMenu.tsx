@@ -17,7 +17,7 @@ import {
   // calendarOutline,
 } from "ionicons/icons";
 
-import { TabMenuLabels } from "../constants/time-series";
+import { TabMenuLabels } from "../constants/ui";
 
 import CatalogPage from "../pages/CatalogPage";
 import LocationPage from "../pages/LocationPage";

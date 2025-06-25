@@ -3,7 +3,7 @@ import Plot from "react-plotly.js";
 import {
   TimeSeriesDataRow,
   TimeSeriesMetadata,
-} from "../../services/api/time-series.types";
+} from "../../types/time-series.types";
 
 interface TimeSeriesProps {
   metadata: TimeSeriesMetadata | undefined;
