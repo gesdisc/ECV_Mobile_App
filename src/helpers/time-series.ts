@@ -34,6 +34,6 @@ export const parseTimeSeriesCsv = (csvData: string) => {
             data.push({ timestamp, value})
          }
     })
-
+    
     return { metadata, data } as TimeSeriesData;
 }

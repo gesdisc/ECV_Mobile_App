@@ -1,5 +1,5 @@
 
-import { parseTimeSeriesCsv } from '../../helpers/time-series';
+// import { parseTimeSeriesCsv } from '../../helpers/time-series';
 import type {
     MaybeBearerToken,
     DataParams,
@@ -29,7 +29,7 @@ const handleApiError = (response: Response): string => {
         errorMessage = `Server Error (${statusCode}): Please try again later.`;
     } else {
         // Other unexpected status codes
-        errorMessage = `Failed to fetch time series data ${statusCode}.`
+        errorMessage = `Failed to fetch time series data ${statusCode}.`;
     }
 
     return errorMessage;
@@ -57,9 +57,9 @@ export const fetchData = async (dataParams: DataParams, signal?: AbortSignal) =>
         if (!response.ok) throw new Error(handleApiError(response))
 
         const csvData = await response.text();
-        const parsedData = parseTimeSeriesCsv(csvData);
+        // const parsedData = parseTimeSeriesCsv(csvData);
 
-        return parsedData;
+        return csvData;
 
     } catch (error) {
         if (error instanceof Error) {
