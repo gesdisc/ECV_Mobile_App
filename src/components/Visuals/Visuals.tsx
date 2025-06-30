@@ -10,7 +10,14 @@ import {
 } from "@ionic/react";
 import { Network } from "@capacitor/network";
 
-import { setItem, getItem, clearOldCache } from "../../services/indexDBService";
+import {
+  setItem,
+  getItem,
+  clearOldCache,
+  removeItem,
+  setRecentDataKey,
+  getRecentDataKey,
+} from "../../services/indexDBService";
 import {
   TimeSeriesDataRow,
   TimeSeriesMetadata,
@@ -29,6 +36,7 @@ import TimeSeriesPlot from "./TimeSeriesPlot";
 import "./Plot.css";
 
 import { parseTimeSeriesCsv } from "../../helpers/time-series";
+import useCheckIndexedDBUsage from "../../hooks/useCheckIndexedDBUsage";
 
 /**
  * IndexDB API: a low-level API for client-side storage of significant amounts of structured data
@@ -50,19 +58,30 @@ const Visuals: React.FC = () => {
     setBeginTime,
   } = useDataParams();
   const abortController = useRef<AbortController | null>(null);
+  const workerRef = useRef<Worker | null>(null);
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
   const [stateMetadata, setStateMetaData] = useState<
     TimeSeriesMetadata | undefined
   >(undefined);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const workerRef = useRef<Worker | null>(null);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
-
+  const RECENT_DATA_CACHE_KEY = `CapacitorStorage.plotData_recent_data`;
+  const PLOT_DATA_CACHE_KEY = `CapacitorStorage.plotData_${variable}_${beginTime}_${endTime}_${latitude}_${longitude}_data`;
   const currentVariableData = catalog.find(
     (data) => data.dataFieldId === variable
   );
 
+  const {
+    totalSpace,
+    usedSpace,
+    error: indexedDBUsageError,
+  } = useCheckIndexedDBUsage();
+  console.log(
+    "Approx used space %:",
+    usedSpace && totalSpace && (usedSpace / totalSpace) * 100,
+    "%"
+  );
   const cancelRequest = () =>
     abortController.current && abortController.current.abort();
 
@@ -72,58 +91,24 @@ const Visuals: React.FC = () => {
   const endDateUpdateHandler = (selectedDate: string) =>
     setEndTime(selectedDate);
 
-  const getChunkOfData = (
-    data: TimeSeriesDataRow[]
-  ): Array<TimeSeriesDataRow> => {
-    let chunkOfData: TimeSeriesDataRow[] = [];
-    chunkOfData = data.filter(
-      (varData) =>
-        new Date(varData.timestamp).getTime() >=
-          new Date(beginTime).getTime() &&
-        new Date(varData.timestamp).getTime() <= new Date(endTime).getTime()
-    );
-
-    return chunkOfData;
+  const replaceRecentCachedData = (cachedData: TimeSeriesData) => {
+    setStateMetaData(cachedData.metadata);
+    setStateData(cachedData.data);
+    setRecentDataKey(RECENT_DATA_CACHE_KEY, PLOT_DATA_CACHE_KEY).then(() => {
+      console.log("successfluy replaced old 'Recent Data'");
+    });
   };
 
-  /**
-   * Plot Data clicked
-   * check if variable exists
-   *    if yes check if date range exists in the variable
-   *      if yes vis the data
-   *      if not send API request and get the chunk of data that doesn't exist in variable and store the new data
-   *    if not store with variable id and vis
-   *
-   * Plot Data clicked
-   *    check if variable exists in the storage
-   *        if yes vis. the data based on selected date range
-   *        if not fetch the entire dataset, store the data and vis. the selected date range
-   *
-   */
   const handlePlotData = async (useCache = true) => {
     const status = await Network.getStatus();
     const isOffline = !status.connected;
 
-    const cacheKey = `CapacitorStorage.plotData_${beginTime}_${endTime}_${latitude}_${longitude}_data`;
-
+    // should check the recent data first
     if (useCache || isOffline) {
-      // console.log("Checking local storage for cached data with key:", cacheKey);
-      const cachedData = await getItem(cacheKey);
-      // console.log(cachedData);
-      // if (cachedData) {
-      //   setStateData(getChunkOfData(cachedData.data));
-      //   setStateMetaData(cachedData.metadata);
-      //   return;
-      // }
-
-      /**
-       *
-       */
+      const cachedData = await getItem(PLOT_DATA_CACHE_KEY);
 
       if (cachedData) {
-        console.log("Using cached data with cachekey: ", cacheKey);
-        setStateData(cachedData.data);
-        setStateMetaData(cachedData.metadata);
+        replaceRecentCachedData(cachedData);
         return;
       } else {
         console.log("No cached data found.");
@@ -139,9 +124,9 @@ const Visuals: React.FC = () => {
       return;
     }
 
+    // setStateData([]);
+    // setStateMetaData(undefined);
     setIsLoading(true);
-    setStateData([]);
-    setStateMetaData(undefined);
     setError(null);
 
     try {
@@ -160,31 +145,19 @@ const Visuals: React.FC = () => {
         abortController.current.signal
       );
 
-      if (csvData) {
-        const { metadata, data } = parseTimeSeriesCsv(csvData);
-        await setItem(cacheKey, { metadata, data });
-        let chunkOfData: TimeSeriesDataRow[] = [];
-        // timestamp is between the selected dates
-        chunkOfData = data.filter(
-          (varData) =>
-            varData.timestamp >= beginTime && varData.timestamp <= endTime
-        );
-        setStateData(chunkOfData);
-        setStateMetaData(metadata);
-      }
-
-      // caching newely received data??
-      // if (workerRef.current) {
-      //   console.log("data posted using workerRef: ", csvData);
-      //   workerRef.current.postMessage(csvData);
+      // if (csvData) {
+      //   const { metadata, data } = parseTimeSeriesCsv(csvData);
+      //   await setItem(cacheKey, { metadata, data });
+      //   setStateData(data);
+      //   setStateMetaData(metadata);
       // }
 
-      //       const plotData = data?.data;
-      //       const meta = data?.metadata;
-
-      //       if (!Array.isArray(plotData) || !plotData.length) {
-      //         throw new Error("Couldn't Find Data!");
-      //       }
+      // caching newely received data??
+      // this takes care of state update??
+      if (workerRef.current) {
+        console.log("data posted using workerRef: ", csvData);
+        workerRef.current.postMessage(csvData);
+      }
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -200,50 +173,63 @@ const Visuals: React.FC = () => {
   /**
    * Plot the latest cached data
    */
-  // useEffect(() => {
-  //   const checkCacheOnMount = async () => {
-  //     const cacheKey = `CapacitorStorage.plotData_recent_data`;
-  //     // console.log("Checking cache on mount with key:", cacheKey);
+  useEffect(() => {
+    const checkCacheOnMount = async () => {
+      const recentCachedDataKey = await getRecentDataKey(RECENT_DATA_CACHE_KEY);
+      const recentCachedData =
+        recentCachedDataKey && (await getItem(recentCachedDataKey));
 
-  //     const cachedData = await getItem(cacheKey);
+      if (recentCachedData) {
+        setStateData(recentCachedData.data);
+        setStateMetaData(recentCachedData.metadata);
+      } else {
+        console.log("No cached data found.");
+      }
+    };
 
-  //     if (cachedData) {
-  //       setStateData(cachedData.data);
-  //       setStateMetaData(cachedData.metadata);
-  //     } else {
-  //       console.log("No cached data found.");
-  //     }
-  //   };
+    checkCacheOnMount();
+  }, []);
 
-  //   /**
-  //    * dataWorker.js formats CSV data in the background using Web Worker
-  //    * more: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
-  //    */
-  //   if (typeof Worker !== "undefined") {
-  //     workerRef.current = new Worker(
-  //       new URL("./dataWorker.ts", import.meta.url)
-  //     );
+  /**
+   * this has to work iff new data is requested using CG API
+   */
+  useEffect(() => {
+    if (typeof Worker !== "undefined") {
+      workerRef.current = new Worker(
+        new URL("./dataWorker.ts", import.meta.url)
+      );
 
-  //     workerRef.current.onmessage = (e) => {
-  //       const { metadata, data } = e.data;
+      /**
+       * dataWorker.js formats CSV data in the background using Web Worker
+       * more: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
+       */
+      workerRef.current.onmessage = (e) => {
+        const { metadata, data } = e.data;
 
-  //       setStateMetaData(metadata);
-  //       setStateData(data);
-  //       const cacheKey = `CapacitorStorage.plotData_recent_data`;
-  //       clearOldCache().then(() => {
-  //         setItem(cacheKey, { metadata, data });
-  //       });
-  //     };
+        if (!Array.isArray(data) || !data.length) {
+          setError(
+            "Your request was seuccessful. There is no enough data to plot."
+          );
+          return;
+        }
 
-  //     checkCacheOnMount();
+        setItem(PLOT_DATA_CACHE_KEY, { metadata, data }).then(() => {
+          console.log("successfluy stored new data");
+        });
+        replaceRecentCachedData({ metadata, data });
+      };
 
-  //     return () => {
-  //       if (workerRef.current) {
-  //         workerRef.current.terminate();
-  //       }
-  //     };
-  //   }
-  // }, []);
+      return () => {
+        if (workerRef.current) {
+          workerRef.current.terminate();
+        }
+      };
+    }
+  }, []);
+
+  // removeItem(
+  //   "CapacitorStorage.plotData_GPM_3IMERGM_07_precipitation_2019-01-01T00:00:00_2020-01-01T00:00:00_38.8951_-77.0364_data"
+  // );
 
   return (
     <IonPage>
@@ -324,6 +310,15 @@ const Visuals: React.FC = () => {
               <div>
                 Coordiantes: {latitude}, {longitude}
               </div>
+            </IonCol>
+            <IonCol>
+              <h3>Currently Visualizing:</h3>
+              <div>Variable: {stateMetadata?.prod_name}</div>
+              {/* <div>Begin time: {formatDate(stateMetadata?.beginTime)}</div>
+              <div>End time: {formatDate(endTime)}</div>
+              <div>
+                Coordiantes: {latitude}, {longitude}
+              </div> */}
             </IonCol>
           </IonRow>
         </IonGrid>

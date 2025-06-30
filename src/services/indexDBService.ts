@@ -31,17 +31,40 @@ export const setItem = async (key: string, value: TimeSeriesData) => {
   }
 };
 
-export const getItem = async (
-  key: string
-): Promise<TimeSeriesData | undefined | null> => {
+export const getItem = async (key: string) => {
   try {
-    const value: TimeSeriesData | undefined | null = await localforage.getItem(
-      key
-    );
+    const value: TimeSeriesData | null = await localforage.getItem(key);
     if (value) {
       console.log(`Data with key "${key}" has been retrieved from IndexedDB`);
     }
     return value;
+  } catch (err) {
+    console.error("Error getting data from IndexedDB:", err);
+  }
+};
+
+export const removeItem = async (key: string) => {
+  try {
+    await localforage.removeItem(key);
+    console.log("Item cleared!");
+  } catch (error) {
+    console.error("Error removing item: ", error);
+  }
+};
+
+export const setRecentDataKey = async (key: string, recentDataKey: string) => {
+  try {
+    await localforage.setItem(key, recentDataKey);
+    // console.log(`Data with key "${recentDataKey}" has been set in IndexedDB`);
+  } catch (err) {
+    console.error("Error setting recentDataKey in IndexedDB:", recentDataKey);
+  }
+};
+
+export const getRecentDataKey = async (key: string) => {
+  try {
+    const recentCachedDataKey: string | null = await localforage.getItem(key);
+    return recentCachedDataKey;
   } catch (err) {
     console.error("Error getting data from IndexedDB:", err);
   }
