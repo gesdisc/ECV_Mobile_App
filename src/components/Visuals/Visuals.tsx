@@ -14,6 +14,7 @@ import { setItem, getItem, clearOldCache } from "../../services/indexDBService";
 import {
   TimeSeriesDataRow,
   TimeSeriesMetadata,
+  TimeSeriesData,
   DataParams,
 } from "../../types/time-series.types";
 import { useDataParams } from "../../store/DataParamsContext";
@@ -26,6 +27,8 @@ import DatePicker from "../UI/DatePicker";
 import TimeSeriesPlot from "./TimeSeriesPlot";
 
 import "./Plot.css";
+
+import { parseTimeSeriesCsv } from "../../helpers/time-series";
 
 /**
  * IndexDB API: a low-level API for client-side storage of significant amounts of structured data
@@ -47,10 +50,10 @@ const Visuals: React.FC = () => {
     setBeginTime,
   } = useDataParams();
   const abortController = useRef<AbortController | null>(null);
-  const [data, setData] = useState<TimeSeriesDataRow[]>([]);
-  const [metaData, setMetaData] = useState<TimeSeriesMetadata | undefined>(
-    undefined
-  );
+  const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
+  const [stateMetadata, setStateMetaData] = useState<
+    TimeSeriesMetadata | undefined
+  >(undefined);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const workerRef = useRef<Worker | null>(null);
@@ -69,20 +72,58 @@ const Visuals: React.FC = () => {
   const endDateUpdateHandler = (selectedDate: string) =>
     setEndTime(selectedDate);
 
+  const getChunkOfData = (
+    data: TimeSeriesDataRow[]
+  ): Array<TimeSeriesDataRow> => {
+    let chunkOfData: TimeSeriesDataRow[] = [];
+    chunkOfData = data.filter(
+      (varData) =>
+        new Date(varData.timestamp).getTime() >=
+          new Date(beginTime).getTime() &&
+        new Date(varData.timestamp).getTime() <= new Date(endTime).getTime()
+    );
+
+    return chunkOfData;
+  };
+
+  /**
+   * Plot Data clicked
+   * check if variable exists
+   *    if yes check if date range exists in the variable
+   *      if yes vis the data
+   *      if not send API request and get the chunk of data that doesn't exist in variable and store the new data
+   *    if not store with variable id and vis
+   *
+   * Plot Data clicked
+   *    check if variable exists in the storage
+   *        if yes vis. the data based on selected date range
+   *        if not fetch the entire dataset, store the data and vis. the selected date range
+   *
+   */
   const handlePlotData = async (useCache = true) => {
     const status = await Network.getStatus();
     const isOffline = !status.connected;
 
     const cacheKey = `CapacitorStorage.plotData_${beginTime}_${endTime}_${latitude}_${longitude}_data`;
-    console.log("cacheKey: ", cacheKey);
 
     if (useCache || isOffline) {
       // console.log("Checking local storage for cached data with key:", cacheKey);
       const cachedData = await getItem(cacheKey);
+      // console.log(cachedData);
+      // if (cachedData) {
+      //   setStateData(getChunkOfData(cachedData.data));
+      //   setStateMetaData(cachedData.metadata);
+      //   return;
+      // }
+
+      /**
+       *
+       */
+
       if (cachedData) {
         console.log("Using cached data with cachekey: ", cacheKey);
-        setData(cachedData.data);
-        setMetaData(cachedData.metadata);
+        setStateData(cachedData.data);
+        setStateMetaData(cachedData.metadata);
         return;
       } else {
         console.log("No cached data found.");
@@ -99,9 +140,10 @@ const Visuals: React.FC = () => {
     }
 
     setIsLoading(true);
-    setData([]);
-    setMetaData(undefined);
+    setStateData([]);
+    setStateMetaData(undefined);
     setError(null);
+
     try {
       abortController.current = new AbortController();
 
@@ -118,11 +160,24 @@ const Visuals: React.FC = () => {
         abortController.current.signal
       );
 
-      // caching newely received data??
-      if (workerRef.current) {
-        console.log("data posted using workerRef: ", csvData);
-        workerRef.current.postMessage(csvData);
+      if (csvData) {
+        const { metadata, data } = parseTimeSeriesCsv(csvData);
+        await setItem(cacheKey, { metadata, data });
+        let chunkOfData: TimeSeriesDataRow[] = [];
+        // timestamp is between the selected dates
+        chunkOfData = data.filter(
+          (varData) =>
+            varData.timestamp >= beginTime && varData.timestamp <= endTime
+        );
+        setStateData(chunkOfData);
+        setStateMetaData(metadata);
       }
+
+      // caching newely received data??
+      // if (workerRef.current) {
+      //   console.log("data posted using workerRef: ", csvData);
+      //   workerRef.current.postMessage(csvData);
+      // }
 
       //       const plotData = data?.data;
       //       const meta = data?.metadata;
@@ -145,50 +200,50 @@ const Visuals: React.FC = () => {
   /**
    * Plot the latest cached data
    */
-  useEffect(() => {
-    const checkCacheOnMount = async () => {
-      const cacheKey = `CapacitorStorage.plotData_recent_data`;
-      // console.log("Checking cache on mount with key:", cacheKey);
+  // useEffect(() => {
+  //   const checkCacheOnMount = async () => {
+  //     const cacheKey = `CapacitorStorage.plotData_recent_data`;
+  //     // console.log("Checking cache on mount with key:", cacheKey);
 
-      const cachedData = await getItem(cacheKey);
+  //     const cachedData = await getItem(cacheKey);
 
-      if (cachedData) {
-        setData(cachedData.data);
-        setMetaData(cachedData.metadata);
-      } else {
-        console.log("No cached data found.");
-      }
-    };
+  //     if (cachedData) {
+  //       setStateData(cachedData.data);
+  //       setStateMetaData(cachedData.metadata);
+  //     } else {
+  //       console.log("No cached data found.");
+  //     }
+  //   };
 
-    /**
-     * dataWorker.js formats CSV data in the background using Web Worker
-     * more: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
-     */
-    if (typeof Worker !== "undefined") {
-      workerRef.current = new Worker(
-        new URL("./dataWorker.ts", import.meta.url)
-      );
+  //   /**
+  //    * dataWorker.js formats CSV data in the background using Web Worker
+  //    * more: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
+  //    */
+  //   if (typeof Worker !== "undefined") {
+  //     workerRef.current = new Worker(
+  //       new URL("./dataWorker.ts", import.meta.url)
+  //     );
 
-      workerRef.current.onmessage = (e) => {
-        const { metadata, data } = e.data;
+  //     workerRef.current.onmessage = (e) => {
+  //       const { metadata, data } = e.data;
 
-        setMetaData(metadata);
-        setData(data);
-        const cacheKey = `CapacitorStorage.plotData_recent_data`;
-        clearOldCache().then(() => {
-          setItem(cacheKey, { metadata, data });
-        });
-      };
+  //       setStateMetaData(metadata);
+  //       setStateData(data);
+  //       const cacheKey = `CapacitorStorage.plotData_recent_data`;
+  //       clearOldCache().then(() => {
+  //         setItem(cacheKey, { metadata, data });
+  //       });
+  //     };
 
-      checkCacheOnMount();
+  //     checkCacheOnMount();
 
-      return () => {
-        if (workerRef.current) {
-          workerRef.current.terminate();
-        }
-      };
-    }
-  }, []);
+  //     return () => {
+  //       if (workerRef.current) {
+  //         workerRef.current.terminate();
+  //       }
+  //     };
+  //   }
+  // }, []);
 
   return (
     <IonPage>
@@ -227,7 +282,7 @@ const Visuals: React.FC = () => {
             onDidDismiss={() => setAlertMessage(null)}
           />
         )}
-        {<TimeSeriesPlot metadata={metaData} data={data} />}
+        {<TimeSeriesPlot metadata={stateMetadata} data={stateData} />}
         <IonGrid>
           <IonRow>
             <DatePicker
