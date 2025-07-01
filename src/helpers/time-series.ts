@@ -17,23 +17,26 @@ export const parseTimeSeriesCsv = (csvData: string) => {
   const metadata: Partial<TimeSeriesMetadata> = {};
   const data: TimeSeriesDataRow[] = [];
   const lines = csvData.split("\n");
-  const splitIndex = lines.indexOf("Timestamp (UTC),Data");
-  const metadataLines = lines.slice(0, splitIndex); // from 1st element to "Timestamp (UTC),Data"
-  const dataLines = lines.slice(splitIndex + 1);
 
-  metadataLines.forEach((line) => {
-    const [key, value] = line.split(",");
-    if (key && value !== undefined) {
-      metadata[key.trim()] = value.trim();
-    }
-  });
+  if (lines.includes("Timestamp (UTC),Data")) {
+    const splitIndex = lines.indexOf("Timestamp (UTC),Data");
+    const metadataLines = lines.slice(0, splitIndex); // from 1st element to "Timestamp (UTC),Data"
+    const dataLines = lines.slice(splitIndex + 1);
 
-  dataLines.forEach((line) => {
-    const [timestamp, value] = line.split(",");
-    if (timestamp && value !== undefined) {
-      data.push({ timestamp, value });
-    }
-  });
+    metadataLines.forEach((line) => {
+      const [key, value] = line.split(",");
+      if (key && value !== undefined) {
+        metadata[key.trim()] = value.trim();
+      }
+    });
+
+    dataLines.forEach((line) => {
+      const [timestamp, value] = line.split(",");
+      if (timestamp && value !== undefined) {
+        data.push({ timestamp, value });
+      }
+    });
+  }
 
   return { metadata, data } as TimeSeriesData;
 };

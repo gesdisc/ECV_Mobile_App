@@ -1,10 +1,15 @@
 import localforage from "localforage";
-import {
-  TimeSeriesDataRow,
-  TimeSeriesData,
-  TimeSeriesMetadata,
-} from "../types/time-series.types";
+import { TimeSeriesData } from "../types/time-series.types";
 
+/**
+ * IndexDB API: a low-level API for client-side storage of significant amounts of structured data
+ * https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
+ *
+ * LocalForage uses IndexedDB as its primary storage backend.
+ * IndexedDB offers more complex features and larger storage capacity than localStorage.
+ * localForage provides a user-friendly layer over IndexedDB, making it easier to work with.
+ * It offers a simple API that mimics the ease of use of localStorage.
+ */
 localforage.config({
   driver: localforage.INDEXEDDB, // Force IndexedDB; same as using setDriver()
   name: "myApp",
@@ -13,51 +18,54 @@ localforage.config({
   description: "some description",
 });
 
-export const clearOldCache = async () => {
+export const clearCache = async () => {
   try {
     await localforage.clear();
-    console.log("Old cache cleared");
   } catch (err) {
-    console.error("Error clearing old cache:", err);
+    if (err instanceof Error) {
+      throw new Error("Error clearing old cache: ", err);
+    }
   }
 };
 
 export const setItem = async (key: string, value: TimeSeriesData) => {
   try {
     await localforage.setItem(key, value);
-    console.log(`Data with key "${key}" has been set in IndexedDB`);
   } catch (err) {
-    console.error("Error setting data in IndexedDB:", err);
+    if (err instanceof Error) {
+      throw new Error("Error setting data in IndexedDB: ", err);
+    }
   }
 };
 
 export const getItem = async (key: string) => {
   try {
     const value: TimeSeriesData | null = await localforage.getItem(key);
-    if (value) {
-      console.log(`Data with key "${key}" has been retrieved from IndexedDB`);
-    }
     return value;
   } catch (err) {
-    console.error("Error getting data from IndexedDB:", err);
+    if (err instanceof Error) {
+      throw new Error("Error getting data from IndexedDB: ", err);
+    }
   }
 };
 
 export const removeItem = async (key: string) => {
   try {
     await localforage.removeItem(key);
-    console.log("Item cleared!");
-  } catch (error) {
-    console.error("Error removing item: ", error);
+  } catch (err) {
+    if (err instanceof Error) {
+      throw new Error("Error removing item from IndexedDB: ", err);
+    }
   }
 };
 
 export const setRecentDataKey = async (key: string, recentDataKey: string) => {
   try {
     await localforage.setItem(key, recentDataKey);
-    // console.log(`Data with key "${recentDataKey}" has been set in IndexedDB`);
   } catch (err) {
-    console.error("Error setting recentDataKey in IndexedDB:", recentDataKey);
+    if (err instanceof Error) {
+      throw new Error("Error setting recent data key in IndexedDB: ", err);
+    }
   }
 };
 
@@ -66,7 +74,9 @@ export const getRecentDataKey = async (key: string) => {
     const recentCachedDataKey: string | null = await localforage.getItem(key);
     return recentCachedDataKey;
   } catch (err) {
-    console.error("Error getting data from IndexedDB:", err);
+    if (err instanceof Error) {
+      throw new Error("Error getting recent data key from IndexedDB: ", err);
+    }
   }
 };
 
