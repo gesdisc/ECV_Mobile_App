@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 /**
  *
- * @returns object with  totalSpace, usedSpace, error
+ * @returns object with totalSpace, usedSpace, error
  * @summary Checks borswer's storage total allocated space & used space
  */
 const useCheckIndexedDBUsage = () => {
@@ -11,7 +11,6 @@ const useCheckIndexedDBUsage = () => {
   const [error, setError] = useState<null | string>(null);
 
   useEffect(() => {
-    console.log("useCheckIndexedDBUsage Runs ___________________");
     const checkIndexedDBUsage = async () => {
       setTotalSpace(null);
       setUsedSpace(null);
