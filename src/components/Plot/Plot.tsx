@@ -31,6 +31,7 @@ import catalog from "../Catalog/catalog.json";
 import Header from "../Layout/Header";
 import DatePicker from "../UI/DatePicker";
 import TimeSeriesPlot from "./TimeSeriesPlot";
+import OpenLayersMap from "./OpenLayersMap";
 
 import "./Plot.css";
 
@@ -241,7 +242,16 @@ const Visuals: React.FC = () => {
             onDidDismiss={() => setAlertMessage(null)}
           />
         )}
-        <TimeSeriesPlot metadata={stateMetadata} data={stateData} />
+        <IonGrid>
+          <IonRow>
+            <OpenLayersMap />
+          </IonRow>
+        </IonGrid>
+        <IonGrid>
+          <IonRow>
+            <TimeSeriesPlot metadata={stateMetadata} data={stateData} />
+          </IonRow>
+        </IonGrid>
         <IonGrid>
           <IonRow>
             <DatePicker
