@@ -21,7 +21,7 @@ import { TabMenuLabels } from "../constants/ui";
 
 import CatalogPage from "../pages/CatalogPage";
 import LocationPage from "../pages/LocationPage";
-import VisualsPage from "../pages/VisualsPage";
+import PlotPage from "../pages/PlotPage";
 
 const TabMenu: React.FC = () => (
   <IonReactRouter>
@@ -36,8 +36,8 @@ const TabMenu: React.FC = () => (
         {/* <Route exact path={`/${TabMenuLabels.Date}`}>
           <Date />
         </Route> */}
-        <Route exact path={`/${TabMenuLabels.VISUALS}`}>
-          <VisualsPage />
+        <Route exact path={`/${TabMenuLabels.PLOT}`}>
+          <PlotPage />
         </Route>
         <Route exact path="/">
           <Redirect to={`/${TabMenuLabels.CATALOG}`} />
@@ -62,12 +62,9 @@ const TabMenu: React.FC = () => (
           <IonIcon aria-hidden="true" icon={calendarOutline} />
           <IonLabel>{TabMenuLabels.Date}</IonLabel>
         </IonTabButton> */}
-        <IonTabButton
-          tab={TabMenuLabels.VISUALS}
-          href={`/${TabMenuLabels.VISUALS}`}
-        >
+        <IonTabButton tab={TabMenuLabels.PLOT} href={`/${TabMenuLabels.PLOT}`}>
           <IonIcon aria-hidden="true" icon={analyticsOutline} />
-          <IonLabel>{TabMenuLabels.VISUALS}</IonLabel>
+          <IonLabel>{TabMenuLabels.PLOT}</IonLabel>
         </IonTabButton>
       </IonTabBar>
     </IonTabs>
