@@ -3,59 +3,44 @@ import { Map, View } from "ol";
 import TileLayer from "ol/layer/Tile";
 import WebGLTile from "ol/layer/WebGLTile";
 import OSM from "ol/source/OSM";
-import GeoTIFF from "ol/source/GeoTIFF"; // Import GeoTIFF source
-import "ol/ol.css"; // Import OpenLayers CSS
+import GeoTIFF from "ol/source/GeoTIFF";
 
-import { useDataParams } from "../../store/DataParamsContext";
+import "ol/ol.css";
 
 const OpenLayersMap: React.FC = () => {
-  const { latitude, longitude } = useDataParams();
   const mapRef = useRef<HTMLDivElement>(null); // Ref for the map container
 
   useEffect(() => {
-    if (!mapRef.current) return; // Ensure the ref is available
-
-    const source = new GeoTIFF({
+    if (!mapRef.current) return;
+    const tifSource = new GeoTIFF({
       sources: [
         {
-          url: "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/Q/WD/2020/7/S2A_36QWD_20200701_0_L2A/TCI.tif",
+          url: "/assets/GIOVANNI-g4.timeAvgMap.GLDAS_NOAH025_3H_2_0_Snowf_tavg.20050101-20050104.121W_54N_113W_61N.tif",
         },
       ],
     });
-
-    const geoTiffLayer = new WebGLTile({
-      source: source,
-      opacity: 0.5,
+    const tifLayer = new WebGLTile({
+      source: tifSource,
+      opacity: 0.8,
     });
-
+    const source = new OSM();
     const map = new Map({
-      target: mapRef.current, // Target the div element
-      layers: [
-        new TileLayer({
-          source: new OSM(), // Add a base map layer (e.g., OpenStreetMap)
-        }),
-      ],
-
-      view: new View({
-        center: [longitude, latitude], // Initial map center
-        zoom: 2, // Initial zoom level
-      }),
-
-      //   view: source.getView(),
+      target: mapRef.current,
+    });
+    const layer = new TileLayer({ source: source });
+    const mapView = new View({
+      center: [0, 0],
+      zoom: 2,
     });
 
-    map.addLayer(geoTiffLayer);
+    map.setView(mapView);
+    map.addLayer(layer);
+    map.addLayer(tifLayer);
 
-    // Adjust view to fit the GeoTIFF extent (optional)
-    source.getView().then((viewOptions) => {
-      map.setView(new View(viewOptions));
-    });
-
-    // Clean up the map when the component unmounts
     return () => {
       map.setTarget(undefined);
     };
-  }, []); // Empty dependency array ensures effect runs only once
+  }, []);
 
   return <div ref={mapRef} style={{ width: "100%", height: "400px" }} />;
 };
