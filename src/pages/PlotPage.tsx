@@ -1,8 +1,8 @@
 import React from "react";
-import Visuals from "../components/Visuals/Visuals";
+import Plot from "../components/Plot/Plot";
 
 const VisualsPage = () => {
-  return <Visuals />;
+  return <Plot />;
 };
 
 export default VisualsPage;
