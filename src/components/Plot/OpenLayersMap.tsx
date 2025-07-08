@@ -4,11 +4,38 @@ import TileLayer from "ol/layer/Tile";
 import WebGLTile from "ol/layer/WebGLTile";
 import OSM from "ol/source/OSM";
 import GeoTIFF from "ol/source/GeoTIFF";
+import colormap from "colormap";
+import Draw from "ol/interaction/Draw";
 
 import "ol/ol.css";
 
 const OpenLayersMap: React.FC = () => {
   const mapRef = useRef<HTMLDivElement>(null); // Ref for the map container
+
+  const ndvi = [
+    "/",
+    ["-", ["band", 2], ["band", 1]],
+    ["+", ["band", 2], ["band", 1]],
+  ];
+  const getColorStops = (
+    name: string,
+    min: number,
+    max: number,
+    steps: number,
+    reverse: boolean
+  ) => {
+    const delta = (max - min) / (steps - 1);
+    const stops = new Array(steps * 2);
+    const colors = colormap({ colormap: name, nshades: steps, format: "rgba" });
+    if (reverse) {
+      colors.reverse();
+    }
+    for (let i = 0; i < steps; i++) {
+      stops[i * 2] = min + i * delta;
+      stops[i * 2 + 1] = colors[i];
+    }
+    return stops;
+  };
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -21,7 +48,16 @@ const OpenLayersMap: React.FC = () => {
     });
     const tifLayer = new WebGLTile({
       source: tifSource,
-      opacity: 0.8,
+      opacity: 0.5,
+      style: {
+        color: [
+          "interpolate",
+          ["linear"],
+          ndvi,
+          // color ramp for NDVI values
+          ...getColorStops("blackbody", -0.5, 1, 10, true),
+        ],
+      },
     });
     const source = new OSM();
     const map = new Map({
