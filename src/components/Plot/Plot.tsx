@@ -7,6 +7,7 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  IonRange,
 } from "@ionic/react";
 import { Network } from "@capacitor/network";
 
@@ -33,6 +34,8 @@ import DatePicker from "../UI/DatePicker";
 import TimeSeriesPlot from "./TimeSeriesPlot";
 
 import "./Plot.css";
+
+const NUM_DATA_TO_SHOW = 10;
 
 const Visuals: React.FC = () => {
   const {
@@ -61,6 +64,41 @@ const Visuals: React.FC = () => {
   const currentVariableData = catalog.find(
     (data) => data.dataFieldId === variable
   );
+
+  const [chunkOfData, setChunkOfData] = useState<number>(0);
+  const nextChunkHandler = () => {
+    if (stateData.length < NUM_DATA_TO_SHOW) return;
+    setChunkOfData((prevNum) => {
+      console.log(
+        "math min: ",
+        Math.min(stateData.length, prevNum + NUM_DATA_TO_SHOW)
+      );
+      return Math.min(stateData.length, prevNum + NUM_DATA_TO_SHOW);
+    });
+
+    // setChunkOfData((prevNum) => prevNum + NUM_DATA_TO_SHOW);
+  };
+  // NUM_DATA_TO_SHOW = 50
+  // 49 - (49 % 50) = 49
+  const prevChunkHandler = () => {
+    setChunkOfData((prevNum) =>
+      Math.max(
+        NUM_DATA_TO_SHOW,
+        prevNum % NUM_DATA_TO_SHOW === 0
+          ? prevNum - NUM_DATA_TO_SHOW
+          : prevNum - (prevNum % NUM_DATA_TO_SHOW)
+      )
+    );
+  };
+
+  // useEffect(() => {
+  //   // setChunkOfData(
+  //   //   stateData.length >= NUM_DATA_TO_SHOW ? NUM_DATA_TO_SHOW : stateData.length
+  //   // );
+  // }, [stateData.length]);
+  // console.log(chunkOfData);
+  // console.log(chunkOfData + NUM_DATA_TO_SHOW);
+  // console.log(stateData.slice(chunkOfData, chunkOfData + NUM_DATA_TO_SHOW));
 
   const {
     totalSpace,
@@ -204,6 +242,19 @@ const Visuals: React.FC = () => {
     }
   };
 
+  // const range = 10;
+  // const [plotMinRange, setPlotMinRange] = useState(0);
+  // const [plotMaxRange, setPlotMaxRange] = useState(range);
+  // const syncPlotWithSlider = (e: any) => {
+  //   // console.log(e.detail.value);
+  //   setPlotMinRange(e.detail.value);
+  //   setPlotMaxRange(
+  //     e.detail.value + range > stateData.length
+  //       ? stateData.length
+  //       : e.detail.value + range
+  //   );
+  // };
+
   return (
     <IonPage>
       <Header title="Time Series Data" />
@@ -241,7 +292,31 @@ const Visuals: React.FC = () => {
             onDidDismiss={() => setAlertMessage(null)}
           />
         )}
-        <TimeSeriesPlot metadata={stateMetadata} data={stateData} />
+
+        <TimeSeriesPlot
+          metadata={stateMetadata}
+          data={stateData}
+          // data={[
+          //   { timestamp: "1", value: "-10" },
+          //   { timestamp: "2", value: "30" },
+          //   { timestamp: "3", value: "-70" },
+          //   { timestamp: "4", value: "40" },
+          //   { timestamp: "5", value: "80" },
+          //   { timestamp: "6", value: "-70" },
+          //   { timestamp: "7", value: "0" },
+          //   { timestamp: "8", value: "10" },
+          // ]}
+          // minRange={plotMinRange}
+          // maxRange={plotMaxRange}
+        />
+
+        {/* <IonButton size="small" onClick={prevChunkHandler}>
+          Prev
+        </IonButton>
+        <IonButton size="small" onClick={nextChunkHandler}>
+          Next
+        </IonButton> */}
+
         <IonGrid>
           <IonRow>
             <DatePicker

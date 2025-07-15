@@ -1,6 +1,6 @@
-declare module 'react-plotly.js' {
-  import * as React from 'react';
-  import * as Plotly from 'plotly.js';
+declare module "react-plotly.js" {
+  import * as React from "react";
+  import * as Plotly from "plotly.js";
 
   export interface Figure {
     data: Plotly.Data[];
@@ -23,6 +23,10 @@ declare module 'react-plotly.js' {
     onUnhover?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
     onSelected?: (event: Readonly<Plotly.PlotSelectionEvent>) => void;
     onDeselect?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onButtonClicked?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onSliderChange?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onRelayout?: (graphDiv: HTMLElement, update) => void;
+    ref?: any;
     style?: React.CSSProperties;
     useResizeHandler?: boolean;
     debug?: boolean;
