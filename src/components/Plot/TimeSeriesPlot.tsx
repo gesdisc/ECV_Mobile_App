@@ -54,7 +54,6 @@ const TimeSeriesPlot: React.FC<TimeSeriesProps> = ({
     // minorticklen: 20,
     // tickcolor: "red",
     // ticklen: 19,
-
     active: getMiddleIndex(data),
     pad: { t: 30, r: -10, l: -10 }, // negative values to match the Plot width
     // currentvalue: {
@@ -66,14 +65,7 @@ const TimeSeriesPlot: React.FC<TimeSeriesProps> = ({
     //   },
     //   // visible: false,
     // },
-    // steps: data.map((d) => {
-    //   return {
-    //     // label: d.timestamp,
-    //     execute: false,
-    //     method: "relayout",
-    //     args: ["shapes[0].x0", d.timestamp, "shapes[0].x1", d.timestamp],
-    //   };
-    // }),
+
     steps: data.map((d) => {
       return {
         // label: d.timestamp,
@@ -278,43 +270,45 @@ const TimeSeriesPlot: React.FC<TimeSeriesProps> = ({
     });
   };
 
-  const plotRelHandler = (e: any) => {
+  const sliderRelHandler = (e: any) => {
     console.log("sliderRelHandler: ", e);
-    if (e["xaxis.range[0]"]) {
+    if (e["xaxis.range[0]"] && e["xaxis.range[1]"]) {
       console.log("sliderRelHandler: ", e["xaxis.range[0]"]);
       console.log("sliderRelHandler: ", e["xaxis.range[1]"]);
-      const newData = data.slice(
-        data.indexOf(e["xaxis.range[0]"]),
-        data.indexOf(e["xaxis.range[1]"])
+
+      const filteredData = data.filter(
+        (d) =>
+          new Date(d.timestamp).getTime() >=
+            new Date(e["xaxis.range[0]"]).getTime() &&
+          new Date(d.timestamp).getTime() <=
+            new Date(e["xaxis.range[1]"]).getTime()
       );
-      console.log(newData);
-      console.log(data[0]);
-      console.log(data.filter((d) => d.timestamp === e["xaxis.range[0]"]));
+      console.log(filteredData);
+      if (filteredData.length === 0) return;
+      Plotly.relayout("divId", {
+        shapes: [
+          {
+            ...verticalLine,
+            x0: filteredData[getMiddleIndex(filteredData)].timestamp,
+            x1: filteredData[getMiddleIndex(filteredData)].timestamp,
+          },
+        ],
+        sliders: [
+          {
+            // ...slider,
+            active: getMiddleIndex(filteredData),
+            // steps: filteredData.map((d: any) => {
+            //   return {
+            //     // label: d.timestamp,
+            //     execute: false,
+            //     // method: "relayout",
+            //     args: [],
+            //   };
+            // }),
+          },
+        ],
+      });
     }
-    // "2019-12-02 00:00"
-    // "2019-12-10 06:40"
-    // Plotly.relayout("divId", {
-    //   // shapes: [
-    //   //   {
-    //   //     ...verticalLine,
-    //   //     x0: data[activeIndex - 1].timestamp,
-    //   //     x1: data[activeIndex - 1].timestamp,
-    //   //   },
-    //   // ],
-    //   sliders: [
-    //     {
-    //       ...slider,
-    //       steps: e.layout.xaxis.map((d: any) => {
-    //         return {
-    //           // label: d.timestamp,
-    //           execute: false,
-    //           method: "relayout",
-    //           args: ["shapes[0].x0", d.timestamp, "shapes[0].x1", d.timestamp],
-    //         };
-    //       }),
-    //     },
-    //   ],
-    // });
   };
 
   // const triggerHover = (data: any) => {
@@ -351,28 +345,6 @@ const TimeSeriesPlot: React.FC<TimeSeriesProps> = ({
 
   const plotUpdateHandler = (e: any) => {
     console.log("plotUpdateHandler", e);
-    // Plotly.relayout("divId", {
-    //   // shapes: [
-    //   //   {
-    //   //     ...verticalLine,
-    //   //     x0: data[activeIndex - 1].timestamp,
-    //   //     x1: data[activeIndex - 1].timestamp,
-    //   //   },
-    //   // ],
-    //   sliders: [
-    //     {
-    //       ...slider,
-    //       steps: e.layout.xaxis.map((d: any) => {
-    //         return {
-    //           // label: d.timestamp,
-    //           execute: false,
-    //           method: "relayout",
-    //           args: ["shapes[0].x0", d.timestamp, "shapes[0].x1", d.timestamp],
-    //         };
-    //       }),
-    //     },
-    //   ],
-    // });
   };
 
   return (
@@ -383,7 +355,7 @@ const TimeSeriesPlot: React.FC<TimeSeriesProps> = ({
         // onHover={triggerHover}
         onButtonClicked={btnClickHandler}
         onSliderChange={sliderChangeHandler}
-        onRelayout={plotRelHandler}
+        onRelayout={sliderRelHandler}
         onUpdate={plotUpdateHandler}
         // onUpdate={(figure: any, graphDiv: any) =>
         //   updateHandler(figure, graphDiv)
