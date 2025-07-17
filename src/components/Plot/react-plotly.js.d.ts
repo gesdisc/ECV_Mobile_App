@@ -25,7 +25,7 @@ declare module "react-plotly.js" {
     onDeselect?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
     onButtonClicked?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
     onSliderChange?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
-    onRelayout?: (graphDiv: HTMLElement, update) => void;
+    onRelayout?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
     ref?: any;
     style?: React.CSSProperties;
     useResizeHandler?: boolean;
