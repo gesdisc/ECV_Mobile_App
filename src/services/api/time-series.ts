@@ -56,9 +56,12 @@ export const fetchData = async (
       },
     });
 
+    console.log("response: ", response);
     if (!response.ok) throw new Error(handleApiError(response));
-
     const csvData = await response.text();
+    console.log(csvData);
+    // TODO: Data, GPM_3IMERGM_07_precipitation, is currently unavailable. -- UI message: req. was suc. no enough data to plot
+    // TODO:  {"message": "Internal server error"} -- UI message: req. was suc. no enough data to plot
     // const parsedData = parseTimeSeriesCsv(csvData);
 
     return csvData;

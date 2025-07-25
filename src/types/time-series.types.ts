@@ -33,3 +33,21 @@ export type DataParams = {
   lat: number;
   lon: number;
 };
+
+export type TimeAvgDataRow = {
+  timestamp: string;
+  value: string;
+};
+
+export type TimeAvgMetadata = {
+  user_start_date: string;
+  user_end_date: string;
+  user_bounding_box: string;
+  fill_value: string;
+  [key: string]: string | number;
+};
+
+export type TimeAvgData = {
+  metadata: TimeAvgMetadata;
+  data: TimeAvgDataRow[];
+};

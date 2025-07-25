@@ -68,23 +68,26 @@ const Location: React.FC = () => {
   const MapResizer = () => {
     const map = useMap();
     useEffect(() => {
-      map.invalidateSize(); // fix map size issues
+      const timeoutId = setTimeout(() => {
+        map.invalidateSize();
+      }, 250);
       map.setView([latitude, longitude], map.getZoom(), {
         animate: true,
       });
-    }, [map, latitude, longitude]); // rerun when map or location changes
+      return () => clearTimeout(timeoutId);
+    }, [map]);
     return null;
   };
 
   return (
     <IonPage>
       <Header title="Region Selector" />
-      <IonContent className="ion-padding">
+      <IonContent>
         <div id="map-container">
           <MapContainer
             center={[latitude, longitude]}
-            zoom={4}
-            style={{ height: "500px", width: "100%" }}
+            zoom={8}
+            style={{ height: "100%", width: "100%" }}
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" // tile source

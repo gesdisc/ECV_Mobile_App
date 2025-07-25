@@ -5,9 +5,12 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonIcon,
 } from "@ionic/react";
+import { analyticsOutline } from "ionicons/icons";
 
 import catalog from "./catalog.json";
+import { useDataParams } from "../../store/DataParamsContext";
 
 interface VariablesProps {
   onVariableChange: (value: string) => void;
@@ -16,6 +19,7 @@ interface VariablesProps {
 const topics = ["Atmosphere", "Land", "Ocean"];
 
 const Variables: React.FC<VariablesProps> = ({ onVariableChange }) => {
+  const { variable } = useDataParams();
   const displayCatalog = topics.map((topic) => {
     return (
       <IonAccordion key={topic} value={topic}>
@@ -34,6 +38,9 @@ const Variables: React.FC<VariablesProps> = ({ onVariableChange }) => {
                   color="light"
                 >
                   <IonLabel>{data.label}</IonLabel>
+                  {variable === data.dataFieldId && (
+                    <IonIcon icon={analyticsOutline}></IonIcon>
+                  )}
                 </IonItem>
               );
             })}
