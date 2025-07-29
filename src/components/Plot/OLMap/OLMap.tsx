@@ -9,11 +9,6 @@ import {
   IonIcon,
   IonButton,
   IonModal,
-  IonHeader,
-  IonContent,
-  IonToolbar,
-  IonTitle,
-  IonPage,
   IonRange,
 } from "@ionic/react";
 import { settingsSharp } from "ionicons/icons";
@@ -21,52 +16,6 @@ import { settingsSharp } from "ionicons/icons";
 import TiffLayer from "./TiffLayer";
 
 import "ol/ol.css";
-
-// const colormaps = [
-//   "jet",
-//   "hsv",
-//   "hot",
-//   "cool",
-//   "spring",
-//   "summer",
-//   "autumn",
-//   "winter",
-//   "bone",
-//   "copper",
-//   "greys",
-//   "YIGnBu",
-//   "greens",
-//   "YIOrRd",
-//   "bluered",
-//   "RdBu",
-//   "picnic",
-//   "rainbow",
-//   "portland",
-//   "blackbody",
-//   "earth",
-//   "electric",
-//   "viridis",
-//   "inferno",
-//   "magma",
-//   "plasma",
-//   "warm",
-//   "cool",
-//   "bathymetry",
-//   "cdom",
-//   "chlorophyll",
-//   "density",
-//   "fressurface-blue",
-//   "freesurface-red",
-//   "oxygen",
-//   "par",
-//   "phase",
-//   "salinity",
-//   "temperature",
-//   "turbidity",
-//   "velocity-blue",
-//   "velocity-green",
-//   "cubhelix",
-// ];
 
 interface OLMapProps {
   width?: number;
@@ -112,20 +61,17 @@ const OLMap: React.FC<OLMapProps> = ({ width, tifURL }) => {
       <IonGrid style={{ display: "flex", justifyContent: "center" }}>
         <IonRow class="ion-justify-content-center">
           <IonCol>
-            {/* <MapView width={width} tifURL={currentGeoTIFF} /> */}
             <div
               ref={mapRef}
               style={{ width: width, height: "250px", position: "relative" }}
             >
-              {/* <TiffLayer
+              <TiffLayer
                 map={stateMap}
                 tifURL={tifURL}
                 opacity={layerOpacity}
-              /> */}
+              />
               <IonButton
-                // disabled={disabled}
                 size="small"
-                // onClick={settingsBtnHandler}
                 style={{
                   position: "absolute",
                   top: "5px",

@@ -1,7 +1,6 @@
 import colormap from "colormap";
-// Set a default colormap
+
 const colorMapName = "density";
-// reverse the colormap?
 const colorMapReverse = false;
 
 const getColorStops = (
@@ -43,42 +42,3 @@ export const updateGtStyle = () => {
     ],
   };
 };
-
-// function vgi(pixel: any) {
-//   const r = pixel[0] / 255;
-//   const g = pixel[1] / 255;
-//   const b = pixel[2] / 255;
-//   return (2 * g - r - b) / (2 * g + r + b);
-// }
-
-/**
- * Summarize values for a histogram.
- * @param {number} value A VGI value.
- * @param {Object} counts An object for keeping track of VGI counts.
- */
-// function summarize(value: number, counts: any) {
-//   const min = counts.min;
-//   const max = counts.max;
-//   const num = counts.values.length;
-//   if (value < min) {
-//     // do nothing
-//   } else if (value >= max) {
-//     counts.values[num - 1] += 1;
-//   } else {
-//     const index = Math.floor((value - min) / counts.delta);
-//     counts.values[index] += 1;
-//   }
-// }
-
-// function createCounts(min: number, max: number, num: number) {
-//   const values = new Array(num);
-//   for (let i = 0; i < num; ++i) {
-//     values[i] = 0;
-//   }
-//   return {
-//     min: min,
-//     max: max,
-//     values: values,
-//     delta: (max - min) / num,
-//   };
-// }

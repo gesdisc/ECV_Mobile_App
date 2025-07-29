@@ -83,10 +83,6 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
     getLatestCachedDataParams();
   }, []);
 
-  // const currentVariableData = catalog.find(
-  //   (data) => data.dataFieldId === variable
-  // );
-
   const contextValue: DataParamsContextType = {
     latitude,
     longitude,

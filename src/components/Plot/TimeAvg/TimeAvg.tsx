@@ -7,10 +7,8 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonRange,
 } from "@ionic/react";
 import Plotly from "plotly.js-dist-min";
-// import { useLocation } from "react-router-dom";
 
 import {
   TimeSeriesDataRow,
@@ -34,10 +32,6 @@ import "../Plot.css";
 const Visuals: React.FC = () => {
   const { latitude, longitude, beginTime, endTime, variable } = useDataParams();
   const abortController = useRef<AbortController | null>(null);
-  //   const workerRef = useRef<Worker | null>(null);
-  // const location = useLocation();
-  // const catPageVar = location.state;
-  // console.log("catPageVar: ", catPageVar);
   const [stateData, setStateData] = useState<
     TimeSeriesDataRow[] | TimeAvgDataRow[]
   >([]);
@@ -50,22 +44,15 @@ const Visuals: React.FC = () => {
   const [sliderValue, setSliderValue] = useState(MARGIN_INLINE * -2);
   const [sliderRange, setSliderRange] = useState([0, 10]);
   const plotRef = useRef<Plotly.PlotlyHTMLElement | HTMLElement | null>(null);
-  const PLOT_DATA_CACHE_KEY = `CapacitorStorage.plotData*${variable}*${beginTime}*${endTime}*${latitude}*${longitude}`;
-
-  /* GEOTIFF */
   const [geoTiffUrl, setGeoTiffUrl] = useState(
     "/assets/geotifs/GIOVANNI-timeAvgMap.M2T1NXAER_5_12_4_BCCMASS.20250101-20250101.45W_13S_126E_51N.tif"
   );
-  /* GEOTIFF */
 
   const { height, width } = useWindowDimensions();
-  // console.log("screen width: ", width);
-  // console.log("screen Owidth: ", height);
+
   const [plotState, setPlotState] = useState<{
     data: Partial<Plotly.Data>[];
     layout: Partial<Plotly.Layout>;
-    // frames: Partial<Plotly.Frame>;
-    // config: Partial<Plotly.Config>;
   }>({
     data: [schema.data],
     layout: schema.layout,
@@ -85,10 +72,8 @@ const Visuals: React.FC = () => {
         x: stateData.map((d) => d.timestamp),
         y: stateData.map((d) => d.value),
         type: "scatter",
-        // mode: "lines+markers",
         mode: "lines",
         line: { color: "blue" },
-        // name: stateMetadata?.param_short_name || "",
       },
     ];
 
@@ -114,27 +99,15 @@ const Visuals: React.FC = () => {
             : "",
       };
     }
-    // document.querySelector(".nsewdrag.drag").width.baseVal.value;
+
     const plotLayout: Partial<Plotly.Layout> = {
       ...plotState.layout,
       width: width,
-      // title: stateMetadata?.param_name
-      //   ? `${stateMetadata?.param_name} (${stateMetadata?.prod_name})`
-      //   : "Select a variable to plot.",
-      // sliders: [newSlider],
       shapes: [verticalLine],
       xaxis: {
         ...plotState.layout.xaxis,
         title: "Date & Time",
-        // minallowed: stateData[5]?.timestamp, // Minimum allowed value for the x-axis
-        // maxallowed: stateData[49]?.timestamp, // Maximum allowed value for the x-axis
-        // range: [stateData[0]?.timestamp, stateData[5]?.timestamp],
       },
-      // yaxis: {
-      //   title: stateMetadata?.param_short_name
-      //     ? `${stateMetadata?.param_short_name} (${stateMetadata?.unit})`
-      //     : "",
-      // },
       annotations: [plotAnnotation],
     };
 
@@ -157,8 +130,6 @@ const Visuals: React.FC = () => {
 
       setStateData(data);
       setStateMetaData(metadata);
-
-      //   workerRef.current.postMessage(csvData);
     } catch (error) {
       error instanceof Error
         ? setError(error.message)
@@ -175,8 +146,6 @@ const Visuals: React.FC = () => {
       visible: true,
       x0: newXrange[activeIndex],
       x1: newXrange[activeIndex],
-      // x0: activeIndex,
-      // x1: activeIndex,
       y0: "-100", // y bottom
       y1: "300", // y top
     };
@@ -191,21 +160,18 @@ const Visuals: React.FC = () => {
       };
     });
   };
-  // console.log(plotRef.current);
+
   const plotRelayoutHandler = (e: any) => {
-    // console.log("plotRelayoutHandler: ", e);
     const newLeftPoint = e["xaxis.range[0]"];
     const newRightPoint = e["xaxis.range[1]"];
 
     if (newLeftPoint && newRightPoint) {
-      // fetchMoreData(e["xaxis.range[0]"], e["xaxis.range[1]"]);
-
       const filteredDates = filterDataBetweenDates(
         newLeftPoint,
         newRightPoint,
         [...stateData.map((d) => d.timestamp)]
       );
-      // if (filteredDates.length <= 6) return; // LIMIT ZOOM AND PAN?
+
       if (filteredDates.length === 0) return;
 
       const newLeftPointIndex = stateData.findIndex(
@@ -219,11 +185,6 @@ const Visuals: React.FC = () => {
           data.timestamp === filteredDates[getMiddleIndex(filteredDates)]
       );
 
-      // if(plotState.layout !== undefined){
-      //   console.log("shape x: " plotState.layout.shapes[0].x0);
-
-      // }
-      // TODO: update the slider steps
       adjustVLine(filteredDates, getMiddleIndex(filteredDates));
       setSliderRange([newLeftPointIndex, newRightPointIndex]);
       setSliderValue(newMiddleIndex);
@@ -238,7 +199,7 @@ const Visuals: React.FC = () => {
       .replaceAll("-", "");
     const tif_location = "/assets/geotifs/";
     const tif_base = "GIOVANNI-timeAvgMap.M2T1NXAER_5_12_4_BCCMASS.";
-    const tif_date = "20250101-20250101";
+    // const tif_date = "20250101-20250101";
     const tif_tail = ".45W_13S_126E_51N.tif";
 
     // React state manages this for us?
@@ -254,23 +215,18 @@ const Visuals: React.FC = () => {
     adjustVLine([...stateData.map((d) => d.timestamp)], activeIndex);
     setSliderValue(activeIndex);
     geotiffURLhandler(activeIndex);
-    //  setSliderRange(filteredDates.length - 1);
   };
 
   const sliderLeftBtnHandler = () => {
     if (stateData.length === 0) return;
     if (sliderValue === 0) return;
-    // if (stateData[sliderValue - 1] === undefined) return;
     setSliderValue((prevNum) => prevNum - 1);
     adjustVLine([...stateData.map((d) => d.timestamp)], sliderValue - 1);
-    // setSliderRange(filteredDates.length - 1);
     geotiffURLhandler(sliderValue - 1);
   };
 
   const sliderRightBtnHandler = () => {
     if (stateData.length === 0) return;
-    // if (data[sliderValue + 1] === undefined) return;
-    // if (stateData[sliderValue + 1] === undefined) return;
     setSliderValue((prevNum) => prevNum + 1);
     adjustVLine([...stateData.map((d) => d.timestamp)], sliderValue + 1);
     geotiffURLhandler(sliderValue + 1);
@@ -324,16 +280,9 @@ const Visuals: React.FC = () => {
 
         <TimeSeriesPlot
           plotRef={plotRef}
-          // metadata={stateMetadata}
-          // data={stateData}
           layout={plotState.layout}
-          // plotData={plotState.data}
           plotData={[...plotState.data]}
           onPlotRelayout={plotRelayoutHandler}
-          // onSliderChange={sliderChangeHandler}
-          // data={stateData.slice(dataRangeMin, dataRangeMin + NUM_DATA_TO_SHOW)}
-          // minRange={plotMinRange}
-          // maxRange={plotMaxRange}
         />
         <Slider
           onLeftBtnClick={sliderLeftBtnHandler}
@@ -349,14 +298,7 @@ const Visuals: React.FC = () => {
           min={sliderRange[0]}
           // prettier-ignore
           onValueChange={sliderValueChangeHandler}
-          // pinFormatter={(index: number) => `${stateData[index]?.timestamp}`}
-          pinFormatter={
-            (index: number) => `${stateData[index]?.timestamp}`
-            // stateData[index]?.timestamp &&
-            // `${new Date(stateData[index]?.timestamp).toLocaleDateString(
-            //   "en-US"
-            // )}`
-          }
+          pinFormatter={(index: number) => `${stateData[index]?.timestamp}`}
           disabled={!stateData.length}
         />
         <IonGrid>

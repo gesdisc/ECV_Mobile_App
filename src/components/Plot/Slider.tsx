@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   IonButton,
   IonGrid,
@@ -34,30 +34,6 @@ const Slider: React.FC<SliderProps> = ({
   width,
   disabled = false,
 }) => {
-  // useEffect(() => {
-  //   if (plotRef !== null && plotRef.current !== null) {
-  //     console.log(plotRef.current.el.getBoundingClientRect().width);
-  //     // console.log(plotRef.current.el.querySelector(".nsewdrag.drag").width);
-  //     // console.log(plotRef.current.el.querySelector(".nsewdrag.drag"));
-  //   }
-  //   // const checkWidth = () => {
-  //   //   if (document.querySelector(".nsewdrag.drag") !== null) {
-  //   //     const rect = document
-  //   //       .querySelector(".nsewdrag.drag")!
-  //   //       .getBoundingClientRect();
-  //   //     console.log("x coord", rect.x);
-  //   //   }
-  //   // };
-  //   // checkWidth();
-  // }, [plotRef]);
-
-  // useEffect(() => {
-  //   if (plotRef.current !== null) {
-  //     console.log((plotRef.current as any).el.getBoundingClientRect().width);
-  //     console.log((plotRef.current as any).el.querySelector(".nsewdrag.drag"));
-  //   }
-  // }, []);
-
   return (
     <IonGrid style={{ display: "flex", justifyContent: "center" }}>
       <IonRow
@@ -69,7 +45,6 @@ const Slider: React.FC<SliderProps> = ({
         <IonCol>
           <IonRange
             className={styles["ion-range"]}
-            // style={{ maxWidth: "500px", width: width }}
             step={1}
             min={min}
             max={max}

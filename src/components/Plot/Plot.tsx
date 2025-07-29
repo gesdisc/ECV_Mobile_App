@@ -7,13 +7,9 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonIcon,
-  IonRange,
   RangeCustomEvent,
-  isPlatform,
-  getPlatforms,
 } from "@ionic/react";
-import { informationCircle } from "ionicons/icons";
+
 import { Network } from "@capacitor/network";
 import { useLocation } from "react-router-dom";
 import Plotly from "plotly.js-dist-min";
@@ -21,7 +17,6 @@ import { getItem, getRecentDataKey } from "../../services/indexDBService";
 import {
   TimeSeriesDataRow,
   TimeSeriesMetadata,
-  TimeSeriesData,
   DataParams,
 } from "../../types/time-series.types";
 import { useDataParams } from "../../store/DataParamsContext";
@@ -39,18 +34,13 @@ import {
 } from "../../constants/time-series";
 import { schema, MARGIN_INLINE } from "./plotSchema";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
-import catalog from "../Catalog/catalog.json";
 
 import Header from "../Layout/Header";
 import TimeSeriesPlot from "./TimeSeriesPlot";
 import Slider from "./Slider";
 import OpenLayersMap from "./OLMap/OLMap";
-import InfoPanel from "./InfoPanel";
-import StorageManager from "./StorageManager";
 
 import "./Plot.css";
-
-const NUM_DATA_TO_SHOW = 10;
 
 const Visuals: React.FC = () => {
   const {
@@ -81,8 +71,6 @@ const Visuals: React.FC = () => {
   const [plotState, setPlotState] = useState<{
     data: Partial<Plotly.Data>[];
     layout: Partial<Plotly.Layout>;
-    // frames: Partial<Plotly.Frame>;
-    // config: Partial<Plotly.Config>;
   }>({
     data: [schema.data],
     layout: schema.layout,
@@ -111,13 +99,12 @@ const Visuals: React.FC = () => {
    * This will fetch data everytime user selects a new variable on the catalog page
    * It will use default parameters and user selected variable
    *
-   * FIXME: Runs on page refresh
-   * FIXME: Cancel not working!
+   * FIXME: reruns on page refresh?
+   * FIXME: Cancel not working?
    */
   useEffect(() => {
     if (!categoryPageVariable) return;
     const getData = async () => {
-      console.log("FETCHING SELECTED VARIABLE!!!");
       try {
         await handlePlotData({
           lat: DefaultParams.LATITUDE,
@@ -127,7 +114,7 @@ const Visuals: React.FC = () => {
           variable: categoryPageVariable as string,
         });
       } catch (error) {
-        console.log("ERROR FROM FIRST PLOT______: ", error);
+        console.log("ERROR: ", error);
       }
     };
 
@@ -146,6 +133,7 @@ const Visuals: React.FC = () => {
     workerRef.current = new Worker(new URL("./dataWorker.ts", import.meta.url));
     workerRef.current.onmessage = (e) => {
       const { metadata, data } = e.data;
+
       const newDataParams = {
         lat: metadata.lat,
         lon: metadata.lon,
@@ -156,7 +144,7 @@ const Visuals: React.FC = () => {
           .concat(`_${metadata?.param_short_name}`),
       };
       const cacheKey = `CapacitorStorage.plotData*${newDataParams.variable}*${newDataParams.begin_time}*${newDataParams.end_time}*${newDataParams.lat}*${newDataParams.lon}`;
-      console.log("metadata from web worker", cacheKey);
+
       if (!Array.isArray(data) || !data.length) {
         setAlertMessage(
           "Your request was successful but there is no enough data to plot."
@@ -187,10 +175,8 @@ const Visuals: React.FC = () => {
         x: stateData.map((d) => d.timestamp),
         y: stateData.map((d) => d.value),
         type: "scatter",
-        // mode: "lines+markers",
         mode: "lines",
         line: { color: "blue" },
-        // name: stateMetadata?.param_short_name || "",
       },
     ];
 
@@ -201,8 +187,6 @@ const Visuals: React.FC = () => {
         visible: stateData.length ? true : false,
         x0: stateData[getMiddleIndex(stateData)]?.timestamp, // x bottom
         x1: stateData[getMiddleIndex(stateData)]?.timestamp, // x top
-        // x0: MARGIN_INLINE * -2, // x bottom
-        // x1: MARGIN_INLINE * -2, // x top
         y0: "-100", // y bottom
         y1: "300", // y top
       };
@@ -218,28 +202,19 @@ const Visuals: React.FC = () => {
             : "",
       };
     }
-    // document.querySelector(".nsewdrag.drag").width.baseVal.value;
+
     const plotLayout: Partial<Plotly.Layout> = {
       ...plotState.layout,
       width: width,
-      // title: stateMetadata?.param_name
-      //   ? `${stateMetadata?.param_name} (${stateMetadata?.prod_name})`
-      //   : "Select a variable to plot.",
-      // sliders: [newSlider],
       shapes: [verticalLine],
       xaxis: {
         ...plotState.layout.xaxis,
         title: "Date & Time",
       },
-      // yaxis: {
-      //   title: stateMetadata?.param_short_name
-      //     ? `${stateMetadata?.param_short_name} (${stateMetadata?.unit})`
-      //     : "",
-      // },
       annotations: [plotAnnotation],
     };
 
-    setPlotState({ data: plotData, layout: plotLayout }); // get prevSt
+    setPlotState({ data: plotData, layout: plotLayout });
     setSliderValue(getMiddleIndex(stateData));
     setSliderRange([0, stateData.length - 1]);
   }, [stateData]);
@@ -252,7 +227,6 @@ const Visuals: React.FC = () => {
     variable,
   }: DataParams) => {
     try {
-      console.log("Plotting: ", variable);
       const status = await Network.getStatus();
       const isOffline = !status.connected;
       const cacheKey = `CapacitorStorage.plotData*${variable}*${begin_time}*${end_time}*${lat}*${lon}`;
@@ -276,7 +250,6 @@ const Visuals: React.FC = () => {
 
       abortController.current = new AbortController();
 
-      // check variables??
       const csvData = await fetchData(
         {
           lat,
@@ -301,8 +274,8 @@ const Visuals: React.FC = () => {
     }
   };
 
-  // FIXME: caching should update the dates in the name
-  // TODO: load more data instead of loading the entire data again
+  // FIXME: cache key should be updated according to the new requested dates
+  // TODO: load more data instead of loading the entire data again...
   const fetchMoreData = async (
     newBeginTime: string | number,
     newEndTime: string | number
@@ -316,8 +289,7 @@ const Visuals: React.FC = () => {
     const convertedNewEndTime = new Date(newEndTime).getTime();
 
     // Check if the variable have data within new range
-    // if not... get the most available date
-    // const currentVariableMetadataFromCatalog =
+    // if not... get the available begin/end dates
     const newDataParams = {
       lat: stateMetadata.lat,
       lon: stateMetadata.lon,
@@ -351,8 +323,6 @@ const Visuals: React.FC = () => {
       visible: true,
       x0: newXrange[activeIndex],
       x1: newXrange[activeIndex],
-      // x0: activeIndex,
-      // x1: activeIndex,
       y0: "-100", // y bottom
       y1: "300", // y top
     };
@@ -369,8 +339,6 @@ const Visuals: React.FC = () => {
   };
 
   const plotRelayoutHandler = (e: any) => {
-    console.log("plotRelayoutHandler: ", e);
-
     const plotLeftPoint = e["xaxis.range[0]"];
     const plotRightPoint = e["xaxis.range[1]"];
     const currentBeginTime = new Date(stateData[0].timestamp).getTime();
@@ -394,19 +362,11 @@ const Visuals: React.FC = () => {
       // Load more data on Plot pan event
       if (new Date(e["xaxis.range[1]"]).getTime() > currentEndTime) {
         fetchMoreData(currentBeginTime, newEndTime);
-        console.log("We can load more data Right!!");
-        // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
-        // setSliderRange([plotLeftPointIndex, plotRightPointIndex]);
-        // setSliderValue(plotMiddlePointIndex);
         return;
       }
 
       if (new Date(e["xaxis.range[0]"]).getTime() < currentBeginTime) {
         fetchMoreData(newBeginTime, currentEndTime);
-        console.log("We can load more data LEFT!!");
-        // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
-        // setSliderRange([plotLeftPointIndex, plotRightPointIndex]);
-        // setSliderValue(plotMiddlePointIndex);
         return;
       }
 
@@ -432,7 +392,6 @@ const Visuals: React.FC = () => {
       setSliderValue(plotMiddlePointIndex);
       // geotiffURLhandler(plotMiddlePointIndex);
     } else {
-      console.log("THIS HAPPENS");
       // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
       setSliderRange([0, stateData.length - 1]);
       // setSliderValue();
@@ -444,7 +403,6 @@ const Visuals: React.FC = () => {
     const activeIndex = Number(e.detail.value);
     adjustVLine([...stateData.map((d) => d.timestamp)], activeIndex);
     setSliderValue(activeIndex);
-    // geotiffURLhandler(activeIndex);
     //  setSliderRange(filteredDates.length - 1);
     (Plotly as any).Fx.hover("divId", [
       { curveNumber: 0, pointNumber: activeIndex },
@@ -470,33 +428,15 @@ const Visuals: React.FC = () => {
 
     // No more data in the visible area of Plot -- display the next portion
     if (stateData[nextIndex] !== undefined && nextIndex < sliderRange[0]) {
-      console.log("we are here");
       return;
     }
 
     setSliderValue((prevNum) => prevNum - 1);
     adjustVLine([...stateData.map((d) => d.timestamp)], sliderValue - 1);
     // setSliderRange(filteredDates.length - 1);
-    // geotiffURLhandler(sliderValue - 1);
   };
 
   const sliderRightBtnHandler = () => {
-    Plotly.downloadImage("divId", {
-      format: "png",
-      filename: "my_plot",
-      height: 500,
-      width: 700,
-    })
-      .then(function () {
-        console.log(
-          "Plotly image download initiated/completed (browser handling)"
-        );
-        // Add any custom logic here, like showing a success message
-      })
-      .catch(function (error) {
-        console.error("Error during Plotly image download:", error);
-        // Handle errors during the download process
-      });
     if (stateData.length === 0) return;
     const nextIndex = sliderValue + 1;
     // No more data to display -- load new chunk of data
@@ -508,85 +448,22 @@ const Visuals: React.FC = () => {
       const currentDateDiff = currentEndTime - currentBeginTime;
       const newEndTime = currentEndTime + currentDateDiff;
 
-      console.log("loading more data!!!");
       fetchMoreData(currentBeginTime, newEndTime);
       return;
     }
 
     // No more data in the visible area of Plot -- display the next portion
     if (stateData[nextIndex] !== undefined && nextIndex > sliderRange[1]) {
-      console.log("we are here");
       return;
     }
 
     setSliderValue((prevNum) => prevNum + 1);
     adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
-    // geotiffURLhandler(nextIndex);
   };
-
-  // const nextChunkHandler = () => {
-  //   // if (stateData.length < NUM_DATA_TO_SHOW) return;
-  //   // setDataRangeMin((prevNum) => {
-  //   //   console.log(
-  //   //     "math min: ",
-  //   //     Math.min(stateData.length, prevNum + NUM_DATA_TO_SHOW)
-  //   //   );
-  //   //   return Math.min(stateData.length, prevNum + NUM_DATA_TO_SHOW);
-  //   // });
-
-  //   // setDataRangeMin((prevNum) => prevNum + NUM_DATA_TO_SHOW);
-  // };
-
-  // NUM_DATA_TO_SHOW = 50
-  // 49 - (49 % 50) = 49
-  // const prevChunkHandler = () => {
-  //   // if (stateData.length < NUM_DATA_TO_SHOW) return;
-  //   // if (dataRangeMin === 0) return;
-  //   // setDataRangeMin((prevNum) =>
-  //   //   Math.max(
-  //   //     NUM_DATA_TO_SHOW,
-  //   //     prevNum % NUM_DATA_TO_SHOW === 0
-  //   //       ? prevNum - NUM_DATA_TO_SHOW
-  //   //       : prevNum - (prevNum % NUM_DATA_TO_SHOW)
-  //   //   )
-  //   // );
-  //   // 10, 20
-  //   // setDataRangeMin(
-  //   //   (prevNum) =>
-  //   //     // Math.max(NUM_DATA_TO_SHOW, prevNum - NUM_DATA_TO_SHOW)
-  //   //     prevNum - NUM_DATA_TO_SHOW
-  //   // );
-  // };
-
-  // useEffect(() => {
-  //   setDataRangeMin(
-  //     stateData.length >= NUM_DATA_TO_SHOW ? NUM_DATA_TO_SHOW : stateData.length
-  //   );
-  // }, [stateData.length]);
-  // console.log(plotRef.current);
-  // let sliderWidth = 400;
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     if (plotRef.current !== null) {
-  //       sliderWidth =
-  //         (plotRef.current as any).el.getBoundingClientRect().width -
-  //         MARGIN_INLINE * 2;
-  //       // console.log((plotRef.current as any).el.getBoundingClientRect().width);
-  //       // console.log((plotRef.current as any).el.querySelector(".nsewdrag.drag"));
-  //     }
-  //   };
-  //   // console.log(sliderWidth);
-  //   window.addEventListener("resize", handleResize);
-  //   return () => window.removeEventListener("resize", handleResize);
-  // }, []);
-
-  // https://doi.org/10.5067/Aura/OMI/DATA3005
 
   return (
     <IonPage>
       <Header title="Time Series Data" />
-      {stateMetadata && <InfoPanel metadata={stateMetadata} />}
-      <StorageManager />
       <IonContent className="ion-padding">
         <IonAlert
           isOpen={isLoading}
@@ -630,16 +507,9 @@ const Visuals: React.FC = () => {
         />
         <TimeSeriesPlot
           plotRef={plotRef}
-          // metadata={stateMetadata}
-          // data={stateData}
           layout={plotState.layout}
-          // plotData={plotState.data}
           plotData={[...plotState.data]}
           onPlotRelayout={plotRelayoutHandler}
-          // onSliderChange={sliderChangeHandler}
-          // data={stateData.slice(dataRangeMin, dataRangeMin + NUM_DATA_TO_SHOW)}
-          // minRange={plotMinRange}
-          // maxRange={plotMaxRange}
         />
         <Slider
           onLeftBtnClick={sliderLeftBtnHandler}
@@ -655,14 +525,7 @@ const Visuals: React.FC = () => {
           min={sliderRange[0]}
           // prettier-ignore
           onValueChange={sliderValueChangeHandler}
-          // pinFormatter={(index: number) => `${stateData[index]?.timestamp}`}
-          pinFormatter={
-            (index: number) => `${stateData[index]?.timestamp}`
-            // stateData[index]?.timestamp &&
-            // `${new Date(stateData[index]?.timestamp).toLocaleDateString(
-            //   "en-US"
-            // )}`
-          }
+          pinFormatter={(index: number) => `${stateData[index]?.timestamp}`}
           disabled={!stateData.length}
         />
         <IonGrid>
@@ -684,19 +547,6 @@ const Visuals: React.FC = () => {
               >
                 {isLoading ? "Wait..." : "Plot Data"}
               </IonButton>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
-        <IonGrid>
-          <IonRow>
-            <IonCol>
-              <h3>Selected Parameters:</h3>
-              <div>Variable: {selectedVariable}</div>
-              <div>Begin time: {formatDate(selectedBeginTime)}</div>
-              <div>End time: {formatDate(selectedEndTime)}</div>
-              <div>
-                Coordiantes: {selectedLat}, {selectedLon}
-              </div>
             </IonCol>
           </IonRow>
         </IonGrid>
