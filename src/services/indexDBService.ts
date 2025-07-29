@@ -89,9 +89,6 @@ export const getAllItems = async () => {
 
   try {
     await localforage.iterate(function (value: TimeSeriesData, key: string) {
-      // console.log("key: ", key);
-      // console.log("value: ", value);
-
       if (key !== "CapacitorStorage.plotData_recent_data") {
         items.push({ metadata: value.metadata, cachekey: key });
       }
@@ -103,47 +100,3 @@ export const getAllItems = async () => {
     }
   }
 };
-
-/**
- * Using array to store the data
- */
-// export const setArrayItem = async (key: string, value: TimeSeriesData) => {
-//   try {
-//     const storedData: TimeSeriesData[] = (await localforage.getItem(key)) || [];
-
-//     // check if exists return
-//     const isVariableStored = storedData.find(
-//       (v) => v.metadata.dataFieldId === value.metadata.dataFieldId
-//     );
-//     console.log(
-//       isVariableStored ? "variable exists" : "variable doesn't exist"
-//     );
-//     if (isVariableStored) return;
-
-//     storedData.push(value);
-//     localforage.setItem(key, storedData);
-
-//     console.log(
-//       `Data with id "${value.metadata.dataFieldId}" has been set in IndexedDB`
-//     );
-//   } catch (err) {
-//     console.error("Error setting data in IndexedDB:", err);
-//   }
-// };
-
-// export const getArrayItem = async (
-//   key: string,
-//   variableId: string
-// ): Promise<TimeSeriesData | undefined> => {
-//   try {
-//     const storedData: TimeSeriesData[] = (await localforage.getItem(key)) || [];
-
-//     const item = storedData.find((v) => v.metadata.dataFieldId === variableId);
-//     console.log(
-//       `Data with id "${variableId}" has been retrieved from IndexedDB`
-//     );
-//     return item;
-//   } catch (err) {
-//     console.error("Error getting data from IndexedDB:", err);
-//   }
-// };

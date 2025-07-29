@@ -29,19 +29,19 @@ const initialContextValue: DataParamsContextType = {
   variable: DefaultParams.VARIABLE,
   beginTime: DefaultParams.BEGIN_TIME,
   endTime: DefaultParams.END_TIME,
-  setLatitude: (lat: number) => {
+  setLatitude: () => {
     console.log("empty function!");
   },
-  setLongitude: (lng: number) => {
+  setLongitude: () => {
     console.log("empty function!");
   },
-  setVariable: (variable: string) => {
+  setVariable: () => {
     console.log("empty function!");
   },
-  setBeginTime: (beginTime: string) => {
+  setBeginTime: () => {
     console.log("empty function!");
   },
-  setEndTime: (endTime: string) => {
+  setEndTime: () => {
     console.log("empty function!");
   },
 };

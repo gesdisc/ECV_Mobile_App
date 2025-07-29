@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-  IonDatetime,
-  // IonButton,
-  IonCol,
-  DatetimeChangeEventDetail,
-} from "@ionic/react";
+import { IonDatetime, IonCol, DatetimeChangeEventDetail } from "@ionic/react";
 
 interface DatePickerProps {
   label: string;
@@ -24,32 +19,15 @@ const DatePicker: React.FC<DatePickerProps> = ({
   onDateUpdate,
 }) => {
   const [date, setDate] = useState<string>(new Date(defaultDate).toISOString());
-  // const [showDatePicker, setShowDatePicker] = useState(true);
 
   const datePickHandler = (event: CustomEvent<DatetimeChangeEventDetail>) => {
     const selectedDate = event.detail.value as string;
     onDateUpdate(selectedDate);
     setDate(selectedDate);
-    // setShowDatePicker(false);
   };
 
   return (
     <IonCol className={containerClass}>
-      {/* <IonButton
-        color="primary"
-        onClick={() => setShowDatePicker((prevState) => !prevState)}
-      >
-        {label}
-      </IonButton> */}
-      {/* {showDatePicker && (
-        <IonDatetime
-          presentation="date"
-          value={date}
-          onIonChange={datePickHandler}
-          max={maxDatetimeAllowed}
-          min={minDatetimeAllowed}
-        />
-      )} */}
       <IonDatetime
         presentation="date"
         value={date}
