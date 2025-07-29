@@ -83,9 +83,9 @@ const TiffLayer: React.FC<TiffLayerProps> = ({ map, tifURL, opacity = 1 }) => {
   layerRef.current.setStyle(updateGtStyle());
   useEffect(() => {
     if (!map || !layerRef.current) return;
+    layerRef.current.setVisible(true);
     layerRef.current.setSource(tifSource);
     map.addLayer(layerRef.current);
-    layerRef.current.setVisible(true);
 
     // center the map to the tiff
     // tifSource.getView().then((sourceView) => {
@@ -119,7 +119,7 @@ const TiffLayer: React.FC<TiffLayerProps> = ({ map, tifURL, opacity = 1 }) => {
     // map.addLayer(tifLayer);
 
     return () => {
-      layerRef.current.setVisible(false);
+      // layerRef.current.setVisible(false);
       map.removeLayer(layerRef.current);
     };
   }, [tifURL]);

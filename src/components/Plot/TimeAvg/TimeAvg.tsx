@@ -79,15 +79,7 @@ const Visuals: React.FC = () => {
    */
   useEffect(() => {
     if (stateData.length === 0) return;
-    // const trace1 = {
-    //   x: stateData.map((d) => d.timestamp).slice(0, 10),
-    //   y: stateData.map((d) => d.value),
-    //   type: "scatter",
-    //   // mode: "lines+markers",
-    //   mode: "lines",
-    //   line: { color: "blue" },
-    //   name: stateMetadata?.param_short_name || "",
-    // };
+
     const plotData: Partial<Plotly.Data>[] = [
       {
         x: stateData.map((d) => d.timestamp),
@@ -176,13 +168,13 @@ const Visuals: React.FC = () => {
     }
   };
 
-  const adjustVLine = (newData: TimeSeriesDataRow[], activeIndex: number) => {
+  const adjustVLine = (newXrange: string[], activeIndex: number) => {
     if (plotState.layout.shapes === undefined) return;
     const newVerticalLine: Partial<Plotly.Shape> = {
       ...plotState.layout?.shapes[0],
       visible: true,
-      x0: newData[activeIndex]?.timestamp,
-      x1: newData[activeIndex]?.timestamp,
+      x0: newXrange[activeIndex],
+      x1: newXrange[activeIndex],
       // x0: activeIndex,
       // x1: activeIndex,
       y0: "-100", // y bottom
@@ -208,25 +200,23 @@ const Visuals: React.FC = () => {
     if (newLeftPoint && newRightPoint) {
       // fetchMoreData(e["xaxis.range[0]"], e["xaxis.range[1]"]);
 
-      const filteredData = filterDataBetweenDates(
+      const filteredDates = filterDataBetweenDates(
         newLeftPoint,
         newRightPoint,
-        stateData
+        [...stateData.map((d) => d.timestamp)]
       );
-      // if (filteredData.length <= 6) return; // LIMIT ZOOM AND PAN?
-      if (filteredData.length === 0) return;
+      // if (filteredDates.length <= 6) return; // LIMIT ZOOM AND PAN?
+      if (filteredDates.length === 0) return;
 
       const newLeftPointIndex = stateData.findIndex(
-        (data) => data.timestamp === filteredData[0].timestamp
+        (data) => data.timestamp === filteredDates[0]
       );
       const newRightPointIndex = stateData.findIndex(
-        (data) =>
-          data.timestamp === filteredData[filteredData.length - 1].timestamp
+        (data) => data.timestamp === filteredDates[filteredDates.length - 1]
       );
       const newMiddleIndex = stateData.findIndex(
         (data) =>
-          data.timestamp ===
-          filteredData[getMiddleIndex(filteredData)].timestamp
+          data.timestamp === filteredDates[getMiddleIndex(filteredDates)]
       );
 
       // if(plotState.layout !== undefined){
@@ -234,7 +224,7 @@ const Visuals: React.FC = () => {
 
       // }
       // TODO: update the slider steps
-      adjustVLine(filteredData, getMiddleIndex(filteredData));
+      adjustVLine(filteredDates, getMiddleIndex(filteredDates));
       setSliderRange([newLeftPointIndex, newRightPointIndex]);
       setSliderValue(newMiddleIndex);
       geotiffURLhandler(newMiddleIndex);
@@ -261,28 +251,28 @@ const Visuals: React.FC = () => {
     if (!stateData.length) return;
     const activeIndex = e.detail.value;
     console.log("activeIndex: ", activeIndex);
-    adjustVLine(stateData, activeIndex);
+    adjustVLine([...stateData.map((d) => d.timestamp)], activeIndex);
     setSliderValue(activeIndex);
     geotiffURLhandler(activeIndex);
-    //  setSliderRange(filteredData.length - 1);
+    //  setSliderRange(filteredDates.length - 1);
   };
 
-  const sliderLeftBtnHandler = (e: any) => {
+  const sliderLeftBtnHandler = () => {
     if (stateData.length === 0) return;
     if (sliderValue === 0) return;
     // if (stateData[sliderValue - 1] === undefined) return;
     setSliderValue((prevNum) => prevNum - 1);
-    adjustVLine(stateData, sliderValue - 1);
-    // setSliderRange(filteredData.length - 1);
+    adjustVLine([...stateData.map((d) => d.timestamp)], sliderValue - 1);
+    // setSliderRange(filteredDates.length - 1);
     geotiffURLhandler(sliderValue - 1);
   };
 
-  const sliderRightBtnHandler = (e: any) => {
+  const sliderRightBtnHandler = () => {
     if (stateData.length === 0) return;
     // if (data[sliderValue + 1] === undefined) return;
     // if (stateData[sliderValue + 1] === undefined) return;
     setSliderValue((prevNum) => prevNum + 1);
-    adjustVLine(stateData, sliderValue + 1);
+    adjustVLine([...stateData.map((d) => d.timestamp)], sliderValue + 1);
     geotiffURLhandler(sliderValue + 1);
   };
 
@@ -369,7 +359,6 @@ const Visuals: React.FC = () => {
           }
           disabled={!stateData.length}
         />
-
         <IonGrid>
           <IonRow>
             <IonCol>

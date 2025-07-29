@@ -327,3 +327,100 @@ export interface expType {
 //     };
 //   }),
 // };
+
+/**
+ * pixel based vertical line
+ */
+// if (plotRef.current) {
+// const gd = (plotRef.current as any).el; // Get the raw Plotly DOM element
+//   const fullLayout = gd._fullLayout;
+//   const fullData = gd._fullData;
+//   // console.log("here we go");
+//   if (fullLayout && fullData) {
+//     const newPixelCoords: any = [];
+//     const xPxCoords: any = [];
+//     fullData.forEach((trace: any) => {
+//       if (trace.x && trace.y && fullLayout.xaxis && fullLayout.yaxis) {
+//         const xaxis = fullLayout.xaxis;
+//         const yaxis = fullLayout.yaxis;
+//         const l = fullLayout.margin.l;
+//         const t = fullLayout.margin.t;
+
+//         for (let i = 0; i < trace.x.length; i++) {
+//           const xData = trace.x[i];
+//           const yData = trace.y[i];
+//           // Convert data coordinates to pixel coordinates
+//           const xPx = xaxis.l2p(new Date(xData).getTime()) + l; // Add left margin offset
+//           const yPx = yaxis.l2p(yData) + t; // Add top margin offset
+//           xPxCoords.push(xPx);
+
+//           newPixelCoords.push({
+//             x: xPx,
+//             y: yPx,
+//             traceIndex: trace.index,
+//             pointIndex: i,
+//           });
+//         }
+//       }
+//     });
+//     // console.log(newPixelCoords);
+//     // console.log(xPxCoords);
+//     // setPixelCoords(newPixelCoords);
+//   }
+// }
+
+// const nextChunkHandler = () => {
+//   // if (stateData.length < NUM_DATA_TO_SHOW) return;
+//   // setDataRangeMin((prevNum) => {
+//   //   console.log(
+//   //     "math min: ",
+//   //     Math.min(stateData.length, prevNum + NUM_DATA_TO_SHOW)
+//   //   );
+//   //   return Math.min(stateData.length, prevNum + NUM_DATA_TO_SHOW);
+//   // });
+
+//   // setDataRangeMin((prevNum) => prevNum + NUM_DATA_TO_SHOW);
+// };
+
+// NUM_DATA_TO_SHOW = 50
+// 49 - (49 % 50) = 49
+// const prevChunkHandler = () => {
+//   // if (stateData.length < NUM_DATA_TO_SHOW) return;
+//   // if (dataRangeMin === 0) return;
+//   // setDataRangeMin((prevNum) =>
+//   //   Math.max(
+//   //     NUM_DATA_TO_SHOW,
+//   //     prevNum % NUM_DATA_TO_SHOW === 0
+//   //       ? prevNum - NUM_DATA_TO_SHOW
+//   //       : prevNum - (prevNum % NUM_DATA_TO_SHOW)
+//   //   )
+//   // );
+//   // 10, 20
+//   // setDataRangeMin(
+//   //   (prevNum) =>
+//   //     // Math.max(NUM_DATA_TO_SHOW, prevNum - NUM_DATA_TO_SHOW)
+//   //     prevNum - NUM_DATA_TO_SHOW
+//   // );
+// };
+
+// useEffect(() => {
+//   setDataRangeMin(
+//     stateData.length >= NUM_DATA_TO_SHOW ? NUM_DATA_TO_SHOW : stateData.length
+//   );
+// }, [stateData.length]);
+// console.log(plotRef.current);
+// let sliderWidth = 400;
+// useEffect(() => {
+//   const handleResize = () => {
+//     if (plotRef.current !== null) {
+//       sliderWidth =
+//         (plotRef.current as any).el.getBoundingClientRect().width -
+//         MARGIN_INLINE * 2;
+//       // console.log((plotRef.current as any).el.getBoundingClientRect().width);
+//       // console.log((plotRef.current as any).el.querySelector(".nsewdrag.drag"));
+//     }
+//   };
+//   // console.log(sliderWidth);
+//   window.addEventListener("resize", handleResize);
+//   return () => window.removeEventListener("resize", handleResize);
+// }, []);

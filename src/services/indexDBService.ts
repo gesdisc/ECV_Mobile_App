@@ -1,5 +1,9 @@
 import localforage from "localforage";
-import { TimeSeriesData } from "../types/time-series.types";
+import {
+  TimeSeriesData,
+  TimeSeriesMetadata,
+  TimeSeriesDataRow,
+} from "../types/time-series.types";
 
 /**
  * IndexDB API: a low-level API for client-side storage of significant amounts of structured data
@@ -76,6 +80,26 @@ export const getRecentDataKey = async (key: string) => {
   } catch (err) {
     if (err instanceof Error) {
       throw new Error("Error getting recent data key from IndexedDB: ", err);
+    }
+  }
+};
+
+export const getAllItems = async () => {
+  const items: { metadata: TimeSeriesMetadata; cachekey: string }[] = [];
+
+  try {
+    await localforage.iterate(function (value: TimeSeriesData, key: string) {
+      // console.log("key: ", key);
+      // console.log("value: ", value);
+
+      if (key !== "CapacitorStorage.plotData_recent_data") {
+        items.push({ metadata: value.metadata, cachekey: key });
+      }
+    });
+    return items;
+  } catch (err) {
+    if (err instanceof Error) {
+      throw new Error("Error retrieving data from IndexedDB: ", err);
     }
   }
 };

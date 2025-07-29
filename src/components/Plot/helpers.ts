@@ -20,12 +20,12 @@ export const getMiddleIndex = (arr: Array<any>) => {
 export const filterDataBetweenDates = (
   startDate: string,
   endDate: string,
-  dataArray: TimeSeriesDataRow[]
+  dateArray: string[]
 ) => {
-  return dataArray.filter(
-    (d) =>
-      new Date(d.timestamp).getTime() >= new Date(startDate).getTime() &&
-      new Date(d.timestamp).getTime() <= new Date(endDate).getTime()
+  return dateArray.filter(
+    (date) =>
+      new Date(date).getTime() >= new Date(startDate).getTime() &&
+      new Date(date).getTime() <= new Date(endDate).getTime()
   );
 };
 

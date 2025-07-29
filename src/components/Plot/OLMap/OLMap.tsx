@@ -107,15 +107,6 @@ const OLMap: React.FC<OLMapProps> = ({ width, tifURL }) => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   // Update the GeoTIFF source when geoTiffUrl changes
-  //   if (geoTiffLayerRef.current) {
-  //     const currentSource = (geoTiffLayerRef.current as any).getSource();
-  //     currentSource.setSources([{ url: geoTiffUrl }]); // Update the GeoTIFF source
-  //     currentSource.refresh(); // Force a refresh of the layer
-  //   }
-  // }, [geoTiffUrl]);
-
   return (
     <>
       <IonGrid style={{ display: "flex", justifyContent: "center" }}>
