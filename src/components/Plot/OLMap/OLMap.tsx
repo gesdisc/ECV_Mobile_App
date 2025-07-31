@@ -117,11 +117,11 @@ const OLMap: React.FC<OLMapProps> = ({ width, tifURL }) => {
               ref={mapRef}
               style={{ width: width, height: "250px", position: "relative" }}
             >
-              {/* <TiffLayer
+              <TiffLayer
                 map={stateMap}
                 tifURL={tifURL}
                 opacity={layerOpacity}
-              /> */}
+              />
               <IonButton
                 // disabled={disabled}
                 size="small"

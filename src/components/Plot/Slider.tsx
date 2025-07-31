@@ -90,19 +90,23 @@ const Slider: React.FC<SliderProps> = ({
           >
             <IonButton
               disabled={disabled}
-              size="default"
+              size="small"
               onClick={onLeftBtnClick}
             >
-              <IonIcon aria-hidden="true" size="medium" icon={caretBackSharp} />
+              <IonIcon
+                aria-hidden="true"
+                size="default"
+                icon={caretBackSharp}
+              />
             </IonButton>
             <IonButton
               disabled={disabled}
-              size="default"
+              size="small"
               onClick={onRightBtnClick}
             >
               <IonIcon
                 aria-hidden="true"
-                size="medium"
+                size="default"
                 icon={caretForwardSharp}
               />
             </IonButton>

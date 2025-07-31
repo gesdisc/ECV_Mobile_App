@@ -19,7 +19,6 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 
-import Header from "../Layout/Header";
 import { useDataParams } from "../../store/DataParamsContext";
 
 // Import the marker images
@@ -27,8 +26,11 @@ import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
+import Header from "../Layout/Header";
+import Banner from "../UI/Banner";
+
 import "leaflet/dist/leaflet.css";
-import "./Location.css";
+import styles from "./Location.module.css";
 
 // Fix default marker icon issues
 L.Icon.Default.mergeOptions({
@@ -38,7 +40,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const Location: React.FC = () => {
-  const { latitude, longitude, setLatitude, setLongitude } = useDataParams(); // using custom location hook
+  const { latitude, longitude, setLatitude, setLongitude } = useDataParams();
 
   const handleLatChange = (e: CustomEvent) => {
     const newLat = parseFloat(e.detail.value); // get new latitude
@@ -65,25 +67,28 @@ const Location: React.FC = () => {
     return <Marker position={[latitude, longitude]}></Marker>; // place marker at current location
   };
 
+  // FIXME: gray areas after date state change
   const MapResizer = () => {
     const map = useMap();
     useEffect(() => {
       const timeoutId = setTimeout(() => {
         map.invalidateSize();
       }, 250);
+
       map.setView([latitude, longitude], map.getZoom(), {
         animate: true,
       });
       return () => clearTimeout(timeoutId);
-    }, [map]);
+    }, [map, latitude, longitude]);
     return null;
   };
 
   return (
     <IonPage>
-      <Header title="Region Selector" />
-      <IonContent>
-        <div id="map-container">
+      {/* <Header title="Region Selector" /> */}
+      <Banner />
+      <IonContent scrollY={false} fullscreen={false}>
+        <div className={styles["map-container"]}>
           <MapContainer
             center={[latitude, longitude]}
             zoom={8}
@@ -100,9 +105,9 @@ const Location: React.FC = () => {
       </IonContent>
       <IonFooter>
         <IonToolbar>
-          <div className="lat-lon-inputs">
+          <div className={`${styles["input-container"]}`}>
             <IonItem>
-              <IonLabel position="floating">Latitude</IonLabel>
+              <IonLabel position="floating">Latitude:</IonLabel>
               <IonInput
                 type="number"
                 value={latitude.toString()}
@@ -110,7 +115,7 @@ const Location: React.FC = () => {
               />
             </IonItem>
             <IonItem>
-              <IonLabel position="floating">Longitude</IonLabel>
+              <IonLabel position="floating">Longitude:</IonLabel>
               <IonInput
                 type="number"
                 value={longitude.toString()}

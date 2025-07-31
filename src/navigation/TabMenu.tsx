@@ -9,7 +9,6 @@ import {
   IonTabButton,
   IonTabs,
 } from "@ionic/react";
-
 import {
   globeOutline,
   rainyOutline,
@@ -44,7 +43,7 @@ const TabMenu: React.FC = () => (
           <Redirect to={`/${TabMenuLabels.CATALOG}`} />
         </Route>
       </IonRouterOutlet>
-      <IonTabBar slot="bottom">
+      <IonTabBar slot="bottom" color={"primary"}>
         <IonTabButton
           tab={TabMenuLabels.CATALOG}
           href={`/${TabMenuLabels.CATALOG}`}

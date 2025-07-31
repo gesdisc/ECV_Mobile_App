@@ -12,8 +12,16 @@ import {
   RangeCustomEvent,
   isPlatform,
   getPlatforms,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCard,
+  IonCardContent,
+  IonCardTitle,
 } from "@ionic/react";
-import { informationCircle } from "ionicons/icons";
+import { informationCircle, server } from "ionicons/icons";
 import { Network } from "@capacitor/network";
 import { useLocation } from "react-router-dom";
 import Plotly from "plotly.js-dist-min";
@@ -48,7 +56,8 @@ import OpenLayersMap from "./OLMap/OLMap";
 import InfoPanel from "./InfoPanel";
 import StorageManager from "./StorageManager";
 
-import "./Plot.css";
+import styles from "./Plot.module.css";
+import Banner from "../UI/Banner";
 
 const NUM_DATA_TO_SHOW = 10;
 
@@ -77,7 +86,6 @@ const Visuals: React.FC = () => {
   const { height, width } = useWindowDimensions();
 
   // const PLOT_DATA_CACHE_KEY = `CapacitorStorage.plotData*${selectedVariable}*${selectedBeginTime}*${selectedEndTime}*${selectedLat}*${selectedLon}`;
-
   const [plotState, setPlotState] = useState<{
     data: Partial<Plotly.Data>[];
     layout: Partial<Plotly.Layout>;
@@ -190,7 +198,8 @@ const Visuals: React.FC = () => {
         // mode: "lines+markers",
         mode: "lines",
         line: { color: "blue" },
-        // name: stateMetadata?.param_short_name || "",
+        name: stateMetadata?.param_short_name || "",
+        // connectgaps: false,
       },
     ];
 
@@ -204,7 +213,7 @@ const Visuals: React.FC = () => {
         // x0: MARGIN_INLINE * -2, // x bottom
         // x1: MARGIN_INLINE * -2, // x top
         y0: "-100", // y bottom
-        y1: "300", // y top
+        y1: "150", // y top
       };
     }
 
@@ -229,6 +238,7 @@ const Visuals: React.FC = () => {
       shapes: [verticalLine],
       xaxis: {
         ...plotState.layout.xaxis,
+        type: "date",
         title: "Date & Time",
       },
       // yaxis: {
@@ -354,7 +364,7 @@ const Visuals: React.FC = () => {
       // x0: activeIndex,
       // x1: activeIndex,
       y0: "-100", // y bottom
-      y1: "300", // y top
+      y1: "150", // y top
     };
 
     setPlotState((prevState) => {
@@ -481,22 +491,6 @@ const Visuals: React.FC = () => {
   };
 
   const sliderRightBtnHandler = () => {
-    Plotly.downloadImage("divId", {
-      format: "png",
-      filename: "my_plot",
-      height: 500,
-      width: 700,
-    })
-      .then(function () {
-        console.log(
-          "Plotly image download initiated/completed (browser handling)"
-        );
-        // Add any custom logic here, like showing a success message
-      })
-      .catch(function (error) {
-        console.error("Error during Plotly image download:", error);
-        // Handle errors during the download process
-      });
     if (stateData.length === 0) return;
     const nextIndex = sliderValue + 1;
     // No more data to display -- load new chunk of data
@@ -522,6 +516,25 @@ const Visuals: React.FC = () => {
     setSliderValue((prevNum) => prevNum + 1);
     adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
     // geotiffURLhandler(nextIndex);
+  };
+
+  const downloadPlotImage = () => {
+    Plotly.downloadImage("divId", {
+      format: "png",
+      filename: "my_plot",
+      height: 500,
+      width: 700,
+    })
+      .then(function () {
+        console.log(
+          "Plotly image download initiated/completed (browser handling)"
+        );
+        // Add any custom logic here, like showing a success message
+      })
+      .catch(function (error) {
+        console.error("Error during Plotly image download:", error);
+        // Handle errors during the download process
+      });
   };
 
   // const nextChunkHandler = () => {
@@ -580,126 +593,145 @@ const Visuals: React.FC = () => {
   //   return () => window.removeEventListener("resize", handleResize);
   // }, []);
 
-  // https://doi.org/10.5067/Aura/OMI/DATA3005
+  const currentVariableData = catalog.find(
+    (data) =>
+      data.dataFieldId ===
+      `${stateMetadata?.prod_name}`
+        .replaceAll(".", "_")
+        .concat(`_${stateMetadata?.param_short_name}`)
+  );
 
   return (
     <IonPage>
-      <Header title="Time Series Data" />
-      {stateMetadata && <InfoPanel metadata={stateMetadata} />}
-      <StorageManager />
-      <IonContent className="ion-padding">
-        <IonAlert
-          isOpen={isLoading}
-          trigger="present-alert"
-          buttons={[
+      <IonContent fullscreen={true}>
+        <Banner>
+          <IonButton slot="end" size="small" id="storage-manager">
+            <IonIcon aria-hidden="true" size="medium" icon={server} />
+          </IonButton>
+        </Banner>
+        <div
+          className="ion-padding"
+          style={
             {
-              text: "Cancel",
-              role: "cancel",
-              handler: () => {
-                cancelRequest();
-              },
-            },
-          ]}
-          message="Loading, please wait..."
-          backdropDismiss={false}
-        ></IonAlert>
-        {error && (
-          <IonAlert
-            isOpen={abortController.current?.signal.aborted ? false : !!error}
-            header="Error!"
-            message={error}
-            buttons={["OK"]}
-            onDidDismiss={() => setError(null)}
-          />
-        )}
-        {alertMessage && (
-          <IonAlert
-            isOpen={!!alertMessage}
-            header="Alert"
-            message={alertMessage}
-            buttons={["OK"]}
-            onDidDismiss={() => setAlertMessage(null)}
-          />
-        )}
-        <OpenLayersMap
-          width={
-            plotState.layout.width === undefined
-              ? 500
-              : plotState.layout.width - MARGIN_INLINE * 2
+              // background: "var(--ion-color-secondary)",
+              // borderRadius: "10px",
+            }
           }
-        />
-        <TimeSeriesPlot
-          plotRef={plotRef}
-          // metadata={stateMetadata}
-          // data={stateData}
-          layout={plotState.layout}
-          // plotData={plotState.data}
-          plotData={[...plotState.data]}
-          onPlotRelayout={plotRelayoutHandler}
-          // onSliderChange={sliderChangeHandler}
-          // data={stateData.slice(dataRangeMin, dataRangeMin + NUM_DATA_TO_SHOW)}
-          // minRange={plotMinRange}
-          // maxRange={plotMaxRange}
-        />
-        <Slider
-          onLeftBtnClick={sliderLeftBtnHandler}
-          onRightBtnClick={sliderRightBtnHandler}
-          value={sliderValue}
-          max={sliderRange[1]}
-          // prettier-ignore
-          width={
+        >
+          {currentVariableData && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                // justifyContent: "space-between",
+              }}
+            >
+              <IonTitle>{currentVariableData.label}</IonTitle>
+              <IonButton size="small" id="data-info-modal" fill="clear">
+                <IonIcon
+                  aria-hidden="true"
+                  size="large"
+                  icon={informationCircle}
+                  color="warning"
+                />
+              </IonButton>
+            </div>
+          )}
+          {stateMetadata && <InfoPanel metadata={stateMetadata} />}
+          <StorageManager />
+          <IonAlert
+            isOpen={isLoading}
+            trigger="present-alert"
+            buttons={[
+              {
+                text: "Cancel",
+                role: "cancel",
+                handler: () => {
+                  cancelRequest();
+                },
+              },
+            ]}
+            message="Loading, please wait..."
+            backdropDismiss={false}
+          ></IonAlert>
+          {error && (
+            <IonAlert
+              isOpen={abortController.current?.signal.aborted ? false : !!error}
+              header="Error!"
+              message={error}
+              buttons={["OK"]}
+              onDidDismiss={() => setError(null)}
+            />
+          )}
+          {alertMessage && (
+            <IonAlert
+              isOpen={!!alertMessage}
+              header="Alert"
+              message={alertMessage}
+              buttons={["OK"]}
+              onDidDismiss={() => setAlertMessage(null)}
+            />
+          )}
+          <OpenLayersMap
+            width={
+              plotState.layout.width === undefined
+                ? 500
+                : plotState.layout.width - MARGIN_INLINE * 2
+            }
+          />
+          <TimeSeriesPlot
+            plotRef={plotRef}
+            // metadata={stateMetadata}
+            // data={stateData}
+            layout={plotState.layout}
+            // plotData={plotState.data}
+            plotData={[...plotState.data]}
+            onPlotRelayout={plotRelayoutHandler}
+            // onSliderChange={sliderChangeHandler}
+            // data={stateData.slice(dataRangeMin, dataRangeMin + NUM_DATA_TO_SHOW)}
+            // minRange={plotMinRange}
+            // maxRange={plotMaxRange}
+          />
+          <Slider
+            onLeftBtnClick={sliderLeftBtnHandler}
+            onRightBtnClick={sliderRightBtnHandler}
+            value={sliderValue}
+            max={sliderRange[1]}
+            // prettier-ignore
+            width={
             plotState.layout.width === undefined
               ? 500
               : plotState.layout.width - (MARGIN_INLINE * 2)
           }
-          min={sliderRange[0]}
-          // prettier-ignore
-          onValueChange={sliderValueChangeHandler}
-          // pinFormatter={(index: number) => `${stateData[index]?.timestamp}`}
-          pinFormatter={
-            (index: number) => `${stateData[index]?.timestamp}`
-            // stateData[index]?.timestamp &&
-            // `${new Date(stateData[index]?.timestamp).toLocaleDateString(
-            //   "en-US"
-            // )}`
-          }
-          disabled={!stateData.length}
-        />
-        <IonGrid>
-          <IonRow>
-            <IonCol>
-              <IonButton
-                expand="block"
-                fill="outline"
-                onClick={() =>
-                  handlePlotData({
-                    lat: selectedLat,
-                    lon: selectedLon,
-                    begin_time: selectedBeginTime,
-                    end_time: selectedEndTime,
-                    variable: selectedVariable,
-                  })
-                }
-                disabled={isLoading}
-              >
-                {isLoading ? "Wait..." : "Plot Data"}
-              </IonButton>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
-        <IonGrid>
-          <IonRow>
-            <IonCol>
-              <h3>Selected Parameters:</h3>
-              <div>Variable: {selectedVariable}</div>
-              <div>Begin time: {formatDate(selectedBeginTime)}</div>
-              <div>End time: {formatDate(selectedEndTime)}</div>
-              <div>
-                Coordiantes: {selectedLat}, {selectedLon}
-              </div>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
+            min={sliderRange[0]}
+            // prettier-ignore
+            onValueChange={sliderValueChangeHandler}
+            // pinFormatter={(index: number) => `${stateData[index]?.timestamp}`}
+            pinFormatter={
+              (index: number) => `${stateData[index]?.timestamp}`
+              // stateData[index]?.timestamp &&
+              // `${new Date(stateData[index]?.timestamp).toLocaleDateString(
+              //   "en-US"
+              // )}`
+            }
+            disabled={!stateData.length}
+          />
+          <IonButton
+            expand="block"
+            onClick={() =>
+              handlePlotData({
+                lat: selectedLat,
+                lon: selectedLon,
+                begin_time: selectedBeginTime,
+                end_time: selectedEndTime,
+                variable: selectedVariable,
+              })
+            }
+            disabled={isLoading}
+          >
+            {isLoading ? "Wait..." : "Plot Data"}
+          </IonButton>
+        </div>
       </IonContent>
     </IonPage>
   );

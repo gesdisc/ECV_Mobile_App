@@ -29,12 +29,12 @@ import Slider from "../Slider";
 import OLMap from "../OLMap/OLMap";
 import TimeSeriesPlot from "../TimeSeriesPlot";
 
-import "../Plot.css";
+// import styles from "./Plot.module.css";
 
 const Visuals: React.FC = () => {
   const { latitude, longitude, beginTime, endTime, variable } = useDataParams();
   const abortController = useRef<AbortController | null>(null);
-  //   const workerRef = useRef<Worker | null>(null);
+  // const workerRef = useRef<Worker | null>(null);
   // const location = useLocation();
   // const catPageVar = location.state;
   // console.log("catPageVar: ", catPageVar);

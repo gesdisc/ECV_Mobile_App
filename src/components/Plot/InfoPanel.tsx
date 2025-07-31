@@ -12,14 +12,10 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ metadata }) => {
   const dataInfoModal = useRef<HTMLIonModalElement>(null);
   return (
     <>
-      <IonButton size="default" id="data-info-modal">
-        <IonIcon aria-hidden="true" size="medium" icon={informationCircle} />
-      </IonButton>
-
       <IonModal
         ref={dataInfoModal}
         trigger="data-info-modal"
-        initialBreakpoint={0.25}
+        initialBreakpoint={0.5}
         breakpoints={[0, 1]}
       >
         <div className="block ion-padding">

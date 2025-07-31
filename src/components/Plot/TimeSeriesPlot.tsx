@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from "react";
 import Plot from "react-plotly.js";
 import Plotly from "plotly.js-dist-min";
 
-import { IonRow, IonCol, IonGrid } from "@ionic/react";
+import { IonRow, IonCol, IonGrid, IonButton, IonIcon } from "@ionic/react";
+import { settingsSharp } from "ionicons/icons";
 
 interface TimeSeriesProps {
   plotData: Partial<Plotly.Data>[];
@@ -84,43 +85,43 @@ const TimeSeriesPlot: React.FC<TimeSeriesProps> = ({
     // (Plotly as any).Fx.hover("divId", [{ curveNumber: 0, pointNumber: 0 }]);
   };
 
-  useEffect(() => {
-    if (plotRef.current) {
-      const gd = (plotRef.current as any).el; // Get the raw Plotly DOM element
-      const fullLayout = gd._fullLayout;
-      const fullData = gd._fullData;
-      console.log("here we go");
-      if (fullLayout && fullData) {
-        const newPixelCoords: any = [];
-        const xPxCoords: any = [];
-        fullData.forEach((trace: any) => {
-          if (trace.x && trace.y && fullLayout.xaxis && fullLayout.yaxis) {
-            const xaxis = fullLayout.xaxis;
-            const yaxis = fullLayout.yaxis;
-            const l = fullLayout.margin.l;
-            const t = fullLayout.margin.t;
-            for (let i = 0; i < trace.x.length; i++) {
-              const xData = trace.x[i];
-              const yData = trace.y[i];
-              // Convert data coordinates to pixel coordinates
-              const xPx = xaxis.l2p(new Date(xData).getTime()) + l; // Add left margin offset
-              const yPx = yaxis.l2p(yData) + t; // Add top margin offset
-              xPxCoords.push(xPx);
-              newPixelCoords.push({
-                x: xPx,
-                y: yPx,
-                traceIndex: trace.index,
-                pointIndex: i,
-              });
-            }
-          }
-        });
-        console.log(newPixelCoords);
-        console.log(xPxCoords);
-        // setPixelCoords(newPixelCoords);
-      }
-    }
-  }, [plotRef.current]);
+  // useEffect(() => {
+  //   if (plotRef.current) {
+  //     const gd = (plotRef.current as any).el; // Get the raw Plotly DOM element
+  //     const fullLayout = gd._fullLayout;
+  //     const fullData = gd._fullData;
+  //     console.log("here we go");
+  //     if (fullLayout && fullData) {
+  //       const newPixelCoords: any = [];
+  //       const xPxCoords: any = [];
+  //       fullData.forEach((trace: any) => {
+  //         if (trace.x && trace.y && fullLayout.xaxis && fullLayout.yaxis) {
+  //           const xaxis = fullLayout.xaxis;
+  //           const yaxis = fullLayout.yaxis;
+  //           const l = fullLayout.margin.l;
+  //           const t = fullLayout.margin.t;
+  //           for (let i = 0; i < trace.x.length; i++) {
+  //             const xData = trace.x[i];
+  //             const yData = trace.y[i];
+  //             // Convert data coordinates to pixel coordinates
+  //             const xPx = xaxis.l2p(new Date(xData).getTime()) + l; // Add left margin offset
+  //             const yPx = yaxis.l2p(yData) + t; // Add top margin offset
+  //             xPxCoords.push(xPx);
+  //             newPixelCoords.push({
+  //               x: xPx,
+  //               y: yPx,
+  //               traceIndex: trace.index,
+  //               pointIndex: i,
+  //             });
+  //           }
+  //         }
+  //       });
+  //       console.log(newPixelCoords);
+  //       console.log(xPxCoords);
+  //       // setPixelCoords(newPixelCoords);
+  //     }
+  //   }
+  // }, [plotRef.current]);
   return (
     <IonGrid style={{ display: "flex", justifyContent: "center" }}>
       <IonRow class="ion-justify-content-center">

@@ -38,6 +38,7 @@ declare module "react-plotly.js" {
     debug?: boolean;
     className?: string;
     divId?: string;
+    children?: React.ReactNode;
   }
 
   const Plot: React.FC<PlotParams>;

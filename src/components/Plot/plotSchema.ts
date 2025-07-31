@@ -13,7 +13,7 @@ export const schema: {
   },
   layout: {
     width: 500,
-    height: 350,
+    height: 300,
     autosize: true,
     margin: {
       l: MARGIN_INLINE,

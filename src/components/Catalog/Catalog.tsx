@@ -4,8 +4,8 @@ import { useHistory } from "react-router-dom";
 
 import { useDataParams } from "../../store/DataParamsContext";
 
-import Header from "../Layout/Header";
-import Banner from "./Banner";
+// import Header from "../Layout/Header";
+import Banner from "../UI/Banner";
 import Variables from "./Variables";
 import { TabMenuLabels } from "../../constants/ui";
 
@@ -20,10 +20,12 @@ const Catalog: React.FC = () => {
 
   return (
     <IonPage>
-      <Header title="My app" />
-      <IonContent className="ion-padding">
+      {/* <Header title="My app" /> */}
+      <IonContent>
         <Banner />
-        <Variables onVariableChange={variableChangeHandler} />
+        <div className="ion-padding">
+          <Variables onVariableChange={variableChangeHandler} />
+        </div>
       </IonContent>
     </IonPage>
   );

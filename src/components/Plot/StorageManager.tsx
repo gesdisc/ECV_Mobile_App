@@ -14,6 +14,8 @@ import {
   IonItem,
   IonLabel,
   IonAlert,
+  useIonToast,
+  useIonAlert,
 } from "@ionic/react";
 import { server, trash } from "ionicons/icons";
 import {
@@ -25,17 +27,14 @@ import {
   clearCache,
   removeItem,
   getAllItems,
+  getRecentDataKey,
 } from "../../services/indexDBService";
+import { RECENT_DATA_CACHE_KEY } from "../../constants/time-series";
 import useCheckIndexedDBUsage from "../../hooks/useCheckIndexedDBUsage";
-
-interface StorageManagerProps {
-  metadata: TimeSeriesMetadata;
-}
 
 const StorageManager: React.FC = () => {
   const modal = useRef<HTMLIonModalElement>(null);
-  // const page = useRef(null);
-
+  const page = useRef(null);
   const [presentingElement, setPresentingElement] =
     useState<HTMLElement | null>(null);
   const {
@@ -46,29 +45,22 @@ const StorageManager: React.FC = () => {
   const [cachedItems, setCachedItems] = useState<
     { metadata: TimeSeriesMetadata; cachekey: string }[]
   >([]);
-  const [itemKeyToDelete, setItemKeyToDelete] = useState("");
-  // useEffect(() => {
-  //   setPresentingElement(page.current);
-  // }, []);
-
-  function dismiss() {
-    modal.current?.dismiss();
-  }
-
-  async function canDismiss(data?: any, role?: string) {
-    return role !== "gesture";
-  }
+  const [presentToast] = useIonToast();
+  const [presentAlert] = useIonAlert();
 
   useEffect(() => {
-    // console.log("RUN");
+    setPresentingElement(page.current);
+  }, []);
+
+  useEffect(() => {
     const getAllCachedItems = async () => {
       try {
         console.log("loading");
         const data = await getAllItems();
         if (!data || data.length === 0) return;
 
-        setCachedItems(data);
-
+        // setCachedItems(data);
+        setCachedItems([]);
         // console.log("useef data: ", data);
       } catch (error) {
         console.log("error");
@@ -78,33 +70,101 @@ const StorageManager: React.FC = () => {
     };
     getAllCachedItems();
   }, []);
-  // console.log(...cachedItems);
 
-  const deleteCachedItemHandler = async (role: string | undefined) => {
-    if (!role) return;
-    if (role === "confirm") {
-      console.log("confirmed, deleting item: ", itemKeyToDelete);
-      // try {
-      // console.log("deleting...")
-      //   await removeItem(itemKeyToDelete);
-      // } catch (error) {
-      //   console.log(error);
-      // }
-    }
-    setItemKeyToDelete("");
+  const toastPresenter = (
+    message: string,
+    position: "top" | "middle" | "bottom",
+    color: "success" | "danger"
+  ) => {
+    presentToast({
+      message: message,
+      duration: 2500,
+      position: position,
+      positionAnchor: "storage-header",
+      swipeGesture: "vertical",
+      color: color,
+    });
   };
 
-  const clearAllItemsHandler = async () => {
+  const alertPresenter = (
+    header: string,
+    message?: string,
+    subHeader?: string,
+    cancel?: () => void,
+    confirm?: (item?: string) => void
+  ) => {
+    presentAlert({
+      header: header,
+      subHeader: subHeader,
+      message: message,
+      buttons: [
+        {
+          text: "Cancel",
+          role: "cancel",
+          handler: () => {
+            cancel?.();
+          },
+        },
+        {
+          text: "Delete",
+          role: "confirm",
+          handler: () => {
+            confirm?.();
+          },
+        },
+      ],
+    });
+  };
+
+  const dismiss = () => {
+    modal.current?.dismiss();
+  };
+
+  const canDismiss = async (data?: any, role?: string) => {
+    return role !== "gesture";
+  };
+
+  const deleteCachedItemHandler = async (key: string) => {
     try {
-      console.log("clearing");
-      // await clearCache();
-      console.log("DONE");
+      // const recentCachedDataKey = await getRecentDataKey(RECENT_DATA_CACHE_KEY);
+
+      // set new data as recent??
+      // if (recentCachedDataKey === key) {
+      //   console.log("recentCachedDataKey_____: ", recentCachedDataKey);
+      // }
+      await removeItem(key);
+      setCachedItems((prevData) => prevData.filter((d) => d.cachekey !== key));
+      toastPresenter("Successfully deleted!", "top", "success");
     } catch (error) {
-      console.log(error);
+      toastPresenter(
+        "Something went wrong while deleting an item!",
+        "top",
+        "danger"
+      );
+    }
+  };
+
+  // check if the latest cache is deleted
+  const deleteAllItemsHandler = async () => {
+    try {
+      console.log("clearing all items!!!");
+      await clearCache();
+      setCachedItems([]);
+      toastPresenter("Successfully deleted all items!", "top", "success");
+    } catch (error) {
+      toastPresenter(
+        "Something went wrong while deleting items!",
+        "top",
+        "danger"
+      );
     }
   };
 
   const displayCachedItems = () => {
+    if (cachedItems.length === 0) {
+      return <p>No data in storage!</p>;
+    }
+
     return cachedItems.map((item) => {
       return (
         <IonItem key={item.cachekey}>
@@ -137,8 +197,15 @@ const StorageManager: React.FC = () => {
           <IonButton
             size="small"
             color={"danger"}
-            id="delete-item-alert"
-            onClick={() => setItemKeyToDelete(item.cachekey)}
+            onClick={() => {
+              alertPresenter(
+                "Delete item?",
+                undefined,
+                undefined,
+                undefined,
+                () => deleteCachedItemHandler(item.cachekey)
+              );
+            }}
           >
             <IonIcon aria-hidden="true" size="medium" icon={trash} />
           </IonButton>
@@ -149,17 +216,13 @@ const StorageManager: React.FC = () => {
 
   return (
     <>
-      <IonButton size="default" id="storage-manager">
-        <IonIcon aria-hidden="true" size="medium" icon={server} />
-      </IonButton>
-
       <IonModal
         ref={modal}
         trigger="storage-manager"
         canDismiss={canDismiss}
         presentingElement={presentingElement!}
       >
-        <IonHeader>
+        <IonHeader id="storage-header">
           <IonToolbar>
             <IonTitle>Storage</IonTitle>
             <IonButtons slot="end">
@@ -169,19 +232,6 @@ const StorageManager: React.FC = () => {
         </IonHeader>
         <IonContent className="ion-padding">
           <IonCol>
-            {/* <h3>Currently Visualizing:</h3> */}
-            {/* <div>Variable: {stateMetadata?.prod_name}</div>
-              {stateMetadata?.begin_time && (
-                <div>Begin time: {formatDate(stateMetadata.begin_time)}</div>
-              )}
-              {stateMetadata?.end_time && (
-                <div>End time: {formatDate(stateMetadata.end_time)}</div>
-              )}
-              {stateMetadata?.lat && (
-                <div>
-                  Coordiantes: {stateMetadata.lat}, {stateMetadata.lon}
-                </div>
-              )} */}
             <div>
               Approx. used space:{" "}
               {(usedSpace &&
@@ -191,51 +241,31 @@ const StorageManager: React.FC = () => {
               %
             </div>
             <IonList>
-              <IonListHeader>
+              {/* <IonListHeader>
                 <IonLabel>Cached Data</IonLabel>
-              </IonListHeader>
+              </IonListHeader> */}
               {displayCachedItems()}
             </IonList>
             <IonButton
               expand="block"
               // fill="outline"
               color="danger"
-              onClick={clearAllItemsHandler}
-              // disabled={isLoading}
+              onClick={() =>
+                alertPresenter(
+                  "Delete all items?",
+                  undefined,
+                  undefined,
+                  undefined,
+                  deleteAllItemsHandler
+                )
+              }
+              disabled={!!cachedItems}
             >
-              Delete All Data
-              {/* {isLoading ? "Wait..." : "Plot Data"} */}
+              Delete All
             </IonButton>
           </IonCol>
         </IonContent>
       </IonModal>
-      <IonAlert
-        header="Delete item?"
-        subHeader="subheader"
-        message="message"
-        // trigger="delete-item-alert"
-        isOpen={itemKeyToDelete ? true : false}
-        buttons={[
-          {
-            text: "Cancel",
-            role: "cancel",
-            handler: () => {
-              console.log("canceled");
-            },
-          },
-          {
-            text: "OK",
-            role: "confirm",
-            handler: () => {
-              console.log("Alert confirmed");
-            },
-          },
-        ]}
-        onDidDismiss={
-          ({ detail }) => deleteCachedItemHandler(detail.role)
-          // console.log(`Dismissed with role: ${detail.role}`)
-        }
-      ></IonAlert>
     </>
   );
 };

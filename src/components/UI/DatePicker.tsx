@@ -34,32 +34,31 @@ const DatePicker: React.FC<DatePickerProps> = ({
   };
 
   return (
-    <IonCol className={containerClass}>
-      {/* <IonButton
-        color="primary"
-        onClick={() => setShowDatePicker((prevState) => !prevState)}
-      >
-        {label}
-      </IonButton> */}
-      {/* {showDatePicker && (
-        <IonDatetime
-          presentation="date"
-          value={date}
-          onIonChange={datePickHandler}
-          max={maxDatetimeAllowed}
-          min={minDatetimeAllowed}
-        />
-      )} */}
-      <IonDatetime
-        presentation="date"
-        value={date}
-        onIonChange={datePickHandler}
-        max={maxDatetimeAllowed}
-        min={minDatetimeAllowed}
-      >
-        <span slot="title">{label}</span>
-      </IonDatetime>
-    </IonCol>
+    //  <IonButton
+    //   color="primary"
+    //   onClick={() => setShowDatePicker((prevState) => !prevState)}
+    // >
+    //   {label}
+    // </IonButton>
+    // {showDatePicker && (
+    //   <IonDatetime
+    //     presentation="date"
+    //     value={date}
+    //     onIonChange={datePickHandler}
+    //     max={maxDatetimeAllowed}
+    //     min={minDatetimeAllowed}
+    //   />
+    // )}
+    <IonDatetime
+      presentation="date"
+      value={date}
+      onIonChange={datePickHandler}
+      max={maxDatetimeAllowed}
+      min={minDatetimeAllowed}
+      style={{ width: "100%" }}
+    >
+      <span slot="title">{label}</span>
+    </IonDatetime>
   );
 };
 
