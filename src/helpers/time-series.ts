@@ -69,6 +69,9 @@ export const timeAvgCsvParser = (csv: string) => {
 
     dataLines.forEach((line) => {
       const [timestamp, value] = line.split(",");
+      if (value === metadata.fill_value) {
+        return;
+      }
       if (timestamp && value !== undefined) {
         data.push({ timestamp, value });
       }
