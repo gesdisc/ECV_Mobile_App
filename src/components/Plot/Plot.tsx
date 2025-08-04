@@ -4,24 +4,13 @@ import {
   IonPage,
   IonButton,
   IonAlert,
+  IonIcon,
+  RangeCustomEvent,
+  IonCol,
   IonGrid,
   IonRow,
-  IonCol,
-  IonIcon,
-  IonRange,
-  RangeCustomEvent,
-  isPlatform,
-  getPlatforms,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCard,
-  IonCardContent,
-  IonCardTitle,
 } from "@ionic/react";
-import { informationCircle, server } from "ionicons/icons";
+import { download, informationCircle, server } from "ionicons/icons";
 import { Network } from "@capacitor/network";
 import { useLocation } from "react-router-dom";
 import Plotly from "plotly.js-dist-min";
@@ -47,14 +36,15 @@ import {
 } from "../../constants/time-series";
 import { schema, MARGIN_INLINE } from "./plotSchema";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
+import { PLOT_TYPES, usePlotType } from "../../store/PlotTypeContext";
 import catalog from "../Catalog/catalog.json";
 
 import Header from "../Layout/Header";
 import TimeSeriesPlot from "./TimeSeriesPlot";
 import Slider from "./Slider";
-import OpenLayersMap from "./OLMap/OLMap";
+import OLMap from "./OLMap/OLMap";
 import InfoPanel from "./InfoPanel";
-import StorageManager from "./StorageManager";
+import StorageManager from "./Storage/StorageManager";
 
 import styles from "./Plot.module.css";
 import Banner from "../UI/Banner";
@@ -83,14 +73,12 @@ const Visuals: React.FC = () => {
   const [sliderValue, setSliderValue] = useState(MARGIN_INLINE * -2);
   const [sliderRange, setSliderRange] = useState([0, 10]);
   const plotRef = useRef<Plotly.PlotlyHTMLElement | HTMLElement | null>(null);
-  const { height, width } = useWindowDimensions();
-
+  // const { height, width } = useWindowDimensions();
+  const { plotType } = usePlotType();
   // const PLOT_DATA_CACHE_KEY = `CapacitorStorage.plotData*${selectedVariable}*${selectedBeginTime}*${selectedEndTime}*${selectedLat}*${selectedLon}`;
   const [plotState, setPlotState] = useState<{
     data: Partial<Plotly.Data>[];
     layout: Partial<Plotly.Layout>;
-    // frames: Partial<Plotly.Frame>;
-    // config: Partial<Plotly.Config>;
   }>({
     data: [schema.data],
     layout: schema.layout,
@@ -150,21 +138,25 @@ const Visuals: React.FC = () => {
    */
   useEffect(() => {
     if (typeof Worker === "undefined") return;
-
     workerRef.current = new Worker(new URL("./dataWorker.ts", import.meta.url));
     workerRef.current.onmessage = (e) => {
       const { metadata, data } = e.data;
+      // console.log("Worker: ", metadata.end_time);
+      // console.log(
+      //   "Worker: ",
+      //   new Date(metadata.end_time).toISOString().slice(0, -5)
+      // );
       const newDataParams = {
-        lat: metadata.lat,
-        lon: metadata.lon,
-        begin_time: new Date(metadata.begin_time).toISOString().slice(0, -5),
-        end_time: new Date(metadata.end_time).toISOString().slice(0, -5),
+        lat: metadata?.lat,
+        lon: metadata?.lon,
+        begin_time: new Date(metadata?.begin_time).toISOString().slice(0, -5),
+        end_time: new Date(metadata?.end_time).toISOString().slice(0, -5),
         variable: `${metadata?.prod_name}`
           .replaceAll(".", "_")
           .concat(`_${metadata?.param_short_name}`),
       };
       const cacheKey = `CapacitorStorage.plotData*${newDataParams.variable}*${newDataParams.begin_time}*${newDataParams.end_time}*${newDataParams.lat}*${newDataParams.lon}`;
-      console.log("metadata from web worker", cacheKey);
+      // console.log("metadata from web worker", cacheKey);
       if (!Array.isArray(data) || !data.length) {
         setAlertMessage(
           "Your request was successful but there is no enough data to plot."
@@ -230,7 +222,7 @@ const Visuals: React.FC = () => {
     // document.querySelector(".nsewdrag.drag").width.baseVal.value;
     const plotLayout: Partial<Plotly.Layout> = {
       ...plotState.layout,
-      width: width,
+      // width: width,
       // title: stateMetadata?.param_name
       //   ? `${stateMetadata?.param_name} (${stateMetadata?.prod_name})`
       //   : "Select a variable to plot.",
@@ -241,11 +233,11 @@ const Visuals: React.FC = () => {
         type: "date",
         title: "Date & Time",
       },
-      // yaxis: {
-      //   title: stateMetadata?.param_short_name
-      //     ? `${stateMetadata?.param_short_name} (${stateMetadata?.unit})`
-      //     : "",
-      // },
+      yaxis: {
+        title: stateMetadata?.param_short_name
+          ? `${stateMetadata?.param_short_name} (${stateMetadata?.unit})`
+          : "",
+      },
       annotations: [plotAnnotation],
     };
 
@@ -262,9 +254,10 @@ const Visuals: React.FC = () => {
     variable,
   }: DataParams) => {
     try {
-      console.log("Plotting: ", variable);
       const status = await Network.getStatus();
       const isOffline = !status.connected;
+
+      // Using wrong params for caching??
       const cacheKey = `CapacitorStorage.plotData*${variable}*${begin_time}*${end_time}*${lat}*${lon}`;
 
       const cachedData = await getCachedData(cacheKey, RECENT_DATA_CACHE_KEY);
@@ -325,9 +318,8 @@ const Visuals: React.FC = () => {
     const convertedNewBeginTime = new Date(newBeginTime).getTime();
     const convertedNewEndTime = new Date(newEndTime).getTime();
 
-    // Check if the variable have data within new range
+    // Check if the variable has data within new range
     // if not... get the most available date
-    // const currentVariableMetadataFromCatalog =
     const newDataParams = {
       lat: stateMetadata.lat,
       lon: stateMetadata.lon,
@@ -345,7 +337,6 @@ const Visuals: React.FC = () => {
       )
         .toISOString()
         .slice(0, -5),
-
       variable: `${stateMetadata?.prod_name}`
         .replaceAll(".", "_")
         .concat(`_${stateMetadata?.param_short_name}`),
@@ -379,8 +370,7 @@ const Visuals: React.FC = () => {
   };
 
   const plotRelayoutHandler = (e: any) => {
-    console.log("plotRelayoutHandler: ", e);
-
+    if (stateData.length === 0) return;
     const plotLeftPoint = e["xaxis.range[0]"];
     const plotRightPoint = e["xaxis.range[1]"];
     const currentBeginTime = new Date(stateData[0].timestamp).getTime();
@@ -442,7 +432,6 @@ const Visuals: React.FC = () => {
       setSliderValue(plotMiddlePointIndex);
       // geotiffURLhandler(plotMiddlePointIndex);
     } else {
-      console.log("THIS HAPPENS");
       // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
       setSliderRange([0, stateData.length - 1]);
       // setSliderValue();
@@ -486,6 +475,11 @@ const Visuals: React.FC = () => {
 
     setSliderValue((prevNum) => prevNum - 1);
     adjustVLine([...stateData.map((d) => d.timestamp)], sliderValue - 1);
+
+    (Plotly as any).Fx.hover("divId", [
+      { curveNumber: 0, pointNumber: nextIndex },
+      // { curveNumber: 1, pointNumber: activeIndex },
+    ]);
     // setSliderRange(filteredDates.length - 1);
     // geotiffURLhandler(sliderValue - 1);
   };
@@ -515,6 +509,10 @@ const Visuals: React.FC = () => {
 
     setSliderValue((prevNum) => prevNum + 1);
     adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
+    (Plotly as any).Fx.hover("divId", [
+      { curveNumber: 0, pointNumber: nextIndex },
+      // { curveNumber: 1, pointNumber: activeIndex },
+    ]);
     // geotiffURLhandler(nextIndex);
   };
 
@@ -524,74 +522,8 @@ const Visuals: React.FC = () => {
       filename: "my_plot",
       height: 500,
       width: 700,
-    })
-      .then(function () {
-        console.log(
-          "Plotly image download initiated/completed (browser handling)"
-        );
-        // Add any custom logic here, like showing a success message
-      })
-      .catch(function (error) {
-        console.error("Error during Plotly image download:", error);
-        // Handle errors during the download process
-      });
+    });
   };
-
-  // const nextChunkHandler = () => {
-  //   // if (stateData.length < NUM_DATA_TO_SHOW) return;
-  //   // setDataRangeMin((prevNum) => {
-  //   //   console.log(
-  //   //     "math min: ",
-  //   //     Math.min(stateData.length, prevNum + NUM_DATA_TO_SHOW)
-  //   //   );
-  //   //   return Math.min(stateData.length, prevNum + NUM_DATA_TO_SHOW);
-  //   // });
-
-  //   // setDataRangeMin((prevNum) => prevNum + NUM_DATA_TO_SHOW);
-  // };
-
-  // NUM_DATA_TO_SHOW = 50
-  // 49 - (49 % 50) = 49
-  // const prevChunkHandler = () => {
-  //   // if (stateData.length < NUM_DATA_TO_SHOW) return;
-  //   // if (dataRangeMin === 0) return;
-  //   // setDataRangeMin((prevNum) =>
-  //   //   Math.max(
-  //   //     NUM_DATA_TO_SHOW,
-  //   //     prevNum % NUM_DATA_TO_SHOW === 0
-  //   //       ? prevNum - NUM_DATA_TO_SHOW
-  //   //       : prevNum - (prevNum % NUM_DATA_TO_SHOW)
-  //   //   )
-  //   // );
-  //   // 10, 20
-  //   // setDataRangeMin(
-  //   //   (prevNum) =>
-  //   //     // Math.max(NUM_DATA_TO_SHOW, prevNum - NUM_DATA_TO_SHOW)
-  //   //     prevNum - NUM_DATA_TO_SHOW
-  //   // );
-  // };
-
-  // useEffect(() => {
-  //   setDataRangeMin(
-  //     stateData.length >= NUM_DATA_TO_SHOW ? NUM_DATA_TO_SHOW : stateData.length
-  //   );
-  // }, [stateData.length]);
-  // console.log(plotRef.current);
-  // let sliderWidth = 400;
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     if (plotRef.current !== null) {
-  //       sliderWidth =
-  //         (plotRef.current as any).el.getBoundingClientRect().width -
-  //         MARGIN_INLINE * 2;
-  //       // console.log((plotRef.current as any).el.getBoundingClientRect().width);
-  //       // console.log((plotRef.current as any).el.querySelector(".nsewdrag.drag"));
-  //     }
-  //   };
-  //   // console.log(sliderWidth);
-  //   window.addEventListener("resize", handleResize);
-  //   return () => window.removeEventListener("resize", handleResize);
-  // }, []);
 
   const currentVariableData = catalog.find(
     (data) =>
@@ -601,6 +533,16 @@ const Visuals: React.FC = () => {
         .concat(`_${stateMetadata?.param_short_name}`)
   );
 
+  const plotChachedItemHandler = (newParams: DataParams) => {
+    handlePlotData({
+      lat: newParams.lat,
+      lon: newParams.lon,
+      begin_time: newParams.begin_time,
+      end_time: newParams.end_time,
+      variable: newParams.variable,
+    });
+  };
+
   return (
     <IonPage>
       <IonContent fullscreen={true}>
@@ -609,36 +551,44 @@ const Visuals: React.FC = () => {
             <IonIcon aria-hidden="true" size="medium" icon={server} />
           </IonButton>
         </Banner>
-        <div
-          className="ion-padding"
-          style={
-            {
-              // background: "var(--ion-color-secondary)",
-              // borderRadius: "10px",
-            }
-          }
-        >
+        <div className="ion-padding">
           {currentVariableData && (
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                // justifyContent: "space-between",
+                justifyContent: "space-between",
               }}
             >
-              <IonTitle>{currentVariableData.label}</IonTitle>
-              <IonButton size="small" id="data-info-modal" fill="clear">
-                <IonIcon
-                  aria-hidden="true"
-                  size="large"
-                  icon={informationCircle}
-                  color="warning"
-                />
-              </IonButton>
+              <span style={{ fontSize: "18px", fontWeight: "bold" }}>
+                {currentVariableData.label}
+              </span>
+              <div>
+                <IonButton
+                  size="small"
+                  fill="clear"
+                  onClick={downloadPlotImage}
+                >
+                  <IonIcon
+                    aria-hidden="true"
+                    size="large"
+                    icon={download}
+                    color="primary"
+                  />
+                </IonButton>
+                <IonButton size="small" id="data-info-modal" fill="clear">
+                  <IonIcon
+                    aria-hidden="true"
+                    size="large"
+                    icon={informationCircle}
+                    color="warning"
+                  />
+                </IonButton>
+              </div>
             </div>
           )}
           {stateMetadata && <InfoPanel metadata={stateMetadata} />}
-          <StorageManager />
+          <StorageManager onPlot={plotChachedItemHandler} />
           <IonAlert
             isOpen={isLoading}
             trigger="present-alert"
@@ -666,56 +616,80 @@ const Visuals: React.FC = () => {
           {alertMessage && (
             <IonAlert
               isOpen={!!alertMessage}
-              header="Alert"
+              header="Oops!"
               message={alertMessage}
               buttons={["OK"]}
               onDidDismiss={() => setAlertMessage(null)}
             />
           )}
-          <OpenLayersMap
-            width={
-              plotState.layout.width === undefined
-                ? 500
-                : plotState.layout.width - MARGIN_INLINE * 2
-            }
-          />
-          <TimeSeriesPlot
-            plotRef={plotRef}
-            // metadata={stateMetadata}
-            // data={stateData}
-            layout={plotState.layout}
-            // plotData={plotState.data}
-            plotData={[...plotState.data]}
-            onPlotRelayout={plotRelayoutHandler}
-            // onSliderChange={sliderChangeHandler}
-            // data={stateData.slice(dataRangeMin, dataRangeMin + NUM_DATA_TO_SHOW)}
-            // minRange={plotMinRange}
-            // maxRange={plotMaxRange}
-          />
-          <Slider
-            onLeftBtnClick={sliderLeftBtnHandler}
-            onRightBtnClick={sliderRightBtnHandler}
-            value={sliderValue}
-            max={sliderRange[1]}
-            // prettier-ignore
-            width={
-            plotState.layout.width === undefined
-              ? 500
-              : plotState.layout.width - (MARGIN_INLINE * 2)
-          }
-            min={sliderRange[0]}
-            // prettier-ignore
-            onValueChange={sliderValueChangeHandler}
-            // pinFormatter={(index: number) => `${stateData[index]?.timestamp}`}
-            pinFormatter={
-              (index: number) => `${stateData[index]?.timestamp}`
-              // stateData[index]?.timestamp &&
-              // `${new Date(stateData[index]?.timestamp).toLocaleDateString(
-              //   "en-US"
-              // )}`
-            }
-            disabled={!stateData.length}
-          />
+
+          <IonGrid fixed>
+            <IonRow>
+              {plotType === PLOT_TYPES.TIME_AVG && (
+                <IonCol
+                  size="12"
+                  style={{
+                    minHeight: "200px",
+                    // height: "200px",
+                  }}
+                >
+                  <OLMap />
+                </IonCol>
+              )}
+              <IonCol
+                size="12"
+                style={{
+                  minHeight: "300px",
+                  // height: "300px",
+                }}
+              >
+                <TimeSeriesPlot
+                  plotRef={plotRef}
+                  // metadata={stateMetadata}
+                  // data={stateData}
+                  layout={plotState.layout}
+                  // plotData={plotState.data}
+                  plotData={[...plotState.data]}
+                  onPlotRelayout={plotRelayoutHandler}
+                  // onSliderChange={sliderChangeHandler}
+                  // data={stateData.slice(dataRangeMin, dataRangeMin + NUM_DATA_TO_SHOW)}
+                  // minRange={plotMinRange}
+                  // maxRange={plotMaxRange}
+                />
+              </IonCol>
+              <IonCol
+                size="12"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  // justifyContent: "center",
+                }}
+              >
+                {stateData.length !== 0 && (
+                  <Slider
+                    onLeftBtnClick={sliderLeftBtnHandler}
+                    onRightBtnClick={sliderRightBtnHandler}
+                    value={sliderValue}
+                    max={sliderRange[1]}
+                    // prettier-ignore
+                    // width={width - (MARGIN_INLINE * 2)}
+                    min={sliderRange[0]}
+                    // prettier-ignore
+                    onValueChange={sliderValueChangeHandler}
+                    // pinFormatter={(index: number) => `${stateData[index]?.timestamp}`}
+                    pinFormatter={(index: number) =>
+                      // `${stateData[index]?.timestamp}`
+                      stateData[index]?.timestamp &&
+                      `${new Date(
+                        stateData[index]?.timestamp
+                      ).toLocaleDateString()}`
+                    }
+                    disabled={!stateData.length}
+                  />
+                )}
+              </IonCol>
+            </IonRow>
+          </IonGrid>
           <IonButton
             expand="block"
             onClick={() =>

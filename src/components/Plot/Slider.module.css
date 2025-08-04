@@ -1,7 +1,7 @@
-/* ion-range {
+ion-range {
   --bar-background: #a2d2ff;
-  --bar-background-active: #bde0fe;
-  --bar-height: 8px;
+  --bar-background-active: #a2d2ff;
+  /* --bar-height: 8px;
   --bar-border-radius: 8px;
   --knob-background: #ffc8dd;
   --knob-size: 40px;
@@ -9,15 +9,20 @@
   --pin-color: #fff;
   --pin-border-radius: 1px;
   --pin-width: 200px;
-  --pin-padding: 10px;
-} */
+  --pin-padding: 10px; */
+}
+
+.ion-range {
+  align-self: center;
+  position: relative;
+}
 
 .ion-range::part(tick) {
-  /* background: #a2d2ff; */
+  background: #a2d2ff;
 }
 
 .ion-range::part(tick-active) {
-  /* background: #bde0fe; */
+  background: #a2d2ff;
 }
 
 .ion-range::part(pin) {
@@ -64,3 +69,13 @@
 /* ion-range::part(bar-active) {
   background: #0bec4e;
 } */
+
+.buttons {
+  width: 101%;
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

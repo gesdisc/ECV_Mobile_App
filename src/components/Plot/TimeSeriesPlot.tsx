@@ -123,32 +123,32 @@ const TimeSeriesPlot: React.FC<TimeSeriesProps> = ({
   //   }
   // }, [plotRef.current]);
   return (
-    <IonGrid style={{ display: "flex", justifyContent: "center" }}>
-      <IonRow class="ion-justify-content-center">
-        <IonCol
-          style={{
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <Plot
-            ref={plotRef}
-            divId={"divId"}
-            // onSliderChange={onSliderChange}
-            onRelayout={onPlotRelayout}
-            // onRelayouting={onRel}
-            useResizeHandler={true}
-            onClick={clickHandler}
-            // onRestyle={restyleHandler}
-            onHover={hoverHandler}
-            data={plotData}
-            layout={layout}
-            style={{ width: "100%", height: "100%" }}
-            config={{ responsive: true, displayModeBar: false }}
-          />
-        </IonCol>
-      </IonRow>
-    </IonGrid>
+    // <IonGrid style={{ display: "flex", justifyContent: "center" }}>
+    //   <IonRow class="ion-justify-content-center">
+    //     <IonCol
+    //       style={{
+    //         display: "flex",
+    //         justifyContent: "center",
+    //       }}
+    //     >
+    <Plot
+      ref={plotRef}
+      divId={"divId"}
+      // onSliderChange={onSliderChange}
+      onRelayout={onPlotRelayout}
+      // onRelayouting={onRel}
+      useResizeHandler={true}
+      onClick={clickHandler}
+      // onRestyle={restyleHandler}
+      onHover={hoverHandler}
+      data={plotData}
+      layout={layout}
+      style={{ width: "100%", height: "100%" }}
+      config={{ responsive: true, displayModeBar: false }}
+    />
+    //     </IonCol>
+    //   </IonRow>
+    // </IonGrid>
   );
 };
 

@@ -35,12 +35,12 @@ const Variables: React.FC<VariablesProps> = ({ onVariableChange }) => {
                   button
                   onClick={() => onVariableChange(data.dataFieldId)}
                   key={data.label}
-                  color="light"
+                  // color="ligth"
                 >
                   <IonLabel>{data.label}</IonLabel>
-                  {variable === data.dataFieldId && (
+                  {/* {variable === data.dataFieldId && (
                     <IonIcon icon={analyticsOutline}></IonIcon>
-                  )}
+                  )} */}
                 </IonItem>
               );
             })}

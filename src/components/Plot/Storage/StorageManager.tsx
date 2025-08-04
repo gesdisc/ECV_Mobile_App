@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import {
   IonButton,
-  IonIcon,
   IonModal,
   IonHeader,
   IonToolbar,
@@ -10,29 +9,32 @@ import {
   IonContent,
   IonCol,
   IonList,
-  IonListHeader,
-  IonItem,
-  IonLabel,
-  IonAlert,
   useIonToast,
   useIonAlert,
+  IonIcon,
 } from "@ionic/react";
-import { server, trash } from "ionicons/icons";
 import {
+  DataParams,
   TimeSeriesMetadata,
-  TimeSeriesData,
-} from "../../types/time-series.types";
+} from "../../../types/time-series.types";
 
 import {
   clearCache,
   removeItem,
   getAllItems,
-  getRecentDataKey,
-} from "../../services/indexDBService";
-import { RECENT_DATA_CACHE_KEY } from "../../constants/time-series";
-import useCheckIndexedDBUsage from "../../hooks/useCheckIndexedDBUsage";
+  // getRecentDataKey,
+} from "../../../services/indexDBService";
+// import { RECENT_DATA_CACHE_KEY } from "../../../constants/time-series";
+import useCheckIndexedDBUsage from "../../../hooks/useCheckIndexedDBUsage";
 
-const StorageManager: React.FC = () => {
+import StorageItem from "./StorageItem";
+import { refreshOutline } from "ionicons/icons";
+
+interface StorageManagerProps {
+  onPlot: (newParams: DataParams) => void;
+}
+
+const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
   const modal = useRef<HTMLIonModalElement>(null);
   const page = useRef(null);
   const [presentingElement, setPresentingElement] =
@@ -48,26 +50,26 @@ const StorageManager: React.FC = () => {
   const [presentToast] = useIonToast();
   const [presentAlert] = useIonAlert();
 
+  const getAllCachedItems = async () => {
+    try {
+      const data = await getAllItems();
+      if (!data) return;
+
+      setCachedItems(data);
+    } catch (error) {
+      toastPresenter(
+        "Something went wrong while retrieving cached data!",
+        "top",
+        "danger"
+      );
+    }
+  };
+
   useEffect(() => {
     setPresentingElement(page.current);
   }, []);
 
   useEffect(() => {
-    const getAllCachedItems = async () => {
-      try {
-        console.log("loading");
-        const data = await getAllItems();
-        if (!data || data.length === 0) return;
-
-        // setCachedItems(data);
-        setCachedItems([]);
-        // console.log("useef data: ", data);
-      } catch (error) {
-        console.log("error");
-      } finally {
-        console.log("loaded");
-      }
-    };
     getAllCachedItems();
   }, []);
 
@@ -124,6 +126,8 @@ const StorageManager: React.FC = () => {
     return role !== "gesture";
   };
 
+  // TODO: check for edge cases like deleting the latest cached item
+  // the system should update the plot state if the plotted item is deleted
   const deleteCachedItemHandler = async (key: string) => {
     try {
       // const recentCachedDataKey = await getRecentDataKey(RECENT_DATA_CACHE_KEY);
@@ -133,7 +137,7 @@ const StorageManager: React.FC = () => {
       //   console.log("recentCachedDataKey_____: ", recentCachedDataKey);
       // }
       await removeItem(key);
-      setCachedItems((prevData) => prevData.filter((d) => d.cachekey !== key));
+      await getAllCachedItems();
       toastPresenter("Successfully deleted!", "top", "success");
     } catch (error) {
       toastPresenter(
@@ -144,12 +148,11 @@ const StorageManager: React.FC = () => {
     }
   };
 
-  // check if the latest cache is deleted
+  // the system should update the plot state after all items are deleted
   const deleteAllItemsHandler = async () => {
     try {
-      console.log("clearing all items!!!");
       await clearCache();
-      setCachedItems([]);
+      await getAllCachedItems();
       toastPresenter("Successfully deleted all items!", "top", "success");
     } catch (error) {
       toastPresenter(
@@ -167,49 +170,23 @@ const StorageManager: React.FC = () => {
 
     return cachedItems.map((item) => {
       return (
-        <IonItem key={item.cachekey}>
-          <IonCol
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-            }}
-          >
-            <IonLabel>{item.metadata.param_name}</IonLabel>
-            <IonLabel>
-              Begin Time:
-              {new Date(item.metadata.begin_time).toLocaleDateString()}
-            </IonLabel>
-            <IonLabel>
-              End Time: {new Date(item.metadata.end_time).toLocaleDateString()}
-            </IonLabel>
-            Latitude: <IonLabel>{item.metadata.lat}</IonLabel>
-            Longitude: <IonLabel>{item.metadata.lon}</IonLabel>
-          </IonCol>
-
-          {/* <IonButton
-            size="small"
-            // color={"primary"}
-          >
-            <IonLabel>Plot</IonLabel>
-            <IonIcon aria-hidden="true" size="medium" icon={trash} />
-          </IonButton> */}
-          <IonButton
-            size="small"
-            color={"danger"}
-            onClick={() => {
-              alertPresenter(
-                "Delete item?",
-                undefined,
-                undefined,
-                undefined,
-                () => deleteCachedItemHandler(item.cachekey)
-              );
-            }}
-          >
-            <IonIcon aria-hidden="true" size="medium" icon={trash} />
-          </IonButton>
-        </IonItem>
+        <StorageItem
+          key={item.cachekey}
+          item={item}
+          onPlot={(newParams: DataParams) => {
+            dismiss();
+            onPlot(newParams);
+          }}
+          onDelete={() => {
+            alertPresenter(
+              "Delete item?",
+              undefined,
+              undefined,
+              undefined,
+              () => deleteCachedItemHandler(item.cachekey)
+            );
+          }}
+        />
       );
     });
   };
@@ -224,6 +201,16 @@ const StorageManager: React.FC = () => {
       >
         <IonHeader id="storage-header">
           <IonToolbar>
+            <IonButtons slot="start">
+              <IonButton onClick={getAllCachedItems}>
+                <IonIcon
+                  aria-hidden="true"
+                  size="medium"
+                  icon={refreshOutline}
+                />
+              </IonButton>
+            </IonButtons>
+
             <IonTitle>Storage</IonTitle>
             <IonButtons slot="end">
               <IonButton onClick={() => dismiss()}>Close</IonButton>
@@ -232,37 +219,30 @@ const StorageManager: React.FC = () => {
         </IonHeader>
         <IonContent className="ion-padding">
           <IonCol>
-            <div>
-              Approx. used space:{" "}
-              {(usedSpace &&
-                totalSpace &&
-                ((usedSpace / totalSpace) * 100).toFixed(10)) ||
-                indexedDBUsageError}
-              %
-            </div>
-            <IonList>
-              {/* <IonListHeader>
-                <IonLabel>Cached Data</IonLabel>
-              </IonListHeader> */}
-              {displayCachedItems()}
-            </IonList>
-            <IonButton
-              expand="block"
-              // fill="outline"
-              color="danger"
-              onClick={() =>
-                alertPresenter(
-                  "Delete all items?",
-                  undefined,
-                  undefined,
-                  undefined,
-                  deleteAllItemsHandler
-                )
-              }
-              disabled={!!cachedItems}
-            >
-              Delete All
-            </IonButton>
+            {/* {usedSpace && totalSpace && (
+              <div>
+                Used space: {((usedSpace / totalSpace) * 100).toFixed(7)}%
+              </div>
+            )} */}
+            <IonList>{displayCachedItems()}</IonList>
+            {cachedItems.length !== 0 && (
+              <IonButton
+                expand="block"
+                color="danger"
+                onClick={() =>
+                  alertPresenter(
+                    "Delete all items?",
+                    undefined,
+                    undefined,
+                    undefined,
+                    deleteAllItemsHandler
+                  )
+                }
+                disabled={!cachedItems.length}
+              >
+                Delete All
+              </IonButton>
+            )}
           </IonCol>
         </IonContent>
       </IonModal>

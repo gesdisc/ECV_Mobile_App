@@ -35,6 +35,10 @@ export const parseTimeSeriesCsv = (csvData: string) => {
 
     dataLines.forEach((line) => {
       const [timestamp, value] = line.split(",");
+      if (value === metadata.undef) {
+        return;
+      }
+
       if (timestamp && value !== undefined) {
         data.push({ timestamp, value });
       }
@@ -44,6 +48,7 @@ export const parseTimeSeriesCsv = (csvData: string) => {
   return { metadata, data } as TimeSeriesData;
 };
 
+// TODO: remove the undef values from datalines
 export const timeAvgCsvParser = (csv: string) => {
   const metadata: Partial<TimeAvgMetadata> = {};
   const data: TimeAvgDataRow[] = [];

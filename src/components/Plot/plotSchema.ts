@@ -12,8 +12,10 @@ export const schema: {
     name: "plot name",
   },
   layout: {
-    width: 500,
+    // width: 500,
     height: 300,
+    plot_bgcolor: "white", // Light gray for the plot area
+    paper_bgcolor: "transparent", // White for the entire chart container
     autosize: true,
     margin: {
       l: MARGIN_INLINE,
@@ -65,13 +67,13 @@ export const schema: {
       showline: true,
       tickmode: "auto",
       // showline: true,
-      showspikes: true,
+      // showspikes: true,
       // spikesnap: "category",
-      spikesnap: "cursor",
-      spikemode: "across",
-      spikedash: "solid",
-      spikecolor: "#000000",
-      spikethickness: 2,
+      // spikesnap: "cursor",
+      // spikemode: "across",
+      // spikedash: "solid",
+      // spikecolor: "#000000",
+      // spikethickness: 2,
       // nticks: 2,
       // dtick: `${
       //   new Date(stateData[4]?.timestamp).getTime() -
@@ -80,7 +82,7 @@ export const schema: {
       // rangeslider: {},
     },
     yaxis: {
-      title: "",
+      // title: "",
     },
     annotations: [
       {

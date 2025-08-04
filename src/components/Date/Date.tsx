@@ -58,7 +58,7 @@ const Date = () => {
                 defaultDate={endTime}
                 onDateUpdate={endDateUpdateHandler}
                 minDatetimeAllowed={beginTime}
-                maxDatetimeAllowed={currentVariableData?.dataProductEndDateTime}
+                // maxDatetimeAllowed={currentVariableData?.dataProductEndDateTime}
               />
             </IonCol>
           </IonRow>

@@ -60,28 +60,28 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   const [beginTime, setBeginTime] = useState(DefaultParams.BEGIN_TIME);
   const [endTime, setEndTime] = useState(DefaultParams.END_TIME);
 
-  useEffect(() => {
-    const getLatestCachedDataParams = async () => {
-      const recentCachedDataKey = await getRecentDataKey(RECENT_DATA_CACHE_KEY);
+  // useEffect(() => {
+  //   const getLatestCachedDataParams = async () => {
+  //     const recentCachedDataKey = await getRecentDataKey(RECENT_DATA_CACHE_KEY);
 
-      if (!recentCachedDataKey) return;
+  //     if (!recentCachedDataKey) return;
 
-      const {
-        variable: cachedVariable,
-        beginTime: cachedBeginTime,
-        endTime: cachedEndTime,
-        lat: cachedLat,
-        lon: cachedLon,
-      } = extractDataParamsFromCacheKey(recentCachedDataKey);
+  //     const {
+  //       variable: cachedVariable,
+  //       beginTime: cachedBeginTime,
+  //       endTime: cachedEndTime,
+  //       lat: cachedLat,
+  //       lon: cachedLon,
+  //     } = extractDataParamsFromCacheKey(recentCachedDataKey);
 
-      setLatitude(Number(cachedLat));
-      setLongitude(Number(cachedLon));
-      setVariable(cachedVariable);
-      setBeginTime(cachedBeginTime);
-      setEndTime(cachedEndTime);
-    };
-    getLatestCachedDataParams();
-  }, []);
+  //     setLatitude(Number(cachedLat));
+  //     setLongitude(Number(cachedLon));
+  //     setVariable(cachedVariable);
+  //     setBeginTime(cachedBeginTime);
+  //     setEndTime(cachedEndTime);
+  //   };
+  //   getLatestCachedDataParams();
+  // }, []);
 
   // const currentVariableData = catalog.find(
   //   (data) => data.dataFieldId === variable
