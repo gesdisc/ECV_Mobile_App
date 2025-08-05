@@ -290,26 +290,42 @@ const Visuals: React.FC = () => {
     adjustVLine([...stateData.map((d) => d.timestamp)], activeIndex);
     setSliderValue(activeIndex);
     geotiffURLhandler(activeIndex);
+    (Plotly as any).Fx.hover("divId", [
+      { curveNumber: 0, pointNumber: activeIndex },
+      // { curveNumber: 1, pointNumber: activeIndex },
+    ]);
     //  setSliderRange(filteredDates.length - 1);
   };
 
   const sliderLeftBtnHandler = () => {
     if (stateData.length === 0) return;
     if (sliderValue === 0) return;
+    const nextIndex = sliderValue - 1;
+    if (stateData[nextIndex] === undefined) return;
     // if (stateData[sliderValue - 1] === undefined) return;
     setSliderValue((prevNum) => prevNum - 1);
-    adjustVLine([...stateData.map((d) => d.timestamp)], sliderValue - 1);
+    adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
     // setSliderRange(filteredDates.length - 1);
-    geotiffURLhandler(sliderValue - 1);
+    geotiffURLhandler(nextIndex);
+    (Plotly as any).Fx.hover("divId", [
+      { curveNumber: 0, pointNumber: nextIndex },
+      // { curveNumber: 1, pointNumber: activeIndex },
+    ]);
   };
 
   const sliderRightBtnHandler = () => {
     if (stateData.length === 0) return;
-    // if (data[sliderValue + 1] === undefined) return;
-    // if (stateData[sliderValue + 1] === undefined) return;
+    const nextIndex = sliderValue + 1;
+    // if (data[nextIndex] === undefined) return;
+    if (stateData[nextIndex] === undefined) return;
     setSliderValue((prevNum) => prevNum + 1);
-    adjustVLine([...stateData.map((d) => d.timestamp)], sliderValue + 1);
-    geotiffURLhandler(sliderValue + 1);
+    adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
+    geotiffURLhandler(nextIndex);
+    adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
+    (Plotly as any).Fx.hover("divId", [
+      { curveNumber: 0, pointNumber: nextIndex },
+      // { curveNumber: 1, pointNumber: activeIndex },
+    ]);
   };
 
   const downloadPlotImage = () => {
