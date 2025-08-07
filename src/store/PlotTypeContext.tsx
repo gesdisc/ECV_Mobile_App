@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
+/**
+ *
+ * Note: This react context is for demo/testing purposes to support the time averaged (time series + map) feature.
+ *
+ */
+
 export const PLOT_TYPES = {
   TIME_AVG: "TIME_AVG",
   POINT_BASED: "POINT_BASED",

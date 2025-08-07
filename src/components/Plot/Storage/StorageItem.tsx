@@ -40,9 +40,6 @@ const SorageItem: React.FC<StorageItemProps> = ({ item, onDelete, onPlot }) => {
     onPlot(cachedDataParams);
   };
 
-  /**
-   * TODO: let users viz selected data
-   */
   return (
     <IonItem>
       <IonLabel

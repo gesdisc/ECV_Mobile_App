@@ -19,6 +19,14 @@ import Banner from "../UI/Banner";
 
 import styles from "./Date.module.css";
 
+/**
+ *
+ * The component restricts selecting a start date that is after the end date
+ * OR end date that is before the start date
+ *
+ * Minimum allowed date comes from the selected variable from catalog.json
+ *
+ */
 const Date = () => {
   const { beginTime, endTime, variable, setEndTime, setBeginTime } =
     useDataParams();

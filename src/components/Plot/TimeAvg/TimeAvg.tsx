@@ -35,7 +35,16 @@ import InfoPanel from "../InfoPanel";
 
 // import styles from "./Plot.module.css";
 
-const Visuals: React.FC = () => {
+/**
+ * Note: This component is for demo/testing purposes. It should be either modifed or combined with Plot.tsx in the future.
+ *
+ * @Summary This is the same Plot.tsx component with limited functional.
+ * Specifically made to support the time averaged (time series + map) feature.
+ * It uses the local CSV (and tiffs) instead of fetching data from Cloud Giovanni API.
+ * To interact with the map and geotiff layers on UI, navigate to ./pages/PlotPage.tsx and return TimeAvg component instead of Plot component.
+ *
+ */
+const TimeAvg: React.FC = () => {
   const { latitude, longitude, beginTime, endTime, variable } = useDataParams();
   const abortController = useRef<AbortController | null>(null);
   // const workerRef = useRef<Worker | null>(null);
@@ -499,4 +508,4 @@ const Visuals: React.FC = () => {
   );
 };
 
-export default Visuals;
+export default TimeAvg;

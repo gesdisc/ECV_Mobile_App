@@ -8,9 +8,6 @@ interface InfoPanelProps {
   metadata: TimeSeriesMetadata;
 }
 
-// check if cache has the data between the requested dates
-// the system fetches new data if the requested dates
-// are available in between previously cached data
 const InfoPanel: React.FC<InfoPanelProps> = ({ metadata }) => {
   const dataInfoModal = useRef<HTMLIonModalElement>(null);
 
@@ -45,6 +42,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ metadata }) => {
     { label: "Lon", value: metadata.lon },
   ];
 
+  // TODO: This is the same function as displayDataVariableInfo. Create reusable function.
   const displayRequestInfo = () => {
     return requestInfo.map((item) => {
       return (

@@ -3,7 +3,9 @@ import { useState, useEffect } from "react";
 /**
  *
  * @returns object with totalSpace, usedSpace, error
- * @summary Checks borswer's storage total allocated space & used space
+ * @summary calculates the browser space used by this particluar app.
+ * Checks borswer's storage total allocated space & used space
+ *
  */
 const useCheckIndexedDBUsage = () => {
   const [totalSpace, setTotalSpace] = useState<null | number>(null);

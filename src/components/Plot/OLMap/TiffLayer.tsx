@@ -12,6 +12,14 @@ interface TiffLayerProps {
   opacity?: number;
 }
 
+/**
+ *
+ * @returns null
+ *
+ *
+ * Renders GEOTiff layers on the map
+ * Doesn't render any DOM elements and always returns null.
+ */
 const TiffLayer: React.FC<TiffLayerProps> = ({ map, tifURL, opacity = 1 }) => {
   //  const map = useMap();
   // const group = useGroup();
@@ -124,7 +132,7 @@ const TiffLayer: React.FC<TiffLayerProps> = ({ map, tifURL, opacity = 1 }) => {
     };
   }, [tifURL]);
 
-  // after GeoTIFF metadata has been read, recenter the map to show the image
+  // TODO: after GeoTIFF metadata has been read, recenter the map to show the image
 
   return null;
 };

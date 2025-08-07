@@ -7,8 +7,8 @@ import React, {
 } from "react";
 import { DefaultParams } from "../constants/time-series";
 
-import { RECENT_DATA_CACHE_KEY } from "../constants/time-series";
-import { getItem, getRecentDataKey } from "../services/indexDBService";
+// import { RECENT_DATA_CACHE_KEY } from "../constants/time-series";
+// import { getItem, getRecentDataKey } from "../services/indexDBService";
 
 interface DataParamsContextType {
   latitude: number;
@@ -45,10 +45,12 @@ const initialContextValue: DataParamsContextType = {
     console.log("empty function!");
   },
 };
-const extractDataParamsFromCacheKey = (key: string) => {
-  const [cacheKey, variable, beginTime, endTime, lat, lon] = key.split("*");
-  return { cacheKey, variable, beginTime, endTime, lat, lon };
-};
+
+// const extractDataParamsFromCacheKey = (key: string) => {
+//   const [cacheKey, variable, beginTime, endTime, lat, lon] = key.split("*");
+//   return { cacheKey, variable, beginTime, endTime, lat, lon };
+// };
+
 const DataParams = createContext<DataParamsContextType>(initialContextValue);
 
 export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({

@@ -14,8 +14,8 @@ export const schema: {
   layout: {
     // width: 500,
     height: 300,
-    plot_bgcolor: "white", // Light gray for the plot area
-    paper_bgcolor: "transparent", // White for the entire chart container
+    plot_bgcolor: "white", // the plot area
+    paper_bgcolor: "transparent", // the entire chart container
     autosize: true,
     margin: {
       l: MARGIN_INLINE,

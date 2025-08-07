@@ -39,11 +39,15 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
   const page = useRef(null);
   const [presentingElement, setPresentingElement] =
     useState<HTMLElement | null>(null);
+
+  // Note: This doesn't calculate the space used by this storage. It includes all or some of the other cached assets by the app.
+  // To replicate, delete all items and see that the usedSpace isn't 0%.
   const {
     totalSpace,
     usedSpace,
     error: indexedDBUsageError,
   } = useCheckIndexedDBUsage();
+
   const [cachedItems, setCachedItems] = useState<
     { metadata: TimeSeriesMetadata; cachekey: string }[]
   >([]);
@@ -126,13 +130,13 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
     return role !== "gesture";
   };
 
-  // TODO: check for edge cases like deleting the latest cached item
-  // the system should update the plot state if the plotted item is deleted
+  // TODO: check for edge cases like deleting the latest cached item.
+  // TODO: the system should remove the plotted data (update the state) when currently visualized item is deleted.
   const deleteCachedItemHandler = async (key: string) => {
     try {
       // const recentCachedDataKey = await getRecentDataKey(RECENT_DATA_CACHE_KEY);
 
-      // set new data as recent??
+      // TODO: set new data as recent??
       // if (recentCachedDataKey === key) {
       //   console.log("recentCachedDataKey_____: ", recentCachedDataKey);
       // }
@@ -148,7 +152,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
     }
   };
 
-  // the system should update the plot state after all items are deleted
+  // TODO: the system should remove the plotted data (update the state) when all items are deleted
   const deleteAllItemsHandler = async () => {
     try {
       await clearCache();
@@ -219,11 +223,11 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
         </IonHeader>
         <IonContent className="ion-padding">
           <IonCol>
-            {/* {usedSpace && totalSpace && (
+            {usedSpace && totalSpace && (
               <div>
                 Used space: {((usedSpace / totalSpace) * 100).toFixed(7)}%
               </div>
-            )} */}
+            )}
             <IonList>{displayCachedItems()}</IonList>
             {cachedItems.length !== 0 && (
               <IonButton
