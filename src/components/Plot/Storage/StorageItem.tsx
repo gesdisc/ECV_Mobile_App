@@ -1,5 +1,5 @@
 import React from "react";
-import { IonButton, IonIcon, IonCol, IonItem, IonLabel } from "@ionic/react";
+import { IonButton, IonIcon, IonItem, IonLabel } from "@ionic/react";
 import { trash } from "ionicons/icons";
 
 import {
@@ -7,6 +7,8 @@ import {
   TimeSeriesMetadata,
 } from "../../../types/time-series.types";
 import catalog from "../../Catalog/catalog.json";
+
+import styles from "./StorageItem.module.css";
 
 interface StorageItemProps {
   item: {
@@ -36,28 +38,13 @@ const SorageItem: React.FC<StorageItemProps> = ({ item, onDelete, onPlot }) => {
         .replaceAll(".", "_")
         .concat(`_${item.metadata.param_short_name}`),
     };
-    console.log(cachedDataParams);
     onPlot(cachedDataParams);
   };
 
   return (
     <IonItem>
-      <IonLabel
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          width: "100%",
-        }}
-        className="ion-padding-vertical"
-      >
-        <p
-          style={{
-            fontWeight: "bold",
-          }}
-        >
-          {currentVariableData?.label}
-        </p>
+      <IonLabel className={`ion-padding-vertical ${styles["storage-item"]}`}>
+        <p className={styles["item-label"]}>{currentVariableData?.label}</p>
         <p>
           Begin Time:
           {new Date(item.metadata.begin_time).toLocaleDateString()}
@@ -66,13 +53,8 @@ const SorageItem: React.FC<StorageItemProps> = ({ item, onDelete, onPlot }) => {
         <p>Latitude: {item.metadata.lat}</p>
         <p>Longitude: {item.metadata.lon}</p>
       </IonLabel>
-      <IonButton
-        size="default"
-        // color={"primary"}
-        onClick={plotCachedItemHandler}
-      >
+      <IonButton size="default" onClick={plotCachedItemHandler}>
         <IonLabel>Plot</IonLabel>
-        {/* <IonIcon aria-hidden="true" size="medium" icon={trash} /> */}
       </IonButton>
       <IonButton
         size="default"

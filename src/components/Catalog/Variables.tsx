@@ -5,9 +5,7 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonIcon,
 } from "@ionic/react";
-import { analyticsOutline } from "ionicons/icons";
 
 import catalog from "./catalog.json";
 import { useDataParams } from "../../store/DataParamsContext";
@@ -35,12 +33,8 @@ const Variables: React.FC<VariablesProps> = ({ onVariableChange }) => {
                   button
                   onClick={() => onVariableChange(data.dataFieldId)}
                   key={data.label}
-                  // color="ligth"
                 >
                   <IonLabel>{data.label}</IonLabel>
-                  {/* {variable === data.dataFieldId && (
-                    <IonIcon icon={analyticsOutline}></IonIcon>
-                  )} */}
                 </IonItem>
               );
             })}

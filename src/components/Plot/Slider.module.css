@@ -47,6 +47,12 @@ ion-range {
 
 .ion-range::part(pin)::before {
   content: none;
+
+  /* 
+  VERTICAL LINE
+  USE THE CODE BELOW FOR PIXEL BASED SLIDER 
+  */
+
   /* z-index: 1;
   content: "";
   width: 2px;
@@ -61,14 +67,6 @@ ion-range {
 .ion-range::part(knob) {
   background: #480ecf;
 }
-
-/* ion-range::part(bar) {
-  background: #a2d2ff;
-} */
-
-/* ion-range::part(bar-active) {
-  background: #0bec4e;
-} */
 
 .buttons {
   width: 101%;

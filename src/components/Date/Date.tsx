@@ -22,9 +22,9 @@ import styles from "./Date.module.css";
 /**
  *
  * The component restricts selecting a start date that is after the end date
- * OR end date that is before the start date
+ * AND end date that is before the start date
  *
- * Minimum allowed date comes from the selected variable from catalog.json
+ * Minimum allowed date of a variable can be found in catalog.json
  *
  */
 const Date = () => {
@@ -62,7 +62,6 @@ const Date = () => {
             <IonCol size="12" size-sm="6">
               <DatePicker
                 label="Select End Date"
-                containerClass="ion-text-end"
                 defaultDate={endTime}
                 onDateUpdate={endDateUpdateHandler}
                 minDatetimeAllowed={beginTime}

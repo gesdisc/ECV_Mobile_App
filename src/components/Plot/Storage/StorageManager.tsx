@@ -138,7 +138,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
 
       // TODO: set new data as recent??
       // if (recentCachedDataKey === key) {
-      //   console.log("recentCachedDataKey_____: ", recentCachedDataKey);
+      //   console.log("recentCachedDataKey: ", recentCachedDataKey);
       // }
       await removeItem(key);
       await getAllCachedItems();

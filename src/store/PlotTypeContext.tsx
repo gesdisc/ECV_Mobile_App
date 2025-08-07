@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 
 /**
  *
- * Note: This react context is for demo/testing purposes to support the time averaged (time series + map) feature.
+ * Note: This react context is only for demo/testing purposes to support the switching between time series and time series + map
  *
  */
 

@@ -12,7 +12,6 @@ export const schema: {
     name: "plot name",
   },
   layout: {
-    // width: 500,
     height: 300,
     plot_bgcolor: "white", // the plot area
     paper_bgcolor: "transparent", // the entire chart container
@@ -20,9 +19,6 @@ export const schema: {
     margin: {
       l: MARGIN_INLINE,
       r: MARGIN_INLINE,
-      // b: 100,
-      // t: 100,
-      // pad: 4,
     },
     legend: { x: 0, y: 1 },
     // title: "Select a variable to plot.",
@@ -47,21 +43,6 @@ export const schema: {
         },
       },
     ],
-    // updatemenus: [
-    //   {
-    //     showactive: false,
-    //     type: "buttons",
-    //     xanchor: "left",
-    //     yanchor: "middle",
-    //     x: 0,
-    //     y: -0.5,
-    //     direction: "right",
-    //     font: {
-    //       family: "FontAwesome",
-    //       size: 20,
-    //     },
-    //   },
-    // ],
     xaxis: {
       title: "",
       showline: true,
@@ -81,15 +62,13 @@ export const schema: {
       // }`,
       // rangeslider: {},
     },
-    yaxis: {
-      // title: "",
-    },
+    // yaxis: {
+    //   // title: "",
+    // },
     annotations: [
       {
         // xref: "x",
         // yref: "y",
-        // xshift: 30,
-        // x: "2019-12-02",
         xref: "paper",
         yref: "paper",
         x: 0,

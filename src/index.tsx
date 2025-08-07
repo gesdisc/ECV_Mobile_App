@@ -3,11 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";
-// import { Capacitor } from '@capacitor/core';
-// import { CapacitorSQLite } from '@capacitor-community/sqlite';
-// import { SQLiteConnection } from '@capacitor-community/sqlite';
 
-// const sqlite = new SQLiteConnection(CapacitorSQLite);
 const container = document.getElementById("root");
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const root = createRoot(container!);

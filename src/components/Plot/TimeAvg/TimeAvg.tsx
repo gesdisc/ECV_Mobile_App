@@ -7,11 +7,10 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonRange,
   IonIcon,
 } from "@ionic/react";
+import { server, informationCircle, download } from "ionicons/icons";
 import Plotly from "plotly.js-dist-min";
-// import { useLocation } from "react-router-dom";
 
 import {
   TimeSeriesDataRow,
@@ -19,19 +18,14 @@ import {
   TimeAvgDataRow,
   TimeAvgMetadata,
 } from "../../../types/time-series.types";
-import { useDataParams } from "../../../store/DataParamsContext";
 import { getMiddleIndex, filterDataBetweenDates } from "../helpers";
 import { timeAvgCsvParser } from "../../../helpers/time-series";
 import { schema, MARGIN_INLINE } from "../plotSchema";
-import useWindowDimensions from "../../../hooks/useWindowDimensions";
 
-import Header from "../../Layout/Header";
 import Slider from "../Slider";
 import OLMap from "../OLMap/OLMap";
 import TimeSeriesPlot from "../TimeSeriesPlot";
-import { server, informationCircle, download } from "ionicons/icons";
 import Banner from "../../UI/Banner";
-import InfoPanel from "../InfoPanel";
 
 // import styles from "./Plot.module.css";
 
@@ -45,12 +39,7 @@ import InfoPanel from "../InfoPanel";
  *
  */
 const TimeAvg: React.FC = () => {
-  const { latitude, longitude, beginTime, endTime, variable } = useDataParams();
   const abortController = useRef<AbortController | null>(null);
-  // const workerRef = useRef<Worker | null>(null);
-  // const location = useLocation();
-  // const catPageVar = location.state;
-  // console.log("catPageVar: ", catPageVar);
   const [stateData, setStateData] = useState<
     TimeSeriesDataRow[] | TimeAvgDataRow[]
   >([]);
@@ -63,20 +52,14 @@ const TimeAvg: React.FC = () => {
   const [sliderValue, setSliderValue] = useState(MARGIN_INLINE * -2);
   const [sliderRange, setSliderRange] = useState([0, 10]);
   const plotRef = useRef<Plotly.PlotlyHTMLElement | HTMLElement | null>(null);
-  const PLOT_DATA_CACHE_KEY = `CapacitorStorage.plotData*${variable}*${beginTime}*${endTime}*${latitude}*${longitude}`;
 
   /* GEOTIFF */
   const [geoTiffUrl, setGeoTiffUrl] = useState("");
   /* GEOTIFF */
 
-  const { height, width } = useWindowDimensions();
-  // console.log("screen width: ", width);
-  // console.log("screen Owidth: ", height);
   const [plotState, setPlotState] = useState<{
     data: Partial<Plotly.Data>[];
     layout: Partial<Plotly.Layout>;
-    // frames: Partial<Plotly.Frame>;
-    // config: Partial<Plotly.Config>;
   }>({
     data: [schema.data],
     layout: schema.layout,
@@ -96,11 +79,8 @@ const TimeAvg: React.FC = () => {
         x: stateData.map((d) => d.timestamp),
         y: stateData.map((d) => d.value),
         type: "scatter",
-        // mode: "lines+markers",
         mode: "lines",
         line: { color: "blue" },
-        // name: stateMetadata?.param_short_name || "",
-        // connectgaps: false,
       },
     ];
 
@@ -111,8 +91,6 @@ const TimeAvg: React.FC = () => {
         visible: stateData.length ? true : false,
         x0: stateData[getMiddleIndex(stateData)]?.timestamp, // x bottom
         x1: stateData[getMiddleIndex(stateData)]?.timestamp, // x top
-        // x0: MARGIN_INLINE * -2, // x bottom
-        // x1: MARGIN_INLINE * -2, // x top
         y0: "-100", // y bottom
         y1: "150", // y top
       };
@@ -128,14 +106,9 @@ const TimeAvg: React.FC = () => {
             : "",
       };
     }
-    // document.querySelector(".nsewdrag.drag").width.baseVal.value;
+
     const plotLayout: Partial<Plotly.Layout> = {
       ...plotState.layout,
-      // width: width,
-      // title: stateMetadata?.param_name
-      //   ? `${stateMetadata?.param_name} (${stateMetadata?.prod_name})`
-      //   : "Select a variable to plot.",
-      // sliders: [newSlider],
       shapes: [verticalLine],
       xaxis: {
         ...plotState.layout.xaxis,
@@ -192,8 +165,6 @@ const TimeAvg: React.FC = () => {
       visible: true,
       x0: newXrange[activeIndex],
       x1: newXrange[activeIndex],
-      // x0: activeIndex,
-      // x1: activeIndex,
       y0: "-100", // y bottom
       y1: "300", // y top
     };
@@ -213,13 +184,6 @@ const TimeAvg: React.FC = () => {
     if (stateData.length === 0) return;
     const plotLeftPoint = e["xaxis.range[0]"];
     const plotRightPoint = e["xaxis.range[1]"];
-    const currentBeginTime = new Date(stateData[0].timestamp).getTime();
-    const currentEndTime = new Date(
-      stateData[stateData.length - 1].timestamp
-    ).getTime();
-    const currentDateDiff = currentEndTime - currentBeginTime;
-    const newEndTime = currentEndTime + currentDateDiff;
-    const newBeginTime = currentBeginTime - currentDateDiff;
     let plotLeftPointIndex: number | null = null;
     let plotRightPointIndex: number | null = null;
     let plotMiddlePointIndex: number | null = null;
@@ -231,28 +195,6 @@ const TimeAvg: React.FC = () => {
         [...stateData.map((d) => d.timestamp)]
       );
 
-      // Load more data on Plot pan event
-      if (new Date(e["xaxis.range[1]"]).getTime() > currentEndTime) {
-        // fetchMoreData(currentBeginTime, newEndTime);
-        console.log("We can load more data Right!!");
-        // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
-        // setSliderRange([plotLeftPointIndex, plotRightPointIndex]);
-        // setSliderValue(plotMiddlePointIndex);
-        return;
-      }
-
-      if (new Date(e["xaxis.range[0]"]).getTime() < currentBeginTime) {
-        // fetchMoreData(newBeginTime, currentEndTime);
-        console.log("We can load more data LEFT!!");
-        // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
-        // setSliderRange([plotLeftPointIndex, plotRightPointIndex]);
-        // setSliderValue(plotMiddlePointIndex);
-        return;
-      }
-
-      // if (filteredDates.length <= 6) return; // LIMIT ZOOM AND PAN?
-      // no data in the visible area of Plot
-      // Plot zoom
       if (filteredDates.length === 0) return;
 
       plotLeftPointIndex = stateData.findIndex(
@@ -272,9 +214,7 @@ const TimeAvg: React.FC = () => {
       setSliderValue(plotMiddlePointIndex);
       geotiffURLhandler(plotMiddlePointIndex);
     } else {
-      // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
       setSliderRange([0, stateData.length - 1]);
-      // setSliderValue();
     }
   };
 
@@ -284,7 +224,7 @@ const TimeAvg: React.FC = () => {
 
     const tif_location = "/assets/geotifs/";
     const tif_base = "GIOVANNI-timeAvgMap.M2T1NXAER_5_12_4_BCCMASS.";
-    const tif_date = "20250101-20250101";
+    // const tif_date = "20250101-20250101";
     const tif_tail = ".45W_13S_126E_51N.tif";
 
     setGeoTiffUrl(
@@ -295,15 +235,13 @@ const TimeAvg: React.FC = () => {
   const sliderValueChangeHandler = (e: any) => {
     if (!stateData.length) return;
     const activeIndex = e.detail.value;
-    console.log("activeIndex: ", activeIndex);
+
     adjustVLine([...stateData.map((d) => d.timestamp)], activeIndex);
     setSliderValue(activeIndex);
     geotiffURLhandler(activeIndex);
     (Plotly as any).Fx.hover("divId", [
       { curveNumber: 0, pointNumber: activeIndex },
-      // { curveNumber: 1, pointNumber: activeIndex },
     ]);
-    //  setSliderRange(filteredDates.length - 1);
   };
 
   const sliderLeftBtnHandler = () => {
@@ -311,21 +249,19 @@ const TimeAvg: React.FC = () => {
     if (sliderValue === 0) return;
     const nextIndex = sliderValue - 1;
     if (stateData[nextIndex] === undefined) return;
-    // if (stateData[sliderValue - 1] === undefined) return;
+
     setSliderValue((prevNum) => prevNum - 1);
     adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
-    // setSliderRange(filteredDates.length - 1);
     geotiffURLhandler(nextIndex);
     (Plotly as any).Fx.hover("divId", [
       { curveNumber: 0, pointNumber: nextIndex },
-      // { curveNumber: 1, pointNumber: activeIndex },
     ]);
   };
 
   const sliderRightBtnHandler = () => {
     if (stateData.length === 0) return;
     const nextIndex = sliderValue + 1;
-    // if (data[nextIndex] === undefined) return;
+
     if (stateData[nextIndex] === undefined) return;
     setSliderValue((prevNum) => prevNum + 1);
     adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
@@ -333,7 +269,6 @@ const TimeAvg: React.FC = () => {
     adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
     (Plotly as any).Fx.hover("divId", [
       { curveNumber: 0, pointNumber: nextIndex },
-      // { curveNumber: 1, pointNumber: activeIndex },
     ]);
   };
 
@@ -354,14 +289,7 @@ const TimeAvg: React.FC = () => {
             <IonIcon aria-hidden="true" size="medium" icon={server} />
           </IonButton>
         </Banner>
-        <div
-          className="ion-padding"
-          // style={{
-          //   background: "var(--ion-color-secondary)",
-          //   borderRadius: "10px",
-          //   margin: "5px",
-          // }}
-        >
+        <div className="ion-padding">
           <div
             style={{
               display: "flex",
@@ -392,9 +320,6 @@ const TimeAvg: React.FC = () => {
               </IonButton>
             </div>
           </div>
-
-          {/* {stateMetadata && <InfoPanel metadata={stateMetadata} />} */}
-          {/* <StorageManager onPlot={plotChachedItemHandler} /> */}
           <IonAlert
             isOpen={isLoading}
             trigger="present-alert"
@@ -434,7 +359,6 @@ const TimeAvg: React.FC = () => {
                 size="12"
                 style={{
                   minHeight: "200px",
-                  // height: "200px",
                 }}
               >
                 <OLMap tifURL={geoTiffUrl} />
@@ -444,21 +368,13 @@ const TimeAvg: React.FC = () => {
                 size="12"
                 style={{
                   minHeight: "300px",
-                  // height: "300px",
                 }}
               >
                 <TimeSeriesPlot
                   plotRef={plotRef}
-                  // metadata={stateMetadata}
-                  // data={stateData}
                   layout={plotState.layout}
-                  // plotData={plotState.data}
                   plotData={[...plotState.data]}
                   onPlotRelayout={plotRelayoutHandler}
-                  // onSliderChange={sliderChangeHandler}
-                  // data={stateData.slice(dataRangeMin, dataRangeMin + NUM_DATA_TO_SHOW)}
-                  // minRange={plotMinRange}
-                  // maxRange={plotMaxRange}
                 />
               </IonCol>
               <IonCol
@@ -475,14 +391,9 @@ const TimeAvg: React.FC = () => {
                     onRightBtnClick={sliderRightBtnHandler}
                     value={sliderValue}
                     max={sliderRange[1]}
-                    // prettier-ignore
-                    // width={width - (MARGIN_INLINE * 2)}
                     min={sliderRange[0]}
-                    // prettier-ignore
                     onValueChange={sliderValueChangeHandler}
-                    // pinFormatter={(index: number) => `${stateData[index]?.timestamp}`}
                     pinFormatter={(index: number) =>
-                      // `${stateData[index]?.timestamp}`
                       stateData[index]?.timestamp &&
                       `${new Date(
                         stateData[index]?.timestamp

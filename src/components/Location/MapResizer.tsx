@@ -7,17 +7,14 @@ import { useDataParams } from "../../store/DataParamsContext";
  *
  * @returns null
  *
- *
- * This component has to be inside map container (MapContainer).
+ * This component must be used inside map container (MapContainer).
  * Doesn't render any DOM elements and always returns null.
  * Fixes react-leaflet gray/not fully loaded tile problem.
  */
 const MapResizer: React.FC = () => {
   const { latitude, longitude } = useDataParams();
   const map = useMap();
-  // map.setView([latitude, longitude], map.getZoom(), {
-  //   animate: true,
-  // });
+
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       map.invalidateSize();

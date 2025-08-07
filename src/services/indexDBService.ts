@@ -1,9 +1,5 @@
 import localforage from "localforage";
-import {
-  TimeSeriesData,
-  TimeSeriesMetadata,
-  TimeSeriesDataRow,
-} from "../types/time-series.types";
+import { TimeSeriesData, TimeSeriesMetadata } from "../types/time-series.types";
 
 /**
  * IndexDB API: a low-level API for client-side storage of significant amounts of structured data

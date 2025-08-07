@@ -11,7 +11,6 @@ import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
-// import Header from "../Layout/Header";
 import Banner from "../UI/Banner";
 import MapResizer from "./MapResizer";
 import LocationMarker from "./LocationMarker";
@@ -30,14 +29,7 @@ L.Icon.Default.mergeOptions({
 const Location: React.FC = () => {
   const mapRef = useRef(null);
   const { latitude, longitude, setLatitude, setLongitude } = useDataParams();
-  const { plotType, setPlotType } = usePlotType();
-
-  // useEffect(() => {
-  //   const { current = {} } = mapRef;
-  //   // const { leafletElement: map } = current;
-
-  //   if (!map) return;
-  // }, [mapRef]);
+  const { plotType } = usePlotType();
 
   const handleLatChange = (e: CustomEvent) => {
     const newLat = parseFloat(e.detail.value); // get new latitude
@@ -55,7 +47,6 @@ const Location: React.FC = () => {
 
   return (
     <IonPage>
-      {/* <Header title="Region Selector" /> */}
       <Banner />
       <IonContent scrollY={false} fullscreen={false}>
         <div className={styles["map-container"]}>

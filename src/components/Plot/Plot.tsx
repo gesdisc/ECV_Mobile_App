@@ -14,16 +14,15 @@ import { download, informationCircle, server } from "ionicons/icons";
 import { Network } from "@capacitor/network";
 import { useLocation } from "react-router-dom";
 import Plotly from "plotly.js-dist-min";
+
 import { getItem, getRecentDataKey } from "../../services/indexDBService";
 import {
   TimeSeriesDataRow,
   TimeSeriesMetadata,
-  TimeSeriesData,
   DataParams,
 } from "../../types/time-series.types";
 import { useDataParams } from "../../store/DataParamsContext";
 import { fetchData } from "../../services/api/time-series";
-import { formatDate } from "../../utils/date";
 import {
   getMiddleIndex,
   filterDataBetweenDates,
@@ -44,7 +43,6 @@ import Slider from "./Slider";
 import OLMap from "./OLMap/OLMap";
 import InfoPanel from "./InfoPanel";
 import StorageManager from "./Storage/StorageManager";
-
 import Banner from "../UI/Banner";
 
 const Visuals: React.FC = () => {
@@ -69,6 +67,13 @@ const Visuals: React.FC = () => {
   const [sliderValue, setSliderValue] = useState(MARGIN_INLINE * -2);
   const [sliderRange, setSliderRange] = useState([0, 10]);
   const plotRef = useRef<Plotly.PlotlyHTMLElement | HTMLElement | null>(null);
+  const currentVariableData = catalog.find(
+    (data) =>
+      data.dataFieldId ===
+      `${stateMetadata?.prod_name}`
+        .replaceAll(".", "_")
+        .concat(`_${stateMetadata?.param_short_name}`)
+  );
 
   const { plotType } = usePlotType();
 
@@ -141,7 +146,7 @@ const Visuals: React.FC = () => {
           .concat(`_${metadata?.param_short_name}`),
       };
       const cacheKey = `CapacitorStorage.plotData*${newDataParams.variable}*${newDataParams.begin_time}*${newDataParams.end_time}*${newDataParams.lat}*${newDataParams.lon}`;
-      // console.log("metadata from web worker", cacheKey);
+
       if (!Array.isArray(data) || !data.length) {
         setAlertMessage(
           "Your request was successful but there is no enough data to plot."
@@ -398,11 +403,10 @@ const Visuals: React.FC = () => {
 
       // if no more data on the right, load more
       // TODO: need more testing... vLine may not be aligned in some cases?
-      // Note: (loads the entire data again using the current end time but with a new begin time).
       // TODO: load the missing portion instead of loading the entire data again
+      // Note: This loads the entire data again using the current end time but with a new begin time.
       if (new Date(e["xaxis.range[1]"]).getTime() > currentEndTime) {
         fetchMoreData(currentBeginTime, newEndTime);
-        // console.log("We can load more data Right!!");
         // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
         // setSliderRange([plotLeftPointIndex, plotRightPointIndex]);
         // setSliderValue(plotMiddlePointIndex);
@@ -413,7 +417,6 @@ const Visuals: React.FC = () => {
       // TODO: same TODOs from the above if condition
       if (new Date(e["xaxis.range[0]"]).getTime() < currentBeginTime) {
         fetchMoreData(newBeginTime, currentEndTime);
-        console.log("We can load more data LEFT!!");
         // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
         // setSliderRange([plotLeftPointIndex, plotRightPointIndex]);
         // setSliderValue(plotMiddlePointIndex);
@@ -441,7 +444,6 @@ const Visuals: React.FC = () => {
       adjustVLine(filteredDates, getMiddleIndex(filteredDates));
       setSliderRange([plotLeftPointIndex, plotRightPointIndex]);
       setSliderValue(plotMiddlePointIndex);
-      // geotiffURLhandler(plotMiddlePointIndex);
     } else {
       // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
       setSliderRange([0, stateData.length - 1]);
@@ -481,7 +483,6 @@ const Visuals: React.FC = () => {
 
     // TODO: MAY BE? if there is no more data in the visible area of Plot, display the next portion (pan the plot)
     if (stateData[nextIndex] !== undefined && nextIndex < sliderRange[0]) {
-      console.log("we are here");
       return;
     }
 
@@ -490,10 +491,7 @@ const Visuals: React.FC = () => {
 
     (Plotly as any).Fx.hover("divId", [
       { curveNumber: 0, pointNumber: nextIndex },
-      // { curveNumber: 1, pointNumber: activeIndex },
     ]);
-    // setSliderRange(filteredDates.length - 1);
-    // geotiffURLhandler(sliderValue - 1);
   };
 
   // TODO: uses a lot of the same code from sliderLeftBtnHandler. Create reusable chunks?
@@ -510,14 +508,12 @@ const Visuals: React.FC = () => {
       const currentDateDiff = currentEndTime - currentBeginTime;
       const newEndTime = currentEndTime + currentDateDiff;
 
-      console.log("loading more data!!!");
       fetchMoreData(currentBeginTime, newEndTime);
       return;
     }
 
     // TODO: MAY BE? if there is no more data in the visible area of Plot, display the next portion (pan the plot)
     if (stateData[nextIndex] !== undefined && nextIndex > sliderRange[1]) {
-      console.log("we are here");
       return;
     }
 
@@ -525,9 +521,7 @@ const Visuals: React.FC = () => {
     adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
     (Plotly as any).Fx.hover("divId", [
       { curveNumber: 0, pointNumber: nextIndex },
-      // { curveNumber: 1, pointNumber: activeIndex },
     ]);
-    // geotiffURLhandler(nextIndex);
   };
 
   const downloadPlotImage = () => {
@@ -538,14 +532,6 @@ const Visuals: React.FC = () => {
       width: 700,
     });
   };
-
-  const currentVariableData = catalog.find(
-    (data) =>
-      data.dataFieldId ===
-      `${stateMetadata?.prod_name}`
-        .replaceAll(".", "_")
-        .concat(`_${stateMetadata?.param_short_name}`)
-  );
 
   const plotCachedItemHandler = (newParams: DataParams) => {
     handlePlotData({
@@ -644,7 +630,6 @@ const Visuals: React.FC = () => {
                   size="12"
                   style={{
                     minHeight: "200px",
-                    // height: "200px",
                   }}
                 >
                   <OLMap />
@@ -654,21 +639,13 @@ const Visuals: React.FC = () => {
                 size="12"
                 style={{
                   minHeight: "300px",
-                  // height: "300px",
                 }}
               >
                 <TimeSeriesPlot
                   plotRef={plotRef}
-                  // metadata={stateMetadata}
-                  // data={stateData}
                   layout={plotState.layout}
-                  // plotData={plotState.data}
                   plotData={[...plotState.data]}
                   onPlotRelayout={plotRelayoutHandler}
-                  // onSliderChange={sliderChangeHandler}
-                  // data={stateData.slice(dataRangeMin, dataRangeMin + NUM_DATA_TO_SHOW)}
-                  // minRange={plotMinRange}
-                  // maxRange={plotMaxRange}
                 />
               </IonCol>
               <IonCol
@@ -676,7 +653,6 @@ const Visuals: React.FC = () => {
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  // justifyContent: "center",
                 }}
               >
                 {stateData.length !== 0 && (
@@ -685,14 +661,9 @@ const Visuals: React.FC = () => {
                     onRightBtnClick={sliderRightBtnHandler}
                     value={sliderValue}
                     max={sliderRange[1]}
-                    // prettier-ignore
-                    // width={width - (MARGIN_INLINE * 2)}
                     min={sliderRange[0]}
-                    // prettier-ignore
                     onValueChange={sliderValueChangeHandler}
-                    // pinFormatter={(index: number) => `${stateData[index]?.timestamp}`}
                     pinFormatter={(index: number) =>
-                      // `${stateData[index]?.timestamp}`
                       stateData[index]?.timestamp &&
                       `${new Date(
                         stateData[index]?.timestamp

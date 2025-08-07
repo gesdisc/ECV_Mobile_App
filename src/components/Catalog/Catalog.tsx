@@ -13,14 +13,12 @@ import {
 } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 
+import { TabMenuLabels } from "../../constants/ui";
 import { useDataParams } from "../../store/DataParamsContext";
 import { usePlotType, PLOT_TYPES } from "../../store/PlotTypeContext";
-import { TabMenuLabels } from "../../constants/ui";
 
-// import Header from "../Layout/Header";
 import Banner from "../UI/Banner";
 import Variables from "./Variables";
-import { analyticsOutline } from "ionicons/icons";
 
 const Catalog: React.FC = () => {
   const { setVariable } = useDataParams();
@@ -34,7 +32,6 @@ const Catalog: React.FC = () => {
 
   return (
     <IonPage>
-      {/* <Header title="My app" /> */}
       <IonContent>
         <Banner />
         <div className="ion-padding">
@@ -56,10 +53,7 @@ const Catalog: React.FC = () => {
           )}
           {plotType === PLOT_TYPES.TIME_AVG && (
             <IonList slot="content">
-              <IonItem
-                button
-                // onClick={() => onVariableChange(data.dataFieldId)}
-              >
+              <IonItem button>
                 <IonLabel>Black Carbon Mass Density</IonLabel>
                 <IonNote>Demo</IonNote>
               </IonItem>

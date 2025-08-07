@@ -1,14 +1,5 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  useEffect,
-} from "react";
+import React, { createContext, useContext, useState, ReactNode } from "react";
 import { DefaultParams } from "../constants/time-series";
-
-// import { RECENT_DATA_CACHE_KEY } from "../constants/time-series";
-// import { getItem, getRecentDataKey } from "../services/indexDBService";
 
 interface DataParamsContextType {
   latitude: number;
@@ -46,11 +37,6 @@ const initialContextValue: DataParamsContextType = {
   },
 };
 
-// const extractDataParamsFromCacheKey = (key: string) => {
-//   const [cacheKey, variable, beginTime, endTime, lat, lon] = key.split("*");
-//   return { cacheKey, variable, beginTime, endTime, lat, lon };
-// };
-
 const DataParams = createContext<DataParamsContextType>(initialContextValue);
 
 export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
@@ -61,33 +47,6 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   const [variable, setVariable] = useState(DefaultParams.VARIABLE);
   const [beginTime, setBeginTime] = useState(DefaultParams.BEGIN_TIME);
   const [endTime, setEndTime] = useState(DefaultParams.END_TIME);
-
-  // useEffect(() => {
-  //   const getLatestCachedDataParams = async () => {
-  //     const recentCachedDataKey = await getRecentDataKey(RECENT_DATA_CACHE_KEY);
-
-  //     if (!recentCachedDataKey) return;
-
-  //     const {
-  //       variable: cachedVariable,
-  //       beginTime: cachedBeginTime,
-  //       endTime: cachedEndTime,
-  //       lat: cachedLat,
-  //       lon: cachedLon,
-  //     } = extractDataParamsFromCacheKey(recentCachedDataKey);
-
-  //     setLatitude(Number(cachedLat));
-  //     setLongitude(Number(cachedLon));
-  //     setVariable(cachedVariable);
-  //     setBeginTime(cachedBeginTime);
-  //     setEndTime(cachedEndTime);
-  //   };
-  //   getLatestCachedDataParams();
-  // }, []);
-
-  // const currentVariableData = catalog.find(
-  //   (data) => data.dataFieldId === variable
-  // );
 
   const contextValue: DataParamsContextType = {
     latitude,

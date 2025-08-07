@@ -2,12 +2,8 @@ import {
   setItem,
   getItem,
   setRecentDataKey,
-  getRecentDataKey,
 } from "../../services/indexDBService";
-import {
-  TimeSeriesDataRow,
-  TimeSeriesData,
-} from "../../types/time-series.types";
+import { TimeSeriesData } from "../../types/time-series.types";
 
 /**
  *
