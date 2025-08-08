@@ -1,4 +1,3 @@
-// import { parseTimeSeriesCsv } from '../../helpers/time-series';
 import type {
   MaybeBearerToken,
   DataParams,
@@ -41,8 +40,6 @@ export const fetchData = async (
   const bearerToken: MaybeBearerToken = null;
   const { variable, lat, lon, begin_time, end_time } = dataParams;
 
-  // const BEGIN_TIME = "2015-01-01T00:00:00";
-  // const END_TIME = "2020-01-01T00:00:00";
   // URL https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=M2T1NXSLV_5_12_4_V50M&lat=40&lon=120&time_start=2024-03-05T00%3A00%3A00&time_end=2024-03-06T00%3A00%3A00
   const url = `https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=${variable}&lat=${lat}&lon=${lon}&time_start=${begin_time}&time_end=${end_time}`;
 
@@ -59,7 +56,6 @@ export const fetchData = async (
     if (!response.ok) throw new Error(handleApiError(response));
 
     const csvData = await response.text();
-    // const parsedData = parseTimeSeriesCsv(csvData);
 
     return csvData;
   } catch (error) {

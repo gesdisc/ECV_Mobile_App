@@ -9,9 +9,7 @@ import type {
  * @param csvData Data in CSV format
  * @returns Object with metadata and data
  * @summary This function will break down the CSV data into 2 parts
- * The index of break: 'Timestamp (UTC),Data'
- * the first part (from 1st element to 'Timestamp (UTC),Data') is the metadata
- * the part that comes after 'Timestamp (UTC),Data' is the data in {timestamp, value} format
+ *
  */
 export const parseTimeSeriesCsv = (csvData: string) => {
   const metadata: Partial<TimeSeriesMetadata> = {};

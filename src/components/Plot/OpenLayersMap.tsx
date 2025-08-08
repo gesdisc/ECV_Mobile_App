@@ -1,16 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Map, View } from "ol";
 import TileLayer from "ol/layer/Tile";
-import WebGLTile from "ol/layer/WebGLTile";
 import OSM from "ol/source/OSM";
 import GeoTIFF from "ol/source/GeoTIFF";
 import colormap from "colormap";
-import Draw from "ol/interaction/Draw";
 import WebGLTileLayer from "ol/layer/WebGLTile";
-import VectorLayer from "ol/layer/Vector";
-// import VectorLayer from "ol/layer/Vector.js";
-// import VectorImageLayer from "ol/layer/VectorImage.js";
-// import VectorSource from "ol/source/Vector.js";
 import RasterSource from "ol/source/Raster";
 
 import "ol/ol.css";
@@ -121,7 +115,7 @@ const OpenLayersMap: React.FC = () => {
     if (evt.dragging) {
       return;
     }
-    console.log(layer.getData(evt.pixel));
+    // console.log(layer.getData(evt.pixel));
     // displayFeatureInfo(evt.pixel, mapRef.current);
   };
 
@@ -204,9 +198,9 @@ const OpenLayersMap: React.FC = () => {
       const props = tifSource.getProperties();
       // const image = await tifLayer.getData();
 
-      console.log("view: ", view);
+      // console.log("view: ", view);
       // console.log("image: ", image);
-      console.log("props: ", props);
+      // console.log("props: ", props);
     };
     getView();
 

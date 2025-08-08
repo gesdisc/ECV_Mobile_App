@@ -10,12 +10,7 @@ import {
   IonTabs,
 } from "@ionic/react";
 
-import {
-  globeOutline,
-  rainyOutline,
-  analyticsOutline,
-  // calendarOutline,
-} from "ionicons/icons";
+import { globeOutline, rainyOutline, analyticsOutline } from "ionicons/icons";
 
 import { TabMenuLabels } from "../constants/ui";
 
@@ -33,9 +28,6 @@ const TabMenu: React.FC = () => (
         <Route exact path={`/${TabMenuLabels.LOCATION}`}>
           <LocationPage />
         </Route>
-        {/* <Route exact path={`/${TabMenuLabels.Date}`}>
-          <Date />
-        </Route> */}
         <Route exact path={`/${TabMenuLabels.PLOT}`}>
           <PlotPage />
         </Route>
@@ -58,10 +50,6 @@ const TabMenu: React.FC = () => (
           <IonIcon aria-hidden="true" icon={globeOutline} />
           <IonLabel>{TabMenuLabels.LOCATION}</IonLabel>
         </IonTabButton>
-        {/* <IonTabButton tab={TabMenuLabels.Date} href={`/${TabMenuLabels.Date}`}>
-          <IonIcon aria-hidden="true" icon={calendarOutline} />
-          <IonLabel>{TabMenuLabels.Date}</IonLabel>
-        </IonTabButton> */}
         <IonTabButton tab={TabMenuLabels.PLOT} href={`/${TabMenuLabels.PLOT}`}>
           <IonIcon aria-hidden="true" icon={analyticsOutline} />
           <IonLabel>{TabMenuLabels.PLOT}</IonLabel>

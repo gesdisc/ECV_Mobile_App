@@ -31,7 +31,7 @@ const useCheckIndexedDBUsage = () => {
             error.name === "QuotaExceededError"
               ? setError("IndexedDB storage limit reached!")
               : setError(`"IndexedDB error: ${error.message}`);
-            // Implement logic to handle the limit, e.g., prompt user to clear data
+            // Implement logic to handle the limit
           }
         }
       } else {

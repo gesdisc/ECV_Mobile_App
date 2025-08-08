@@ -84,7 +84,7 @@ registerRoute(
   // Match image requests for map tiles
   ({ request }) => request.destination === "image",
   new StaleWhileRevalidate({
-    cacheName: "map-tiles-cache", // Choose a descriptive cache name
+    cacheName: "map-tiles-cache",
     plugins: [
       // Optional: Only cache responses with a 200 status
       new CacheableResponsePlugin({
@@ -101,7 +101,7 @@ registerRoute(
     return request.url.endsWith(".tif"); // Match requests for .tif files
   },
   new StaleWhileRevalidate({
-    cacheName: "tif-images", // Give your cache a specific name
+    cacheName: "tif-images",
     plugins: [
       // Optional: Only cache responses with a 200 status
       new CacheableResponsePlugin({
