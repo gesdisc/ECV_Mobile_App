@@ -21,7 +21,7 @@ import {
 } from "../../types/time-series.types";
 import { useDataParams } from "../../store/DataParamsContext";
 import { fetchData } from "../../services/api/time-series";
-import { formatDate } from "../../utils/date";
+
 import {
   getMiddleIndex,
   filterDataBetweenDates,
