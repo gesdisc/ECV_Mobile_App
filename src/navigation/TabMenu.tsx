@@ -14,7 +14,7 @@ import {
   globeOutline,
   rainyOutline,
   analyticsOutline,
-  // calendarOutline,
+  calendarOutline,
 } from "ionicons/icons";
 
 import { TabMenuLabels } from "../constants/ui";
@@ -22,6 +22,7 @@ import { TabMenuLabels } from "../constants/ui";
 import CatalogPage from "../pages/CatalogPage";
 import LocationPage from "../pages/LocationPage";
 import PlotPage from "../pages/PlotPage";
+import DatePickerPage from "../pages/DatePickerPage";
 
 const TabMenu: React.FC = () => (
   <IonReactRouter>
@@ -33,9 +34,9 @@ const TabMenu: React.FC = () => (
         <Route exact path={`/${TabMenuLabels.LOCATION}`}>
           <LocationPage />
         </Route>
-        {/* <Route exact path={`/${TabMenuLabels.Date}`}>
-          <Date />
-        </Route> */}
+        <Route exact path={`/${TabMenuLabels.DATE}`}>
+          <DatePickerPage />
+        </Route>
         <Route exact path={`/${TabMenuLabels.PLOT}`}>
           <PlotPage />
         </Route>
@@ -58,10 +59,10 @@ const TabMenu: React.FC = () => (
           <IonIcon aria-hidden="true" icon={globeOutline} />
           <IonLabel>{TabMenuLabels.LOCATION}</IonLabel>
         </IonTabButton>
-        {/* <IonTabButton tab={TabMenuLabels.Date} href={`/${TabMenuLabels.Date}`}>
+        <IonTabButton tab={TabMenuLabels.DATE} href={`/${TabMenuLabels.DATE}`}>
           <IonIcon aria-hidden="true" icon={calendarOutline} />
-          <IonLabel>{TabMenuLabels.Date}</IonLabel>
-        </IonTabButton> */}
+          <IonLabel>{TabMenuLabels.DATE}</IonLabel>
+        </IonTabButton>
         <IonTabButton tab={TabMenuLabels.PLOT} href={`/${TabMenuLabels.PLOT}`}>
           <IonIcon aria-hidden="true" icon={analyticsOutline} />
           <IonLabel>{TabMenuLabels.PLOT}</IonLabel>

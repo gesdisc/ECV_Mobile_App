@@ -6,3 +6,5 @@ export const DefaultParams = {
   BEGIN_TIME: "2019-12-31T00:00:00",
   END_TIME: "2020-01-01T00:00:00",
 };
+
+export const RECENT_DATA_CACHE_KEY = `CapacitorStorage.plotData_recent_data`;

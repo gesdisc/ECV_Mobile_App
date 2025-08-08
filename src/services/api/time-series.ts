@@ -57,9 +57,7 @@ export const fetchData = async (
     });
 
     if (!response.ok) throw new Error(handleApiError(response));
-
     const csvData = await response.text();
-    // const parsedData = parseTimeSeriesCsv(csvData);
 
     return csvData;
   } catch (error) {

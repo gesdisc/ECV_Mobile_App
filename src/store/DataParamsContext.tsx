@@ -1,5 +1,14 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { DefaultParams } from "../constants/time-series";
+
+import { RECENT_DATA_CACHE_KEY } from "../constants/time-series";
+import { getItem, getRecentDataKey } from "../services/indexDBService";
 
 interface DataParamsContextType {
   latitude: number;
@@ -36,7 +45,10 @@ const initialContextValue: DataParamsContextType = {
     console.log("empty function!");
   },
 };
-
+const extractDataParamsFromCacheKey = (key: string) => {
+  const [cacheKey, variable, beginTime, endTime, lat, lon] = key.split("*");
+  return { cacheKey, variable, beginTime, endTime, lat, lon };
+};
 const DataParams = createContext<DataParamsContextType>(initialContextValue);
 
 export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
@@ -48,70 +60,28 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   const [beginTime, setBeginTime] = useState(DefaultParams.BEGIN_TIME);
   const [endTime, setEndTime] = useState(DefaultParams.END_TIME);
 
-  // const currentVariableData = catalog.find(
-  //   (data) => data.dataFieldId === variable
-  // );
+  useEffect(() => {
+    const getLatestCachedDataParams = async () => {
+      const recentCachedDataKey = await getRecentDataKey(RECENT_DATA_CACHE_KEY);
 
-  /**
-   * FIXME:
-   * 1. select date
-   * 2. change variable
-   * 3. Date-picker UI will reflect the change and update the date
-   * 4. Context provider will not detect the change
-   *  The system will not detect that the new variable doesn't have data within the currenctly selected date,
-   * and it will send request with the selected dates resulting in an error
-   * 5. The code below fixes this behavior but causes another bug (check below!)
-   *
-   */
+      if (!recentCachedDataKey) return;
 
-  /**
-   * if default begin time is before the selected (or default) variable begin time
-   */
-  // const defaultBeginTime = (
-  //   new Date(DefaultParams.BEGIN_TIME) <
-  //   new Date(`${currentVariableData?.dataProductBeginDateTime}`)
-  //     ? currentVariableData?.dataProductBeginDateTime
-  //     : DefaultParams.BEGIN_TIME
-  // ) as string;
+      const {
+        variable: cachedVariable,
+        beginTime: cachedBeginTime,
+        endTime: cachedEndTime,
+        lat: cachedLat,
+        lon: cachedLon,
+      } = extractDataParamsFromCacheKey(recentCachedDataKey);
 
-  /**
-   * if default end time is after the selected (or default) variable end time
-   */
-  // const defaultEndTime = (
-  //   new Date(DefaultParams.END_TIME) >
-  //   new Date(`${currentVariableData?.dataProductEndDateTime}`)
-  //     ? currentVariableData?.dataProductEndDateTime
-  //     : DefaultParams.END_TIME
-  // ) as string;
-  // console.log("correct Time: __________");
-  // console.log("Begin Time: ", defaultBeginTime);
-  // console.log("End Time: ", defaultEndTime);
-  // console.log("correct Time: __________");
-
-  /**
-   * FIXME:
-   * 1. select date
-   * 2. change variable
-   * selected date remains the same in date-picker UI
-   * selected date changed back to the default date in context which is used to send API request
-   *
-   */
-
-  // useEffect(() => {
-  //   const checkDateRange = () => {
-  //     setEndTime(defaultEndTime);
-  //     setBeginTime(defaultBeginTime);
-  //   };
-  //   checkDateRange();
-  // }, []); // Empty dependency array means it runs once on mount
-
-  /**
-   * DON'T NEED TO CHECK -- date-picker UI widget will not let user select a start date that is after the end date
-   */
-  // if (start > end) {
-  //   // "Your start-date cannot be after the end-date."
-  //   // return;
-  // }
+      setLatitude(Number(cachedLat));
+      setLongitude(Number(cachedLon));
+      setVariable(cachedVariable);
+      setBeginTime(cachedBeginTime);
+      setEndTime(cachedEndTime);
+    };
+    getLatestCachedDataParams();
+  }, []);
 
   const contextValue: DataParamsContextType = {
     latitude,

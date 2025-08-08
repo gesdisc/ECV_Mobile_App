@@ -2,6 +2,9 @@ import type {
   TimeSeriesData,
   TimeSeriesDataRow,
   TimeSeriesMetadata,
+  TimeAvgDataRow,
+  TimeAvgMetadata,
+  TimeAvgData,
 } from "../types/time-series.types";
 
 /**
@@ -39,6 +42,35 @@ export const parseTimeSeriesCsv = (csvData: string) => {
   }
 
   return { metadata, data } as TimeSeriesData;
+};
+
+export const timeAvgCsvParser = (csv: string) => {
+  const metadata: Partial<TimeAvgMetadata> = {};
+  const data: TimeAvgDataRow[] = [];
+  const lines = csv.split("\n");
+
+  const isValid = lines.find((line) => line.startsWith("time"));
+  if (isValid) {
+    const splitIndex = lines.findIndex((line) => line.startsWith("time"));
+    const metadataLines = lines.slice(0, splitIndex);
+    const dataLines = lines.slice(splitIndex + 1);
+
+    metadataLines.forEach((line) => {
+      const [key, value] = line.split(":,");
+      if (key && value !== undefined) {
+        metadata[key.trim().toLowerCase().replaceAll(" ", "_")] = value.trim();
+      }
+    });
+
+    dataLines.forEach((line) => {
+      const [timestamp, value] = line.split(",");
+      if (timestamp && value !== undefined) {
+        data.push({ timestamp, value });
+      }
+    });
+  }
+
+  return { metadata, data } as TimeAvgData;
 };
 
 export const getChunkOfDataBetweenDates = (

@@ -15,7 +15,7 @@ const Catalog: React.FC = () => {
 
   const variableChangeHandler = (variable: string) => {
     setVariable(variable);
-    history.push(`/${TabMenuLabels.PLOT}`);
+    history.push(`/${TabMenuLabels.PLOT}`, variable);
   };
 
   return (

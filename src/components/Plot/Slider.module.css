@@ -1,0 +1,27 @@
+.ion-range::part(pin) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+
+  background: #410eea;
+  color: #ffffff;
+  transform: scale(1.01);
+
+  top: -40px;
+  z-index: 2;
+  min-width: 90px;
+  width: auto;
+  height: auto;
+  border-radius: 2px;
+  padding-inline: 10px;
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.ion-range::part(pin)::before {
+  content: none;
+}
+
+.ion-range::part(knob) {
+  background: #480ecf;
+}
