@@ -202,9 +202,6 @@ const Visuals: React.FC = () => {
     // const tif_date = "20250101-20250101";
     const tif_tail = ".45W_13S_126E_51N.tif";
 
-    // React state manages this for us?
-    if (geoTiffUrl === `${tif_location}${tif_base}${date}-${date}${tif_tail}`)
-      return;
     setGeoTiffUrl(`${tif_location}${tif_base}${date}-${date}${tif_tail}`);
   };
 
