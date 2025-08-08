@@ -1,4 +1,3 @@
-// import { parseTimeSeriesCsv } from '../../helpers/time-series';
 import type {
   MaybeBearerToken,
   DataParams,
@@ -34,6 +33,20 @@ const handleApiError = (response: Response): string => {
   return errorMessage;
 };
 
+/**
+ *
+ * Returns time-series CSV file using Cloud Giovanni API
+ *
+ * @param dataParams - {variable, lat, lon, begin_time, end_time}
+ * @param signal - signal to cancel the request
+ * @returns CSV file
+ *
+ *
+ * FIXME: The CSV file may contain an error message instead of data, even if the request is successful (with status code 200).
+ * Ex. `{"message": "Internal server error"}` OR `Data, GPM_3IMERGM_07_precipitation, is currently unavailable.`
+ * In this scenario the app will display the error message `request was successful but there is no enough data to plot.`
+ *
+ */
 export const fetchData = async (
   dataParams: DataParams,
   signal?: AbortSignal
@@ -57,10 +70,6 @@ export const fetchData = async (
     if (!response.ok) throw new Error(handleApiError(response));
     const csvData = await response.text();
 
-    // TODO: Data, GPM_3IMERGM_07_precipitation, is currently unavailable. -- UI message: req. was suc. no enough data to plot
-    // TODO:  {"message": "Internal server error"} -- UI message: req. was suc. no enough data to plot
-    // const parsedData = parseTimeSeriesCsv(csvData);
-
     return csvData;
   } catch (error) {
     if (error instanceof Error) {
@@ -72,7 +81,10 @@ export const fetchData = async (
 };
 
 /**
+ *
  * fetching graphql data
+ * ask for the key
+ *
  */
 // pass variable id
 // {"query":"{\n  getVariables(variableEntryIds: [\"OMAERUVd_003_FinalAerosolAbsOpticalDepth388\"]) { variables { dataFieldId, dataFieldLongName } } }"}

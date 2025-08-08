@@ -19,8 +19,8 @@ export const getMiddleIndex = (arr: Array<any>) => {
 };
 
 export const filterDataBetweenDates = (
-  startDate: string,
-  endDate: string,
+  startDate: string | number | Date,
+  endDate: string | number | Date,
   dateArray: string[]
 ) => {
   return dateArray.filter(

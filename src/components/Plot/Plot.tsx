@@ -89,7 +89,9 @@ const Visuals: React.FC = () => {
     abortController.current && abortController.current.abort();
 
   /**
+   *
    * Plot the latest cached data
+   *
    */
   useEffect(() => {
     const checkCacheOnMount = async () => {
@@ -105,12 +107,14 @@ const Visuals: React.FC = () => {
   }, []);
 
   /**
-   * will fetch data everytime user selects a variable on the catalog page
+   *
+   * will fetch data every time user selects a variable on the catalog page
    * It will use default parameters and user selected variable
    *
-   * FIXME: Canceling request sometimes doesn't working?? Need more testing!
+   * FIXME: Canceling request sometimes doesn't work?? Need more testing!
    * FIXME: selecting the same variable with the same data parameters will fetch the data again
    * ...This bug is also described below where handlePlotData function is defined
+   *
    */
   useEffect(() => {
     if (!categoryPageVariable) return;
@@ -125,10 +129,16 @@ const Visuals: React.FC = () => {
   }, [categoryPageVariable]);
 
   /**
+   *
    *  workerRef.current.onmessage will work iff new data is requested using API
    *
    * dataWorker.js formats CSV data in the background using Web Worker
    * more about web workers: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
+   *
+   *
+   * Using toISOString() to format the date causes a bug.
+   * ...This bug is also described below where handlePlotData function is defined
+   *
    */
   useEffect(() => {
     if (typeof Worker === "undefined") return;
@@ -167,7 +177,9 @@ const Visuals: React.FC = () => {
   }, []);
 
   /**
-   * Update Plot State when data (stateData) is changed
+   *
+   * Update the Plot State when data (stateData) is changed.
+   *
    */
   useEffect(() => {
     if (stateData.length === 0) return;
@@ -177,11 +189,9 @@ const Visuals: React.FC = () => {
         x: stateData.map((d) => d.timestamp),
         y: stateData.map((d) => d.value),
         type: "scatter",
-        // mode: "lines+markers",
         mode: "lines",
         line: { color: "blue" },
         name: stateMetadata?.param_short_name || "",
-        // connectgaps: false,
       },
     ];
 
@@ -192,8 +202,6 @@ const Visuals: React.FC = () => {
         visible: stateData.length ? true : false,
         x0: stateData[getMiddleIndex(stateData)]?.timestamp, // x bottom
         x1: stateData[getMiddleIndex(stateData)]?.timestamp, // x top
-        // x0: MARGIN_INLINE * -2, // x bottom
-        // x1: MARGIN_INLINE * -2, // x top
         y0: "-100", // y bottom
         y1: "150", // y top
       };
@@ -209,14 +217,12 @@ const Visuals: React.FC = () => {
             : "",
       };
     }
-    // document.querySelector(".nsewdrag.drag").width.baseVal.value;
+
     const plotLayout: Partial<Plotly.Layout> = {
       ...plotState.layout,
-      // width: width,
       // title: stateMetadata?.param_name
       //   ? `${stateMetadata?.param_name} (${stateMetadata?.prod_name})`
       //   : "Select a variable to plot.",
-      // sliders: [newSlider],
       shapes: [verticalLine],
       xaxis: {
         ...plotState.layout.xaxis,
@@ -237,7 +243,7 @@ const Visuals: React.FC = () => {
   }, [stateData]);
 
   // FIXME: Previously plotted data will be fetched again instead of retrieving it from browser's storage.
-  // The function compares cache keys of stored and requested data but the keys don't match because of how dates are formatted in the useEffect with workerRef.current.onmessage
+  // The function compares cache keys of stored and requested data but the keys never match (even if parameters are the same) because of how dates are formatted in the workerRef.current.onmessage above.
   // What we want: Before fetching the requested data from Cloud Giovanni, handlePlotData should check wheter the data already exists in the browser storage and retrieve it.
   // The cause: formatting the dates in workerRef.current.onmessage in useEffect causes the problem
   // Replicate: click the "plot data" button, after plotting, click the button again without changing the parameters.
@@ -297,10 +303,9 @@ const Visuals: React.FC = () => {
     }
   };
 
-  // FIXME: new data request doesn't align the vertical line (same when request canceled)
-  // FIXME: adds new data in the storage
-  // FIXME: caching should update the dates in the name
-  // TODO: load more data instead of loading the entire data again
+  // FIXME: Fix the position of vertical line after loading more data (or when request canceled)
+  // FIXME: The function adds a new item in the browser's storage with a new key. It should update the cache key and the value (cached data) instead.
+  // TODO: Event though the function is named "fetch more" it doesn't really fetch more, instead it fetches the entire data + what is requested
   const fetchMoreData = async (
     newBeginTime: string | number,
     newEndTime: string | number
@@ -313,9 +318,7 @@ const Visuals: React.FC = () => {
     const convertedNewBeginTime = new Date(newBeginTime).getTime();
     const convertedNewEndTime = new Date(newEndTime).getTime();
 
-    // TODO: To improve the UX, we can check if the variable has data within the requested date range to avoid displaying errors?
-    // ... Ex. if user requested
-    // if not... get the most available date
+    // TODO: To improve the UX, we can check if the variable has data within the requested date range to avoid sending a request (check catalog.json for date ranges)
     const newDataParams = {
       lat: stateMetadata.lat,
       lon: stateMetadata.lon,
@@ -342,7 +345,8 @@ const Visuals: React.FC = () => {
   };
 
   /**
-   * adjust vertical line position by updating the plot state based on newXrange values
+   *
+   * Position the vertical line by updating the plot state
    *
    * @param newXrange the new x axis data
    * @param activeIndex the new index for positioning v-line
@@ -355,8 +359,6 @@ const Visuals: React.FC = () => {
       visible: true,
       x0: newXrange[activeIndex],
       x1: newXrange[activeIndex],
-      // x0: activeIndex,
-      // x1: activeIndex,
       y0: "-100", // y bottom
       y1: "150", // y top
     };
@@ -375,9 +377,10 @@ const Visuals: React.FC = () => {
   /**
    *
    * @summary: triggered every time the plot is panned, zoomed, etc.
-   * Event argument includes the x axis range points
+   * Event argument includes the x axis range points.
    *
-   * Read the Plotly.js documentation for relayout event
+   * Read the Plotly.js documentation for relayout event: https://plotly.com/javascript/plotlyjs-function-reference/#plotlyrelayout
+   *
    */
   const plotRelayoutHandler = (e: any) => {
     if (stateData.length === 0) return;
@@ -394,6 +397,8 @@ const Visuals: React.FC = () => {
     let plotRightPointIndex: number | null = null;
     let plotMiddlePointIndex: number | null = null;
 
+    // If plotLeftPoint & plotRightPoint exist, the plot is zoomed in or panned
+    // else The plot is autoscaled/reseted
     if (plotLeftPoint && plotRightPoint) {
       const filteredDates = filterDataBetweenDates(
         plotLeftPoint,
@@ -401,10 +406,9 @@ const Visuals: React.FC = () => {
         [...stateData.map((d) => d.timestamp)]
       );
 
-      // if no more data on the right, load more
+      // if no more data points on the right side, load more data
       // TODO: need more testing... vLine may not be aligned in some cases?
       // TODO: load the missing portion instead of loading the entire data again
-      // Note: This loads the entire data again using the current end time but with a new begin time.
       if (new Date(e["xaxis.range[1]"]).getTime() > currentEndTime) {
         fetchMoreData(currentBeginTime, newEndTime);
         // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
@@ -413,7 +417,7 @@ const Visuals: React.FC = () => {
         return;
       }
 
-      // if no more data on the left, load more.
+      // if no more data points on the left, load more data
       // TODO: same TODOs from the above if condition
       if (new Date(e["xaxis.range[0]"]).getTime() < currentBeginTime) {
         fetchMoreData(newBeginTime, currentEndTime);
@@ -423,11 +427,13 @@ const Visuals: React.FC = () => {
         return;
       }
 
-      // TODO: LIMIT ZOOM AND PAN to fix the vLine alignment problem?
+      // TODO: LIMIT ZOOM AND PAN to fix the vLine position??
       // read more about the problem: https://docs.google.com/document/d/1KeFDGzYRnsdfybJ-QuVDmm95VI_mVdeeD_Kr567O7CM/edit?tab=t.0#heading=h.m3g10wtsxmqt
+
+      // 6 or less data points in the visible area of Plot
       // if (filteredDates.length <= 6) return;
-      // no data in the visible area of Plot
-      // Plot zoom
+
+      // no data points in the visible area of Plot
       if (filteredDates.length === 0) return;
 
       plotLeftPointIndex = stateData.findIndex(
@@ -445,6 +451,8 @@ const Visuals: React.FC = () => {
       setSliderRange([plotLeftPointIndex, plotRightPointIndex]);
       setSliderValue(plotMiddlePointIndex);
     } else {
+      // The plot is autoscaled
+
       // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
       setSliderRange([0, stateData.length - 1]);
       // setSliderValue();
@@ -456,11 +464,9 @@ const Visuals: React.FC = () => {
     const activeIndex = Number(e.detail.value);
     adjustVLine([...stateData.map((d) => d.timestamp)], activeIndex);
     setSliderValue(activeIndex);
-    // geotiffURLhandler(activeIndex);
-    //  setSliderRange(filteredDates.length - 1);
+
     (Plotly as any).Fx.hover("divId", [
       { curveNumber: 0, pointNumber: activeIndex },
-      // { curveNumber: 1, pointNumber: activeIndex },
     ]);
   };
 
@@ -468,7 +474,7 @@ const Visuals: React.FC = () => {
     if (stateData.length === 0) return;
     const nextIndex = sliderValue - 1;
 
-    // if there is no more data, load new chunk of data from API
+    // if there is no more data on the left, load new chunk of data using Cloud Giovanni API
     if (stateData[nextIndex] === undefined) {
       const currentBeginTime = new Date(stateData[0].timestamp).getTime();
       const currentEndTime = new Date(
@@ -499,7 +505,7 @@ const Visuals: React.FC = () => {
     if (stateData.length === 0) return;
     const nextIndex = sliderValue + 1;
 
-    // if there is no more data, load new chunk of data from API
+    // if there is no more data on the right, load new chunk of data using Cloud Giovanni API
     if (stateData[nextIndex] === undefined) {
       const currentBeginTime = new Date(stateData[0].timestamp).getTime();
       const currentEndTime = new Date(
@@ -533,6 +539,7 @@ const Visuals: React.FC = () => {
     });
   };
 
+  // newParams comes from Storage StorageManager.tsx
   const plotCachedItemHandler = (newParams: DataParams) => {
     handlePlotData({
       lat: newParams.lat,
