@@ -79,7 +79,6 @@
     "client": "react-scripts start",
     "offline": "rimraf build && react-scripts build && serve -s build -p 8000",
     "build": "react-scripts build",
-    "clean": "rimraf build",
     "test": "react-scripts test --transformIgnorePatterns 'node_modules/(?!(@ionic/react|@ionic/react-router|@ionic/core|@stencil/core|ionicons)/)'",
     "eject": "react-scripts eject",
     "lint": "eslint --ext .ts,.tsx src"

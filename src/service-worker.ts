@@ -84,9 +84,9 @@ registerRoute(
   // Match image requests for map tiles
   ({ request }) => request.destination === "image",
   new StaleWhileRevalidate({
-    cacheName: "map-tiles-cache", // Choose a descriptive cache name
+    cacheName: "map-tiles-cache",
     plugins: [
-      // Optional: Only cache responses with a 200 status
+      // Only cache responses with a 200 status
       new CacheableResponsePlugin({
         statuses: [0, 200],
       }),
@@ -96,14 +96,14 @@ registerRoute(
 
 // Handle TIF images:
 registerRoute(
-  // Match image requests for map tiles
   ({ request }) => {
-    return request.url.endsWith(".tif"); // Match requests for .tif files
+    // Match requests for .tif files
+    return request.url.endsWith(".tif");
   },
   new StaleWhileRevalidate({
-    cacheName: "tif-images", // Give your cache a specific name
+    cacheName: "tif-images",
     plugins: [
-      // Optional: Only cache responses with a 200 status
+      // Only cache responses with a 200 status
       new CacheableResponsePlugin({
         statuses: [0, 200],
       }),

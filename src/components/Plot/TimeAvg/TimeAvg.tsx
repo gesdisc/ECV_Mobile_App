@@ -225,6 +225,7 @@ const TimeAvg: React.FC = () => {
     const tif_location = "/assets/geotifs/";
     const tif_base = "GIOVANNI-timeAvgMap.M2T1NXAER_5_12_4_BCCMASS.";
     // const tif_date = "20250101-20250101";
+    // const tif_date = "20250101-20250101";
     const tif_tail = ".45W_13S_126E_51N.tif";
 
     setGeoTiffUrl(

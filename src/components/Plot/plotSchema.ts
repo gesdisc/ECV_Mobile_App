@@ -21,7 +21,6 @@ export const schema: {
       r: MARGIN_INLINE,
     },
     legend: { x: 0, y: 1 },
-    // title: "Select a variable to plot.",
     hovermode: "x",
     shapes: [
       {
@@ -33,9 +32,7 @@ export const schema: {
         y0: 0, // y bottom
         y1: 0, // y top
         yref: "paper",
-        // xref: "paper",
         ysizemode: "pixel",
-        // xsizemode: "pixel",
         line: {
           color: "rgb(228, 24, 24)",
           width: 2,
@@ -79,6 +76,5 @@ export const schema: {
         showarrow: false,
       },
     ],
-    // margin: { t: 40, b: 60 },
   },
 };

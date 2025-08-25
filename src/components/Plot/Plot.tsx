@@ -237,7 +237,7 @@ const Visuals: React.FC = () => {
       annotations: [plotAnnotation],
     };
 
-    setPlotState({ data: plotData, layout: plotLayout }); // get prevSt
+    setPlotState({ data: plotData, layout: plotLayout });
     setSliderValue(getMiddleIndex(stateData));
     setSliderRange([0, stateData.length - 1]);
   }, [stateData]);
