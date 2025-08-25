@@ -1,3 +1,10 @@
+/**
+ *
+ * Note: The app uses IndexedDB instead of SQLite
+ * This code is not used in the app
+ *
+ */
+
 import { Capacitor } from "@capacitor/core";
 import {
   CapacitorSQLite,

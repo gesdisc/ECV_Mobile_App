@@ -1,5 +1,5 @@
 import localforage from "localforage";
-import { TimeSeriesData } from "../types/time-series.types";
+import { TimeSeriesData, TimeSeriesMetadata } from "../types/time-series.types";
 
 /**
  * IndexDB API: a low-level API for client-side storage of significant amounts of structured data
@@ -80,46 +80,19 @@ export const getRecentDataKey = async (key: string) => {
   }
 };
 
-/**
- * Using array to store the data
- */
-// export const setArrayItem = async (key: string, value: TimeSeriesData) => {
-//   try {
-//     const storedData: TimeSeriesData[] = (await localforage.getItem(key)) || [];
+export const getAllItems = async () => {
+  const items: { metadata: TimeSeriesMetadata; cachekey: string }[] = [];
 
-//     // check if exists return
-//     const isVariableStored = storedData.find(
-//       (v) => v.metadata.dataFieldId === value.metadata.dataFieldId
-//     );
-//     console.log(
-//       isVariableStored ? "variable exists" : "variable doesn't exist"
-//     );
-//     if (isVariableStored) return;
-
-//     storedData.push(value);
-//     localforage.setItem(key, storedData);
-
-//     console.log(
-//       `Data with id "${value.metadata.dataFieldId}" has been set in IndexedDB`
-//     );
-//   } catch (err) {
-//     console.error("Error setting data in IndexedDB:", err);
-//   }
-// };
-
-// export const getArrayItem = async (
-//   key: string,
-//   variableId: string
-// ): Promise<TimeSeriesData | undefined> => {
-//   try {
-//     const storedData: TimeSeriesData[] = (await localforage.getItem(key)) || [];
-
-//     const item = storedData.find((v) => v.metadata.dataFieldId === variableId);
-//     console.log(
-//       `Data with id "${variableId}" has been retrieved from IndexedDB`
-//     );
-//     return item;
-//   } catch (err) {
-//     console.error("Error getting data from IndexedDB:", err);
-//   }
-// };
+  try {
+    await localforage.iterate(function (value: TimeSeriesData, key: string) {
+      if (key !== "CapacitorStorage.plotData_recent_data") {
+        items.push({ metadata: value.metadata, cachekey: key });
+      }
+    });
+    return items;
+  } catch (err) {
+    if (err instanceof Error) {
+      throw new Error("Error retrieving data from IndexedDB: ", err);
+    }
+  }
+};

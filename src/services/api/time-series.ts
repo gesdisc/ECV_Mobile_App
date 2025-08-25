@@ -1,4 +1,3 @@
-// import { parseTimeSeriesCsv } from '../../helpers/time-series';
 import type {
   MaybeBearerToken,
   DataParams,
@@ -34,6 +33,20 @@ const handleApiError = (response: Response): string => {
   return errorMessage;
 };
 
+/**
+ *
+ * Returns time-series CSV file using Cloud Giovanni API
+ *
+ * @param dataParams - {variable, lat, lon, begin_time, end_time}
+ * @param signal - signal to cancel the request
+ * @returns CSV file
+ *
+ *
+ * FIXME: The CSV file may contain an error message instead of data, even if the request is successful (with status code 200).
+ * Ex. `{"message": "Internal server error"}` OR `Data, GPM_3IMERGM_07_precipitation, is currently unavailable.`
+ * In this scenario the app will display the error message `request was successful but there is no enough data to plot.`
+ *
+ */
 export const fetchData = async (
   dataParams: DataParams,
   signal?: AbortSignal
@@ -41,8 +54,6 @@ export const fetchData = async (
   const bearerToken: MaybeBearerToken = null;
   const { variable, lat, lon, begin_time, end_time } = dataParams;
 
-  // const BEGIN_TIME = "2015-01-01T00:00:00";
-  // const END_TIME = "2020-01-01T00:00:00";
   // URL https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=M2T1NXSLV_5_12_4_V50M&lat=40&lon=120&time_start=2024-03-05T00%3A00%3A00&time_end=2024-03-06T00%3A00%3A00
   const url = `https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=${variable}&lat=${lat}&lon=${lon}&time_start=${begin_time}&time_end=${end_time}`;
 
@@ -57,9 +68,7 @@ export const fetchData = async (
     });
 
     if (!response.ok) throw new Error(handleApiError(response));
-
     const csvData = await response.text();
-    // const parsedData = parseTimeSeriesCsv(csvData);
 
     return csvData;
   } catch (error) {
@@ -72,7 +81,10 @@ export const fetchData = async (
 };
 
 /**
+ *
  * fetching graphql data
+ * ask for the key
+ *
  */
 // pass variable id
 // {"query":"{\n  getVariables(variableEntryIds: [\"OMAERUVd_003_FinalAerosolAbsOpticalDepth388\"]) { variables { dataFieldId, dataFieldLongName } } }"}
