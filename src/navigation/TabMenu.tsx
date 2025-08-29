@@ -1,10 +1,11 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Redirect, Route } from "react-router-dom";
 import { IonReactRouter } from "@ionic/react-router";
 import {
   IonIcon,
   IonLabel,
   IonRouterOutlet,
+  IonSpinner,
   IonTabBar,
   IonTabButton,
   IonTabs,
@@ -18,30 +19,44 @@ import {
 
 import { TabMenuLabels } from "../constants/ui";
 
-import CatalogPage from "../pages/CatalogPage";
-import LocationPage from "../pages/LocationPage";
-import PlotPage from "../pages/PlotPage";
-import DatePickerPage from "../pages/DatePickerPage";
+import styles from "./TabMenu.module.css";
+
+const CatalogPage = React.lazy(() => import("../pages/CatalogPage"));
+const LocationPage = React.lazy(() => import("../pages/LocationPage"));
+const DatePickerPage = React.lazy(() => import("../pages/DatePickerPage"));
+const PlotPage = React.lazy(() => import("../pages/PlotPage"));
 
 const TabMenu: React.FC = () => (
   <IonReactRouter>
     <IonTabs>
       <IonRouterOutlet>
-        <Route exact path={`/${TabMenuLabels.CATALOG}`}>
-          <CatalogPage />
-        </Route>
-        <Route exact path={`/${TabMenuLabels.LOCATION}`}>
-          <LocationPage />
-        </Route>
-        <Route exact path={`/${TabMenuLabels.DATE}`}>
-          <DatePickerPage />
-        </Route>
-        <Route exact path={`/${TabMenuLabels.PLOT}`}>
-          <PlotPage />
-        </Route>
-        <Route exact path="/">
-          <Redirect to={`/${TabMenuLabels.CATALOG}`} />
-        </Route>
+        <Suspense
+          fallback={
+            <div className={styles.suspense}>
+              <IonSpinner
+                name="dots"
+                color="primary"
+                className={styles.spinner}
+              ></IonSpinner>
+            </div>
+          }
+        >
+          <Route exact path={`/${TabMenuLabels.CATALOG}`}>
+            <CatalogPage />
+          </Route>
+          <Route exact path={`/${TabMenuLabels.LOCATION}`}>
+            <LocationPage />
+          </Route>
+          <Route exact path={`/${TabMenuLabels.DATE}`}>
+            <DatePickerPage />
+          </Route>
+          <Route exact path={`/${TabMenuLabels.PLOT}`}>
+            <PlotPage />
+          </Route>
+          <Route exact path="/">
+            <Redirect to={`/${TabMenuLabels.CATALOG}`} />
+          </Route>
+        </Suspense>
       </IonRouterOutlet>
       <IonTabBar slot="bottom" color={"primary"}>
         <IonTabButton
