@@ -7,7 +7,9 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  IonIcon,
 } from "@ionic/react";
+import { server, informationCircle, download } from "ionicons/icons";
 import Plotly from "plotly.js-dist-min";
 
 import {
@@ -16,21 +18,27 @@ import {
   TimeAvgDataRow,
   TimeAvgMetadata,
 } from "../../../types/time-series.types";
-import { useDataParams } from "../../../store/DataParamsContext";
 import { getMiddleIndex, filterDataBetweenDates } from "../helpers";
 import { timeAvgCsvParser } from "../../../helpers/time-series";
 import { schema, MARGIN_INLINE } from "../plotSchema";
-import useWindowDimensions from "../../../hooks/useWindowDimensions";
 
-import Header from "../../Layout/Header";
 import Slider from "../Slider";
 import OLMap from "../OLMap/OLMap";
 import TimeSeriesPlot from "../TimeSeriesPlot";
+import Banner from "../../UI/Banner";
 
-import "../Plot.css";
+// import styles from "./Plot.module.css";
 
-const Visuals: React.FC = () => {
-  const { latitude, longitude, beginTime, endTime, variable } = useDataParams();
+/**
+ * Note: This component is for demo/testing purposes. It should be either modifed or combined with Plot.tsx in the future.
+ *
+ * @Summary This is the same Plot.tsx component with limited functional.
+ * Specifically made to support the time averaged (time series + map) feature.
+ * It uses the local CSV (and tiffs) instead of fetching data from Cloud Giovanni API.
+ * To interact with the map and geotiff layers on UI, navigate to ./pages/PlotPage.tsx and return TimeAvg component instead of Plot component.
+ *
+ */
+const TimeAvg: React.FC = () => {
   const abortController = useRef<AbortController | null>(null);
   const [stateData, setStateData] = useState<
     TimeSeriesDataRow[] | TimeAvgDataRow[]
@@ -44,11 +52,10 @@ const Visuals: React.FC = () => {
   const [sliderValue, setSliderValue] = useState(MARGIN_INLINE * -2);
   const [sliderRange, setSliderRange] = useState([0, 10]);
   const plotRef = useRef<Plotly.PlotlyHTMLElement | HTMLElement | null>(null);
-  const [geoTiffUrl, setGeoTiffUrl] = useState(
-    "/assets/geotifs/GIOVANNI-timeAvgMap.M2T1NXAER_5_12_4_BCCMASS.20250101-20250101.45W_13S_126E_51N.tif"
-  );
 
-  const { height, width } = useWindowDimensions();
+  /* GEOTIFF */
+  const [geoTiffUrl, setGeoTiffUrl] = useState("");
+  /* GEOTIFF */
 
   const [plotState, setPlotState] = useState<{
     data: Partial<Plotly.Data>[];
@@ -85,7 +92,7 @@ const Visuals: React.FC = () => {
         x0: stateData[getMiddleIndex(stateData)]?.timestamp, // x bottom
         x1: stateData[getMiddleIndex(stateData)]?.timestamp, // x top
         y0: "-100", // y bottom
-        y1: "300", // y top
+        y1: "150", // y top
       };
     }
 
@@ -102,11 +109,16 @@ const Visuals: React.FC = () => {
 
     const plotLayout: Partial<Plotly.Layout> = {
       ...plotState.layout,
-      width: width,
       shapes: [verticalLine],
       xaxis: {
         ...plotState.layout.xaxis,
+        type: "date",
         title: "Date & Time",
+      },
+      yaxis: {
+        title: stateMetadata?.param_short_name
+          ? `${stateMetadata?.param_short_name} (${stateMetadata?.unit})`
+          : "",
       },
       annotations: [plotAnnotation],
     };
@@ -114,6 +126,9 @@ const Visuals: React.FC = () => {
     setPlotState({ data: plotData, layout: plotLayout }); // get prevSt
     setSliderValue(getMiddleIndex(stateData));
     setSliderRange([0, stateData.length - 1]);
+    // setGeoTiffUrl(
+    //   "/assets/geotifs/GIOVANNI-timeAvgMap.M2T1NXAER_5_12_4_BCCMASS.20250101-20250101.45W_13S_126E_51N.tif"
+    // );
   }, [stateData]);
 
   const handlePlotData = async () => {
@@ -130,6 +145,10 @@ const Visuals: React.FC = () => {
 
       setStateData(data);
       setStateMetaData(metadata);
+      setGeoTiffUrl(
+        "/assets/geotifs/GIOVANNI-timeAvgMap.M2T1NXAER_5_12_4_BCCMASS.20250101-20250101.45W_13S_126E_51N.tif"
+      );
+      //   workerRef.current.postMessage(csvData);
     } catch (error) {
       error instanceof Error
         ? setError(error.message)
@@ -162,159 +181,243 @@ const Visuals: React.FC = () => {
   };
 
   const plotRelayoutHandler = (e: any) => {
-    const newLeftPoint = e["xaxis.range[0]"];
-    const newRightPoint = e["xaxis.range[1]"];
+    if (stateData.length === 0) return;
+    const plotLeftPoint = e["xaxis.range[0]"];
+    const plotRightPoint = e["xaxis.range[1]"];
+    let plotLeftPointIndex: number | null = null;
+    let plotRightPointIndex: number | null = null;
+    let plotMiddlePointIndex: number | null = null;
 
-    if (newLeftPoint && newRightPoint) {
+    if (plotLeftPoint && plotRightPoint) {
       const filteredDates = filterDataBetweenDates(
-        newLeftPoint,
-        newRightPoint,
+        plotLeftPoint,
+        plotRightPoint,
         [...stateData.map((d) => d.timestamp)]
       );
 
       if (filteredDates.length === 0) return;
 
-      const newLeftPointIndex = stateData.findIndex(
+      plotLeftPointIndex = stateData.findIndex(
         (data) => data.timestamp === filteredDates[0]
       );
-      const newRightPointIndex = stateData.findIndex(
+      plotRightPointIndex = stateData.findIndex(
         (data) => data.timestamp === filteredDates[filteredDates.length - 1]
       );
-      const newMiddleIndex = stateData.findIndex(
+      plotMiddlePointIndex = stateData.findIndex(
         (data) =>
           data.timestamp === filteredDates[getMiddleIndex(filteredDates)]
       );
 
+      // TODO: update the slider steps
       adjustVLine(filteredDates, getMiddleIndex(filteredDates));
-      setSliderRange([newLeftPointIndex, newRightPointIndex]);
-      setSliderValue(newMiddleIndex);
-      geotiffURLhandler(newMiddleIndex);
+      setSliderRange([plotLeftPointIndex, plotRightPointIndex]);
+      setSliderValue(plotMiddlePointIndex);
+      geotiffURLhandler(plotMiddlePointIndex);
+    } else {
+      setSliderRange([0, stateData.length - 1]);
     }
   };
 
   const geotiffURLhandler = (activeIndex: number) => {
-    const date = new Date(stateData[activeIndex]?.timestamp || "2025-01-01")
-      .toISOString()
-      .slice(0, 10)
-      .replaceAll("-", "");
+    const date = stateData[activeIndex]?.timestamp;
+    const formattedDate = date.slice(0, date.indexOf("T")).replaceAll("-", "");
+
     const tif_location = "/assets/geotifs/";
     const tif_base = "GIOVANNI-timeAvgMap.M2T1NXAER_5_12_4_BCCMASS.";
     // const tif_date = "20250101-20250101";
+    // const tif_date = "20250101-20250101";
     const tif_tail = ".45W_13S_126E_51N.tif";
 
-    setGeoTiffUrl(`${tif_location}${tif_base}${date}-${date}${tif_tail}`);
+    setGeoTiffUrl(
+      `${tif_location}${tif_base}${formattedDate}-${formattedDate}${tif_tail}`
+    );
   };
 
   const sliderValueChangeHandler = (e: any) => {
     if (!stateData.length) return;
     const activeIndex = e.detail.value;
-    console.log("activeIndex: ", activeIndex);
+
     adjustVLine([...stateData.map((d) => d.timestamp)], activeIndex);
     setSliderValue(activeIndex);
     geotiffURLhandler(activeIndex);
+    (Plotly as any).Fx.hover("divId", [
+      { curveNumber: 0, pointNumber: activeIndex },
+    ]);
   };
 
   const sliderLeftBtnHandler = () => {
     if (stateData.length === 0) return;
     if (sliderValue === 0) return;
+    const nextIndex = sliderValue - 1;
+    if (stateData[nextIndex] === undefined) return;
+
     setSliderValue((prevNum) => prevNum - 1);
-    adjustVLine([...stateData.map((d) => d.timestamp)], sliderValue - 1);
-    geotiffURLhandler(sliderValue - 1);
+    adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
+    geotiffURLhandler(nextIndex);
+    (Plotly as any).Fx.hover("divId", [
+      { curveNumber: 0, pointNumber: nextIndex },
+    ]);
   };
 
   const sliderRightBtnHandler = () => {
     if (stateData.length === 0) return;
+    const nextIndex = sliderValue + 1;
+
+    if (stateData[nextIndex] === undefined) return;
     setSliderValue((prevNum) => prevNum + 1);
-    adjustVLine([...stateData.map((d) => d.timestamp)], sliderValue + 1);
-    geotiffURLhandler(sliderValue + 1);
+    adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
+    geotiffURLhandler(nextIndex);
+    adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
+    (Plotly as any).Fx.hover("divId", [
+      { curveNumber: 0, pointNumber: nextIndex },
+    ]);
+  };
+
+  const downloadPlotImage = () => {
+    Plotly.downloadImage("divId", {
+      format: "png",
+      filename: "my_plot",
+      height: 500,
+      width: 700,
+    });
   };
 
   return (
     <IonPage>
-      <Header title="Time Series Data" />
-      <IonContent className="ion-padding">
-        <IonAlert
-          isOpen={isLoading}
-          trigger="present-alert"
-          buttons={[
-            {
-              text: "Cancel",
-              role: "cancel",
-              handler: () => {
-                cancelRequest();
-              },
-            },
-          ]}
-          message="Loading, please wait..."
-          backdropDismiss={false}
-        ></IonAlert>
-        {error && (
-          <IonAlert
-            isOpen={abortController.current?.signal.aborted ? false : !!error}
-            header="Error!"
-            message={error}
-            buttons={["OK"]}
-            onDidDismiss={() => setError(null)}
-          />
-        )}
-        {alertMessage && (
-          <IonAlert
-            isOpen={!!alertMessage}
-            header="Alert"
-            message={alertMessage}
-            buttons={["OK"]}
-            onDidDismiss={() => setAlertMessage(null)}
-          />
-        )}
-        <OLMap
-          width={
-            plotState.layout.width === undefined
-              ? 500
-              : plotState.layout.width - MARGIN_INLINE * 2
-          }
-          tifURL={geoTiffUrl}
-        />
-
-        <TimeSeriesPlot
-          plotRef={plotRef}
-          layout={plotState.layout}
-          plotData={[...plotState.data]}
-          onPlotRelayout={plotRelayoutHandler}
-        />
-        <Slider
-          onLeftBtnClick={sliderLeftBtnHandler}
-          onRightBtnClick={sliderRightBtnHandler}
-          value={sliderValue}
-          max={sliderRange[1]}
-          // prettier-ignore
-          width={
-            plotState.layout.width === undefined
-              ? 500
-              : plotState.layout.width - (MARGIN_INLINE * 2)
-          }
-          min={sliderRange[0]}
-          // prettier-ignore
-          onValueChange={sliderValueChangeHandler}
-          pinFormatter={(index: number) => `${stateData[index]?.timestamp}`}
-          disabled={!stateData.length}
-        />
-        <IonGrid>
-          <IonRow>
-            <IonCol>
-              <IonButton
-                expand="block"
-                fill="outline"
-                onClick={handlePlotData}
-                disabled={isLoading}
-              >
-                {isLoading ? "Wait..." : "Plot Data"}
+      <IonContent fullscreen={true}>
+        <Banner>
+          <IonButton slot="end" size="small" id="storage-manager">
+            <IonIcon aria-hidden="true" size="medium" icon={server} />
+          </IonButton>
+        </Banner>
+        <div className="ion-padding">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <span style={{ fontSize: "18px", fontWeight: "bold" }}>
+              {stateData.length > 0 && "Black Carbon Mass Density"}
+            </span>
+            <div>
+              <IonButton size="small" fill="clear">
+                <IonIcon
+                  aria-hidden="true"
+                  size="large"
+                  icon={download}
+                  color="primary"
+                  onClick={downloadPlotImage}
+                />
               </IonButton>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
+              <IonButton size="small" id="data-info-modal" fill="clear">
+                <IonIcon
+                  aria-hidden="true"
+                  size="large"
+                  icon={informationCircle}
+                  color="warning"
+                />
+              </IonButton>
+            </div>
+          </div>
+          <IonAlert
+            isOpen={isLoading}
+            trigger="present-alert"
+            buttons={[
+              {
+                text: "Cancel",
+                role: "cancel",
+                handler: () => {
+                  cancelRequest();
+                },
+              },
+            ]}
+            message="Loading, please wait..."
+            backdropDismiss={false}
+          ></IonAlert>
+          {error && (
+            <IonAlert
+              isOpen={abortController.current?.signal.aborted ? false : !!error}
+              header="Error!"
+              message={error}
+              buttons={["OK"]}
+              onDidDismiss={() => setError(null)}
+            />
+          )}
+          {alertMessage && (
+            <IonAlert
+              isOpen={!!alertMessage}
+              header="Alert"
+              message={alertMessage}
+              buttons={["OK"]}
+              onDidDismiss={() => setAlertMessage(null)}
+            />
+          )}
+          <IonGrid fixed>
+            <IonRow>
+              <IonCol
+                size="12"
+                style={{
+                  minHeight: "200px",
+                }}
+              >
+                <OLMap tifURL={geoTiffUrl} />
+              </IonCol>
+
+              <IonCol
+                size="12"
+                style={{
+                  minHeight: "300px",
+                }}
+              >
+                <TimeSeriesPlot
+                  plotRef={plotRef}
+                  layout={plotState.layout}
+                  plotData={[...plotState.data]}
+                  onPlotRelayout={plotRelayoutHandler}
+                />
+              </IonCol>
+              <IonCol
+                size="12"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  // justifyContent: "center",
+                }}
+              >
+                {stateData.length !== 0 && (
+                  <Slider
+                    onLeftBtnClick={sliderLeftBtnHandler}
+                    onRightBtnClick={sliderRightBtnHandler}
+                    value={sliderValue}
+                    max={sliderRange[1]}
+                    min={sliderRange[0]}
+                    onValueChange={sliderValueChangeHandler}
+                    pinFormatter={(index: number) =>
+                      stateData[index]?.timestamp &&
+                      `${new Date(
+                        stateData[index]?.timestamp
+                      ).toLocaleDateString()}`
+                    }
+                    disabled={!stateData.length}
+                  />
+                )}
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+
+          <IonButton
+            expand="block"
+            onClick={handlePlotData}
+            disabled={isLoading}
+          >
+            {isLoading ? "Wait..." : "Plot Data"}
+          </IonButton>
+        </div>
       </IonContent>
     </IonPage>
   );
 };
 
-export default Visuals;
+export default TimeAvg;

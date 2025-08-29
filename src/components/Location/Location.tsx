@@ -1,34 +1,23 @@
-import React, { useEffect } from "react";
-import {
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonLabel,
-  IonInput,
-  IonItem,
-  IonFooter,
-} from "@ionic/react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  useMapEvents,
-  useMap,
-} from "react-leaflet";
+import React, { useEffect, useRef } from "react";
+import { IonContent, IonPage } from "@ionic/react";
+import { MapContainer, TileLayer, Rectangle } from "react-leaflet";
 import L from "leaflet";
 
-import Header from "../Layout/Header";
 import { useDataParams } from "../../store/DataParamsContext";
+import { usePlotType, PLOT_TYPES } from "../../store/PlotTypeContext";
 
 // Import the marker images
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
+import Banner from "../UI/Banner";
+import MapResizer from "./MapResizer";
+import LocationMarker from "./LocationMarker";
+import CoordinateInput from "./CoordinateInput";
+
 import "leaflet/dist/leaflet.css";
-import "./Location.css";
+import styles from "./Location.module.css";
 
 // Fix default marker icon issues
 L.Icon.Default.mergeOptions({
@@ -38,7 +27,9 @@ L.Icon.Default.mergeOptions({
 });
 
 const Location: React.FC = () => {
-  const { latitude, longitude, setLatitude, setLongitude } = useDataParams(); // using custom location hook
+  const mapRef = useRef(null);
+  const { latitude, longitude, setLatitude, setLongitude } = useDataParams();
+  const { plotType } = usePlotType();
 
   const handleLatChange = (e: CustomEvent) => {
     const newLat = parseFloat(e.detail.value); // get new latitude
@@ -54,72 +45,40 @@ const Location: React.FC = () => {
     }
   };
 
-  const LocationMarker = () => {
-    useMapEvents({
-      click(e) {
-        setLatitude(e.latlng.lat); // update latitude on map click
-        setLongitude(e.latlng.lng); // update longitude on map click
-      },
-    });
-
-    return <Marker position={[latitude, longitude]}></Marker>; // place marker at current location
-  };
-
-  const MapResizer = () => {
-    const map = useMap();
-    useEffect(() => {
-      const timeoutId = setTimeout(() => {
-        map.invalidateSize();
-      }, 250);
-      map.setView([latitude, longitude], map.getZoom(), {
-        animate: true,
-      });
-      return () => clearTimeout(timeoutId);
-    }, [map]);
-    return null;
-  };
-
   return (
     <IonPage>
-      <Header title="Region Selector" />
-      <IonContent>
-        <div id="map-container">
+      <Banner />
+      <IonContent scrollY={false} fullscreen={false}>
+        <div className={styles["map-container"]}>
           <MapContainer
             center={[latitude, longitude]}
             zoom={8}
             style={{ height: "100%", width: "100%" }}
+            ref={mapRef}
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" // tile source
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' // attribution
             />
-            <LocationMarker />
+            {plotType === PLOT_TYPES.POINT_BASED && <LocationMarker />}
             <MapResizer />
+            {plotType === PLOT_TYPES.TIME_AVG && (
+              <Rectangle
+                bounds={[
+                  [-13.47, -45],
+                  [51.2, 126.4],
+                ]}
+              />
+            )}
           </MapContainer>
         </div>
       </IonContent>
-      <IonFooter>
-        <IonToolbar>
-          <div className="lat-lon-inputs">
-            <IonItem>
-              <IonLabel position="floating">Latitude</IonLabel>
-              <IonInput
-                type="number"
-                value={latitude.toString()}
-                onIonChange={handleLatChange}
-              />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="floating">Longitude</IonLabel>
-              <IonInput
-                type="number"
-                value={longitude.toString()}
-                onIonChange={handleLngChange}
-              />
-            </IonItem>
-          </div>
-        </IonToolbar>
-      </IonFooter>
+      <CoordinateInput
+        latitude={latitude}
+        longitude={longitude}
+        onLatChange={handleLatChange}
+        onLngChange={handleLngChange}
+      />
     </IonPage>
   );
 };

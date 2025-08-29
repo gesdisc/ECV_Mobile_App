@@ -1,0 +1,37 @@
+.banner {
+  --background: var(--color-giovanni-primary);
+}
+
+.banner-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+.banner-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.banner-title {
+  font-weight: bold;
+  font-size: 16px;
+  padding-inline: 5px;
+  margin: 0;
+}
+
+.banner-icon {
+  width: 35px;
+  height: 35px;
+  display: block;
+}
+
+.banner-text-container {
+  height: 100%;
+}
+
+.banner-subtitle {
+  font-size: 12px;
+  display: flex;
+  padding-inline: 5px;
+}

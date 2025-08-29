@@ -1,14 +1,15 @@
 import React from "react";
 import { IonApp, setupIonicReact } from "@ionic/react";
-
 // import { Capacitor } from "@capacitor/core";
-import { CapacitorSQLite } from "@capacitor-community/sqlite";
-import { SQLiteConnection } from "@capacitor-community/sqlite";
+// import { CapacitorSQLite } from "@capacitor-community/sqlite";
+// import { SQLiteConnection } from "@capacitor-community/sqlite";
 
 import { DataParamsProvider } from "./store/DataParamsContext";
+import { PlotTypeProvider } from "./store/PlotTypeContext";
+
 import TabMenu from "./navigation/TabMenu";
 
-const sqlite = new SQLiteConnection(CapacitorSQLite);
+// const sqlite = new SQLiteConnection(CapacitorSQLite);
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -28,14 +29,17 @@ import "@ionic/react/css/display.css";
 
 /* Theme variables */
 import "./theme/variables.css";
+import "./styles.css";
 
 setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
-    <DataParamsProvider>
-      <TabMenu />
-    </DataParamsProvider>
+    <PlotTypeProvider>
+      <DataParamsProvider>
+        <TabMenu />
+      </DataParamsProvider>
+    </PlotTypeProvider>
   </IonApp>
 );
 

@@ -1,13 +1,8 @@
 import React from "react";
-import {
-  IonButton,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonRange,
-  IonIcon,
-} from "@ionic/react";
+import { IonButton, IonRange, IonIcon } from "@ionic/react";
 import { caretForwardSharp, caretBackSharp } from "ionicons/icons";
+
+import { MARGIN_INLINE } from "./plotSchema";
 
 import styles from "./Slider.module.css";
 
@@ -19,7 +14,6 @@ interface SliderProps {
   value: number;
   max?: number;
   min?: number;
-  width?: number;
   disabled?: boolean;
 }
 
@@ -31,60 +25,35 @@ const Slider: React.FC<SliderProps> = ({
   value,
   max,
   min,
-  width,
   disabled = false,
 }) => {
   return (
-    <IonGrid style={{ display: "flex", justifyContent: "center" }}>
-      <IonRow
+    <>
+      <IonRange
+        className={`ion-no-padding ${styles["ion-range"]}`}
         style={{
-          width: width,
+          width: `calc(100% - ${MARGIN_INLINE * 2}px)`,
         }}
-        class="ion-justify-content-center"
-      >
-        <IonCol>
-          <IonRange
-            className={styles["ion-range"]}
-            step={1}
-            min={min}
-            max={max}
-            value={value}
-            pin={true}
-            pinFormatter={pinFormatter}
-            onIonInput={onValueChange}
-            disabled={disabled}
-            ticks={true}
-            snaps={true}
-          ></IonRange>
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <IonButton
-              disabled={disabled}
-              size="default"
-              onClick={onLeftBtnClick}
-            >
-              <IonIcon aria-hidden="true" size="medium" icon={caretBackSharp} />
-            </IonButton>
-            <IonButton
-              disabled={disabled}
-              size="default"
-              onClick={onRightBtnClick}
-            >
-              <IonIcon
-                aria-hidden="true"
-                size="medium"
-                icon={caretForwardSharp}
-              />
-            </IonButton>
-          </div>
-        </IonCol>
-      </IonRow>
-    </IonGrid>
+        step={1}
+        min={min}
+        max={max}
+        value={value}
+        pin={true}
+        pinFormatter={pinFormatter}
+        onIonInput={onValueChange}
+        disabled={disabled}
+        ticks={true}
+        snaps={true}
+      ></IonRange>
+      <div className={styles.buttons}>
+        <IonButton disabled={disabled} size="small" onClick={onLeftBtnClick}>
+          <IonIcon aria-hidden="true" size="default" icon={caretBackSharp} />
+        </IonButton>
+        <IonButton disabled={disabled} size="small" onClick={onRightBtnClick}>
+          <IonIcon aria-hidden="true" size="default" icon={caretForwardSharp} />
+        </IonButton>
+      </div>
+    </>
   );
 };
 

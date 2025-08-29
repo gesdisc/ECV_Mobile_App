@@ -1,28 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
+import { IonIcon, IonButton, IonModal, IonRange } from "@ionic/react";
+import { settingsSharp } from "ionicons/icons";
 import { Map, View } from "ol";
 import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
-import {
-  IonRow,
-  IonCol,
-  IonGrid,
-  IonIcon,
-  IonButton,
-  IonModal,
-  IonRange,
-} from "@ionic/react";
-import { settingsSharp } from "ionicons/icons";
+
+import { MARGIN_INLINE } from "../plotSchema";
 
 import TiffLayer from "./TiffLayer";
 
 import "ol/ol.css";
+import styles from "./OLMap.module.css";
 
 interface OLMapProps {
   width?: number;
   tifURL?: string;
 }
 
-const OLMap: React.FC<OLMapProps> = ({ width, tifURL }) => {
+const OLMap: React.FC<OLMapProps> = ({ tifURL }) => {
   const mapRef = useRef<HTMLDivElement>(null); // Ref for the map container
   const [stateMap, setStateMap] = useState<Map>();
   const modal = useRef<HTMLIonModalElement>(null);
@@ -58,45 +53,30 @@ const OLMap: React.FC<OLMapProps> = ({ width, tifURL }) => {
 
   return (
     <>
-      <IonGrid style={{ display: "flex", justifyContent: "center" }}>
-        <IonRow class="ion-justify-content-center">
-          <IonCol>
-            <div
-              ref={mapRef}
-              style={{ width: width, height: "250px", position: "relative" }}
-            >
-              <TiffLayer
-                map={stateMap}
-                tifURL={tifURL}
-                opacity={layerOpacity}
-              />
-              <IonButton
-                size="small"
-                style={{
-                  position: "absolute",
-                  top: "5px",
-                  right: "5px",
-                  zIndex: 100,
-                }}
-                id="open-modal"
-              >
-                <IonIcon
-                  aria-hidden="true"
-                  size="medium"
-                  icon={settingsSharp}
-                />
-              </IonButton>
-            </div>
-          </IonCol>
-        </IonRow>
-      </IonGrid>
+      <div
+        ref={mapRef}
+        style={{
+          width: `calc(100% - ${MARGIN_INLINE * 2}px)`,
+        }}
+        className={styles["map-container"]}
+      >
+        <TiffLayer map={stateMap} tifURL={tifURL} opacity={layerOpacity} />
+        <IonButton
+          size="small"
+          className={styles["map-settings"]}
+          id="open-modal"
+        >
+          <IonIcon aria-hidden="true" size="medium" icon={settingsSharp} />
+        </IonButton>
+      </div>
+
       <IonModal
         ref={modal}
         trigger="open-modal"
         initialBreakpoint={0.25}
         breakpoints={[0, 1]}
       >
-        <div className="block ion-padding">
+        <div className="ion-padding">
           <IonRange
             labelPlacement="start"
             label="Tiff layer opacity"

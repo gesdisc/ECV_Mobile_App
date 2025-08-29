@@ -12,8 +12,9 @@ export const schema: {
     name: "plot name",
   },
   layout: {
-    width: 500,
-    height: 350,
+    height: 300,
+    plot_bgcolor: "white", // the plot area
+    paper_bgcolor: "transparent", // the entire chart container
     autosize: true,
     margin: {
       l: MARGIN_INLINE,
@@ -43,18 +44,28 @@ export const schema: {
       title: "",
       showline: true,
       tickmode: "auto",
-      showspikes: true,
-      spikesnap: "cursor",
-      spikemode: "across",
-      spikedash: "solid",
-      spikecolor: "#000000",
-      spikethickness: 2,
+      // showline: true,
+      // showspikes: true,
+      // spikesnap: "category",
+      // spikesnap: "cursor",
+      // spikemode: "across",
+      // spikedash: "solid",
+      // spikecolor: "#000000",
+      // spikethickness: 2,
+      // nticks: 2,
+      // dtick: `${
+      //   new Date(stateData[4]?.timestamp).getTime() -
+      //   new Date(stateData[0]?.timestamp).getTime()
+      // }`,
+      // rangeslider: {},
     },
-    yaxis: {
-      title: "",
-    },
+    // yaxis: {
+    //   // title: "",
+    // },
     annotations: [
       {
+        // xref: "x",
+        // yref: "y",
         xref: "paper",
         yref: "paper",
         x: 0,

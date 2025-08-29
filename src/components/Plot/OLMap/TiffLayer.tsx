@@ -12,6 +12,18 @@ interface TiffLayerProps {
   opacity?: number;
 }
 
+/**
+ *
+ * @returns null
+ *
+ *
+ * Renders GeoTIFF layers on the map
+ * Doesn't render any DOM element and always returns null.
+ *
+ * TODO: tiff layers update while using the slider, but they are flashing
+ *
+ * This repo is useful when working with react-openlayers: https://github.com/allenhwkim/react-openlayers
+ */
 const TiffLayer: React.FC<TiffLayerProps> = ({ map, tifURL, opacity = 1 }) => {
   const tifSource = new GeoTIFF({
     sources: [
@@ -20,7 +32,6 @@ const TiffLayer: React.FC<TiffLayerProps> = ({ map, tifURL, opacity = 1 }) => {
         url: tifURL,
         bands: [1],
         nodata: NaN,
-        // metadata: [3],
       },
     ],
     interpolate: false,
@@ -31,7 +42,7 @@ const TiffLayer: React.FC<TiffLayerProps> = ({ map, tifURL, opacity = 1 }) => {
     new WebGLTileLayer({
       visible: false,
     })
-  ); // single instance
+  );
 
   useEffect(() => {
     layerRef.current.setOpacity(opacity);
