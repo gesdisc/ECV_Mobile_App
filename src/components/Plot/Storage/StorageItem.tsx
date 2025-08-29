@@ -19,7 +19,11 @@ interface StorageItemProps {
   onPlot: ({ lat, lon, begin_time, end_time, variable }: DataParams) => void;
 }
 
-const SorageItem: React.FC<StorageItemProps> = ({ item, onDelete, onPlot }) => {
+const StorageItem: React.FC<StorageItemProps> = ({
+  item,
+  onDelete,
+  onPlot,
+}) => {
   const currentVariableData = catalog.find(
     (data) =>
       data.dataFieldId ===
@@ -67,4 +71,4 @@ const SorageItem: React.FC<StorageItemProps> = ({ item, onDelete, onPlot }) => {
   );
 };
 
-export default SorageItem;
+export default StorageItem;
