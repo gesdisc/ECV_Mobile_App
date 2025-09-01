@@ -39,6 +39,7 @@ import { PLOT_TYPES, usePlotType } from "../../store/PlotTypeContext";
 import catalog from "../Catalog/catalog.json";
 
 import TimeSeriesPlot from "./TimeSeriesPlot";
+import TerraTimeSeries from "@nasa-terra/components/dist/react/time-series";
 import Slider from "./Slider";
 import OLMap from "./OLMap/OLMap";
 import InfoPanel from "./InfoPanel";
@@ -53,6 +54,9 @@ const Visuals: React.FC = () => {
     endTime: selectedEndTime,
     variable: selectedVariable,
   } = useDataParams();
+  console.log(selectedBeginTime);
+  console.log(selectedEndTime);
+  console.log(selectedVariable);
   const abortController = useRef<AbortController | null>(null);
   const workerRef = useRef<Worker | null>(null);
   const location = useLocation();
@@ -257,7 +261,7 @@ const Visuals: React.FC = () => {
     try {
       const status = await Network.getStatus();
       const isOffline = !status.connected;
-
+      console.log(status.connected);
       const cacheKey = `CapacitorStorage.plotData*${variable}*${begin_time}*${end_time}*${lat}*${lon}`;
 
       const cachedData = await getCachedData(cacheKey, RECENT_DATA_CACHE_KEY);
@@ -648,6 +652,14 @@ const Visuals: React.FC = () => {
                   minHeight: "300px",
                 }}
               >
+                {/* <TerraTimeSeries
+                  collection="GPM_3IMERGHH_07"
+                  variable="precipitation"
+                  start-date="01/01/2019"
+                  end-date="03/01/2019"
+                  // location="33.9375,-86.9375"
+                  location={`${selectedLat},${selectedLon}`}
+                ></TerraTimeSeries> */}
                 <TimeSeriesPlot
                   plotRef={plotRef}
                   layout={plotState.layout}

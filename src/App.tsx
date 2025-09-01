@@ -31,6 +31,14 @@ import "@ionic/react/css/display.css";
 import "./theme/variables.css";
 import "./styles.css";
 
+/* Terra Styles */
+// import "@nasa-terra/components/dist/themes/light.css"; produces error
+import "@nasa-terra/components/dist/themes/horizon.css";
+
+import { setBasePath } from "@nasa-terra/components/dist/utilities/base-path";
+
+setBasePath("https://cdn.jsdelivr.net/npm/@nasa-terra/components@0.0.58/cdn/");
+
 setupIonicReact();
 
 const App: React.FC = () => (

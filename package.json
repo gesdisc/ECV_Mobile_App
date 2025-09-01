@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@apollo/client": "^4.0.3",
     "@capacitor-community/sqlite": "^6.0.1",
     "@capacitor/android": "6.1.0",
     "@capacitor/core": "^6.1.0",
@@ -10,6 +11,7 @@
     "@capacitor/preferences": "^6.0.1",
     "@ionic/react": "^7.0.0",
     "@ionic/react-router": "^7.0.0",
+    "@nasa-terra/components": "^0.0.79",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^12.6.3",
@@ -25,6 +27,7 @@
     "axios": "^1.7.2",
     "colormap": "^2.3.2",
     "dexie": "^4.0.7",
+    "graphql": "^16.11.0",
     "history": "^4.9.0",
     "ionicons": "^7.0.0",
     "jeep-sqlite": "^2.7.2",
