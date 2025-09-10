@@ -42,8 +42,8 @@ const Slider: React.FC<SliderProps> = ({
         pinFormatter={pinFormatter}
         onIonInput={onValueChange}
         disabled={disabled}
-        ticks={true}
-        snaps={true}
+        // ticks={true}
+        // snaps={true}
       ></IonRange>
       <div className={styles.buttons}>
         <IonButton disabled={disabled} size="small" onClick={onLeftBtnClick}>

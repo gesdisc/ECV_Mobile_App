@@ -9,6 +9,7 @@ import {
   IonCol,
   IonGrid,
   IonRow,
+  IonRange,
 } from "@ionic/react";
 import { download, informationCircle, server } from "ionicons/icons";
 import { Network } from "@capacitor/network";
@@ -40,6 +41,7 @@ import catalog from "../Catalog/catalog.json";
 
 import TimeSeriesPlot from "./TimeSeriesPlot";
 import TerraTimeSeries from "@nasa-terra/components/dist/react/time-series";
+import TerraTimeAverageMap from "@nasa-terra/components/dist/react/time-average-map";
 import Slider from "./Slider";
 import OLMap from "./OLMap/OLMap";
 import InfoPanel from "./InfoPanel";
@@ -54,9 +56,6 @@ const Visuals: React.FC = () => {
     endTime: selectedEndTime,
     variable: selectedVariable,
   } = useDataParams();
-  console.log(selectedBeginTime);
-  console.log(selectedEndTime);
-  console.log(selectedVariable);
   const abortController = useRef<AbortController | null>(null);
   const workerRef = useRef<Worker | null>(null);
   const location = useLocation();
@@ -68,18 +67,16 @@ const Visuals: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [sliderValue, setSliderValue] = useState(MARGIN_INLINE * -2);
+  // const [sliderValue, setSliderValue] = useState(MARGIN_INLINE * -2);
+  const [sliderValue, setSliderValue] = useState(0);
   const [sliderRange, setSliderRange] = useState([0, 10]);
   const plotRef = useRef<Plotly.PlotlyHTMLElement | HTMLElement | null>(null);
+  const plotRef2 = useRef<null>(null);
   const currentVariableData = catalog.find(
-    (data) =>
-      data.dataFieldId ===
-      `${stateMetadata?.prod_name}`
-        .replaceAll(".", "_")
-        .concat(`_${stateMetadata?.param_short_name}`)
+    (data) => data.dataFieldId === selectedVariable
   );
 
-  const { plotType } = usePlotType();
+  // const { plotType } = usePlotType();
 
   const [plotState, setPlotState] = useState<{
     data: Partial<Plotly.Data>[];
@@ -89,8 +86,8 @@ const Visuals: React.FC = () => {
     layout: schema.layout,
   });
 
-  const cancelRequest = () =>
-    abortController.current && abortController.current.abort();
+  // const cancelRequest = () =>
+  //   abortController.current && abortController.current.abort();
 
   /**
    *
@@ -103,6 +100,8 @@ const Visuals: React.FC = () => {
       const recentCachedData =
         recentCachedDataKey && (await getItem(recentCachedDataKey));
 
+      // console.log("recentCachedDataKey ", recentCachedDataKey);
+      // console.log("recentCachedData ", recentCachedData);
       if (!recentCachedData) return;
       setStateData(recentCachedData.data);
       setStateMetaData(recentCachedData.metadata);
@@ -199,17 +198,17 @@ const Visuals: React.FC = () => {
       },
     ];
 
-    let verticalLine: Partial<Plotly.Shape> = {};
-    if (plotState.layout.shapes !== undefined) {
-      verticalLine = {
-        ...plotState.layout?.shapes[0],
-        visible: stateData.length ? true : false,
-        x0: stateData[getMiddleIndex(stateData)]?.timestamp, // x bottom
-        x1: stateData[getMiddleIndex(stateData)]?.timestamp, // x top
-        y0: "-100", // y bottom
-        y1: "150", // y top
-      };
-    }
+    // let verticalLine: Partial<Plotly.Shape> = {};
+    // if (plotState.layout.shapes !== undefined) {
+    //   verticalLine = {
+    //     ...plotState.layout?.shapes[0],
+    //     visible: stateData.length ? true : false,
+    //     x0: stateData[getMiddleIndex(stateData)]?.timestamp, // x bottom
+    //     x1: stateData[getMiddleIndex(stateData)]?.timestamp, // x top
+    //     y0: "-100", // y bottom
+    //     y1: "150", // y top
+    //   };
+    // }
 
     let plotAnnotation: Partial<Plotly.Annotations> = {};
     if (plotState.layout.annotations !== undefined) {
@@ -227,7 +226,7 @@ const Visuals: React.FC = () => {
       // title: stateMetadata?.param_name
       //   ? `${stateMetadata?.param_name} (${stateMetadata?.prod_name})`
       //   : "Select a variable to plot.",
-      shapes: [verticalLine],
+      // shapes: [verticalLine],
       xaxis: {
         ...plotState.layout.xaxis,
         type: "date",
@@ -261,28 +260,22 @@ const Visuals: React.FC = () => {
     try {
       const status = await Network.getStatus();
       const isOffline = !status.connected;
-      console.log(status.connected);
       const cacheKey = `CapacitorStorage.plotData*${variable}*${begin_time}*${end_time}*${lat}*${lon}`;
-
       const cachedData = await getCachedData(cacheKey, RECENT_DATA_CACHE_KEY);
       if (cachedData) {
         setStateData(cachedData.data);
         setStateMetaData(cachedData.metadata);
         return;
       }
-
       if (isOffline) {
         setAlertMessage(
           "You are offline and no cached data is available to plot."
         );
         return;
       }
-
       setIsLoading(true);
       setError(null);
-
       abortController.current = new AbortController();
-
       const csvData = await fetchData(
         {
           lat,
@@ -297,6 +290,7 @@ const Visuals: React.FC = () => {
       if (!workerRef.current) {
         throw new Error("Something went wrong. Can't process the data!");
       }
+      // console.log("Plot clicked...", csvData);
       workerRef.current.postMessage(csvData);
     } catch (error) {
       error instanceof Error
@@ -310,43 +304,43 @@ const Visuals: React.FC = () => {
   // FIXME: Fix the position of vertical line after loading more data (or when request canceled)
   // FIXME: The function adds a new item in the browser's storage with a new key. It should update the cache key and the value (cached data) instead.
   // TODO: Event though the function is named "fetch more" it doesn't really fetch more, instead it fetches the entire data + what is requested
-  const fetchMoreData = async (
-    newBeginTime: string | number,
-    newEndTime: string | number
-  ) => {
-    if (!stateMetadata) return;
-    const currentBeginTime = new Date(stateData[0].timestamp).getTime();
-    const currentEndTime = new Date(
-      stateData[stateData.length - 1].timestamp
-    ).getTime();
-    const convertedNewBeginTime = new Date(newBeginTime).getTime();
-    const convertedNewEndTime = new Date(newEndTime).getTime();
+  // const fetchMoreData = async (
+  //   newBeginTime: string | number,
+  //   newEndTime: string | number
+  // ) => {
+  //   if (!stateMetadata) return;
+  //   const currentBeginTime = new Date(stateData[0].timestamp).getTime();
+  //   const currentEndTime = new Date(
+  //     stateData[stateData.length - 1].timestamp
+  //   ).getTime();
+  //   const convertedNewBeginTime = new Date(newBeginTime).getTime();
+  //   const convertedNewEndTime = new Date(newEndTime).getTime();
 
-    // TODO: To improve the UX, we can check if the variable has data within the requested date range to avoid sending a request (check catalog.json for date ranges)
-    const newDataParams = {
-      lat: stateMetadata.lat,
-      lon: stateMetadata.lon,
-      begin_time: new Date(
-        currentBeginTime > convertedNewBeginTime
-          ? newBeginTime
-          : stateMetadata.begin_time
-      )
-        .toISOString()
-        .slice(0, -5),
-      end_time: new Date(
-        currentEndTime < convertedNewEndTime
-          ? newEndTime
-          : stateMetadata.end_time
-      )
-        .toISOString()
-        .slice(0, -5),
-      variable: `${stateMetadata?.prod_name}`
-        .replaceAll(".", "_")
-        .concat(`_${stateMetadata?.param_short_name}`),
-    };
+  //   // TODO: To improve the UX, we can check if the variable has data within the requested date range to avoid sending a request (check catalog.json for date ranges)
+  //   const newDataParams = {
+  //     lat: stateMetadata.lat,
+  //     lon: stateMetadata.lon,
+  //     begin_time: new Date(
+  //       currentBeginTime > convertedNewBeginTime
+  //         ? newBeginTime
+  //         : stateMetadata.begin_time
+  //     )
+  //       .toISOString()
+  //       .slice(0, -5),
+  //     end_time: new Date(
+  //       currentEndTime < convertedNewEndTime
+  //         ? newEndTime
+  //         : stateMetadata.end_time
+  //     )
+  //       .toISOString()
+  //       .slice(0, -5),
+  //     variable: `${stateMetadata?.prod_name}`
+  //       .replaceAll(".", "_")
+  //       .concat(`_${stateMetadata?.param_short_name}`),
+  //   };
 
-    handlePlotData(newDataParams);
-  };
+  //   handlePlotData(newDataParams);
+  // };
 
   /**
    *
@@ -356,27 +350,27 @@ const Visuals: React.FC = () => {
    * @param activeIndex the new index for positioning v-line
    *
    */
-  const adjustVLine = (newXrange: string[], activeIndex: number) => {
-    if (plotState.layout.shapes === undefined) return;
-    const newVerticalLine: Partial<Plotly.Shape> = {
-      ...plotState.layout?.shapes[0],
-      visible: true,
-      x0: newXrange[activeIndex],
-      x1: newXrange[activeIndex],
-      y0: "-100", // y bottom
-      y1: "150", // y top
-    };
+  // const adjustVLine = (newXrange: string[], activeIndex: number) => {
+  //   if (plotState.layout.shapes === undefined) return;
+  //   const newVerticalLine: Partial<Plotly.Shape> = {
+  //     ...plotState.layout?.shapes[0],
+  //     visible: true,
+  //     x0: newXrange[activeIndex],
+  //     x1: newXrange[activeIndex],
+  //     y0: "-100", // y bottom
+  //     y1: "150", // y top
+  //   };
 
-    setPlotState((prevState) => {
-      return {
-        data: prevState.data,
-        layout: {
-          ...prevState.layout,
-          shapes: [newVerticalLine],
-        },
-      };
-    });
-  };
+  //   setPlotState((prevState) => {
+  //     return {
+  //       data: prevState.data,
+  //       layout: {
+  //         ...prevState.layout,
+  //         shapes: [newVerticalLine],
+  //       },
+  //     };
+  //   });
+  // };
 
   /**
    *
@@ -414,7 +408,7 @@ const Visuals: React.FC = () => {
       // TODO: need more testing... vLine may not be aligned in some cases?
       // TODO: load the missing portion instead of loading the entire data again
       if (new Date(e["xaxis.range[1]"]).getTime() > currentEndTime) {
-        fetchMoreData(currentBeginTime, newEndTime);
+        // fetchMoreData(currentBeginTime, newEndTime);
         // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
         // setSliderRange([plotLeftPointIndex, plotRightPointIndex]);
         // setSliderValue(plotMiddlePointIndex);
@@ -424,7 +418,7 @@ const Visuals: React.FC = () => {
       // if no more data points on the left, load more data
       // TODO: same TODOs from the above if condition
       if (new Date(e["xaxis.range[0]"]).getTime() < currentBeginTime) {
-        fetchMoreData(newBeginTime, currentEndTime);
+        // fetchMoreData(newBeginTime, currentEndTime);
         // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
         // setSliderRange([plotLeftPointIndex, plotRightPointIndex]);
         // setSliderValue(plotMiddlePointIndex);
@@ -451,7 +445,7 @@ const Visuals: React.FC = () => {
           data.timestamp === filteredDates[getMiddleIndex(filteredDates)]
       );
 
-      adjustVLine(filteredDates, getMiddleIndex(filteredDates));
+      // adjustVLine(filteredDates, getMiddleIndex(filteredDates));
       setSliderRange([plotLeftPointIndex, plotRightPointIndex]);
       setSliderValue(plotMiddlePointIndex);
     } else {
@@ -466,7 +460,7 @@ const Visuals: React.FC = () => {
   const sliderValueChangeHandler = (e: RangeCustomEvent) => {
     if (!stateData.length) return;
     const activeIndex = Number(e.detail.value);
-    adjustVLine([...stateData.map((d) => d.timestamp)], activeIndex);
+    // adjustVLine([...stateData.map((d) => d.timestamp)], activeIndex);
     setSliderValue(activeIndex);
 
     (Plotly as any).Fx.hover("divId", [
@@ -487,7 +481,7 @@ const Visuals: React.FC = () => {
       const currentDateDiff = currentEndTime - currentBeginTime;
       const newBeginTime = currentBeginTime - currentDateDiff;
 
-      fetchMoreData(newBeginTime, currentEndTime);
+      // fetchMoreData(newBeginTime, currentEndTime);
       return;
     }
 
@@ -497,7 +491,7 @@ const Visuals: React.FC = () => {
     }
 
     setSliderValue((prevNum) => prevNum - 1);
-    adjustVLine([...stateData.map((d) => d.timestamp)], sliderValue - 1);
+    // adjustVLine([...stateData.map((d) => d.timestamp)], sliderValue - 1);
 
     (Plotly as any).Fx.hover("divId", [
       { curveNumber: 0, pointNumber: nextIndex },
@@ -518,7 +512,7 @@ const Visuals: React.FC = () => {
       const currentDateDiff = currentEndTime - currentBeginTime;
       const newEndTime = currentEndTime + currentDateDiff;
 
-      fetchMoreData(currentBeginTime, newEndTime);
+      // fetchMoreData(currentBeginTime, newEndTime);
       return;
     }
 
@@ -528,31 +522,148 @@ const Visuals: React.FC = () => {
     }
 
     setSliderValue((prevNum) => prevNum + 1);
-    adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
+    // adjustVLine([...stateData.map((d) => d.timestamp)], nextIndex);
     (Plotly as any).Fx.hover("divId", [
       { curveNumber: 0, pointNumber: nextIndex },
     ]);
   };
 
-  const downloadPlotImage = () => {
-    Plotly.downloadImage("divId", {
-      format: "png",
-      filename: "my_plot",
-      height: 500,
-      width: 700,
-    });
-  };
+  // const downloadPlotImage = () => {
+  //   Plotly.downloadImage("divId", {
+  //     format: "png",
+  //     filename: "my_plot",
+  //     height: 500,
+  //     width: 700,
+  //   });
+  // };
 
   // newParams comes from Storage StorageManager.tsx
   const plotCachedItemHandler = (newParams: DataParams) => {
-    handlePlotData({
-      lat: newParams.lat,
-      lon: newParams.lon,
-      begin_time: newParams.begin_time,
-      end_time: newParams.end_time,
-      variable: newParams.variable,
-    });
+    // handlePlotData({
+    //   lat: newParams.lat,
+    //   lon: newParams.lon,
+    //   begin_time: newParams.begin_time,
+    //   end_time: newParams.end_time,
+    //   variable: newParams.variable,
+    // });
   };
+
+  // function splitByLastUnderscore(str: string) {
+  //   if (currentVariableData === undefined) return;
+
+  //   const FormattedDataProdVersion =
+  //     currentVariableData.dataProductVersion.replaceAll(".", "_");
+
+  //   // GPM_3IMERGHH_07_precipitation
+  //   return {
+  //     collection: `${currentVariableData.dataProductShortName}_${FormattedDataProdVersion}`, // Ex. GPM_3IMERGHH_07
+  //     variable: str.split(FormattedDataProdVersion)[1].slice(1), // Ex. precipitation
+  //   };
+  // }
+
+  // useEffect(() => {
+  //   // Access the Plotly.js instance after the component mounts
+  //   console.log(plotRef2);
+  //   if (plotRef2.current) {
+  //     console.log("plotRef2 ", plotRef2.current as any);
+  //     // console.log("plotRef2 ", (plotRef2.current as any).plot._fullLayout);
+  //   }
+  // }, []); // Run once after initial render
+
+  const TimeSeriesDataChangeHandler = (e: any) => {
+    console.log("TimeSeriesDataChangeHandler ", e);
+    // setStateMetaData();
+    // if (plotRef.current) {
+    //   const gd = (plotRef.current as any).el; // graph div
+    //   console.log(plotRef.current);
+    //   // console.log(
+    //   //   "calcData ",
+    //   //   gd._fullLayout.xaxis.l2p(new Date(stateData[13].timestamp).getTime())
+    //   // );
+    //   // console.log(
+    //   //   "calcData ",
+    //   //   gd._fullLayout.xaxis.l2p(new Date(stateData[0].timestamp).getTime())
+    //   // );
+    //   const pxCoords = e.detail.data.data.map((d: TimeSeriesDataRow) => {
+    //     // console.log(gd._fullLayout.xaxis.l2p(new Date(d.timestamp).getTime()));
+    //     return gd._fullLayout.xaxis.l2p(new Date(d.timestamp).getTime());
+    //   });
+    //   console.log(pxCoords);
+    // }
+  };
+
+  const dateChangeHandler = (e: any) => {
+    // console.log("dateChangeHandler: ", e);
+  };
+
+  // useEffect(() => {
+  //   if (plotRef.current) {
+  //     const gd = (plotRef.current as any).el; // graph div
+
+  //     if (stateData.length === 0) return;
+  //     console.log(
+  //       "calcData ",
+  //       gd._fullLayout.xaxis.l2p(new Date(stateData[13].timestamp).getTime())
+  //     );
+  //     console.log(
+  //       "calcData ",
+  //       gd._fullLayout.xaxis.l2p(new Date(stateData[0].timestamp).getTime())
+  //     );
+
+  //   }
+  // }, [stateData]);
+
+  // useEffect(() => {
+  //   const el = plotRef2.current as any;
+
+  //   if (el?.updateComplete) {
+  //     el.updateComplete.then((result: boolean) => {
+  //       console.log("Update finished:", result);
+  //     });
+  //   }
+  // }, []);
+  // gd._fullLayout.xaxis.l2p(new Date(stateData[13].timestamp).getTime())
+
+  // const first = () => {
+  //   if (plotRef.current) {
+  //     const gd = (plotRef.current as any).el; // Get the raw Plotly DOM element
+  //     const fullLayout = gd._fullLayout;
+  //     const fullData = gd._fullData;
+  //     // console.log("here we go");
+  //     if (fullLayout && fullData) {
+  //       const newPixelCoords: any = [];
+  //       const xPxCoords: any = [];
+  //       fullData.forEach((trace: any) => {
+  //         if (trace.x && trace.y && fullLayout.xaxis && fullLayout.yaxis) {
+  //           const xaxis = fullLayout.xaxis;
+
+  //           const l = fullLayout.margin.l;
+  //           const t = fullLayout.margin.t;
+
+  //           for (let i = 0; i < trace.x.length; i++) {
+  //             const xData = trace.x[i];
+
+  //             // Convert data coordinates to pixel coordinates
+  //             const xPx = xaxis.l2p(new Date(xData).getTime()); // Add left margin offset
+
+  //             xPxCoords.push(xPx);
+
+  //             newPixelCoords.push({
+  //               x: xPx,
+  //               traceIndex: trace.index,
+  //               pointIndex: i,
+  //             });
+  //           }
+  //         }
+  //       });
+  //       console.log(newPixelCoords);
+  //       // console.log(xPxCoords);
+  //       // setPixelCoords(newPixelCoords);
+  //     }
+  //   }
+  // };
+
+  // first();
 
   return (
     <IonPage>
@@ -563,7 +674,7 @@ const Visuals: React.FC = () => {
           </IonButton>
         </Banner>
         <div className="ion-padding">
-          {currentVariableData && (
+          {/* {currentVariableData && (
             <div
               style={{
                 display: "flex",
@@ -597,10 +708,10 @@ const Visuals: React.FC = () => {
                 </IonButton>
               </div>
             </div>
-          )}
-          {stateMetadata && <InfoPanel metadata={stateMetadata} />}
+          )} */}
+          {/* {stateMetadata && <InfoPanel metadata={stateMetadata} />} */}
           <StorageManager onPlot={plotCachedItemHandler} />
-          <IonAlert
+          {/* <IonAlert
             isOpen={isLoading}
             trigger="present-alert"
             buttons={[
@@ -614,8 +725,8 @@ const Visuals: React.FC = () => {
             ]}
             message="Loading, please wait..."
             backdropDismiss={false}
-          ></IonAlert>
-          {error && (
+          ></IonAlert> */}
+          {/* {error && (
             <IonAlert
               isOpen={abortController.current?.signal.aborted ? false : !!error}
               header="Error!"
@@ -632,34 +743,34 @@ const Visuals: React.FC = () => {
               buttons={["OK"]}
               onDidDismiss={() => setAlertMessage(null)}
             />
-          )}
-
+          )} */}
           <IonGrid fixed>
             <IonRow>
-              {plotType === PLOT_TYPES.TIME_AVG && (
-                <IonCol
-                  size="12"
-                  style={{
-                    minHeight: "200px",
-                  }}
-                >
-                  <OLMap />
-                </IonCol>
-              )}
+              {/* {plotType === PLOT_TYPES.TIME_AVG && ( */}
               <IonCol
                 size="12"
                 style={{
-                  minHeight: "300px",
+                  minHeight: "200px",
+                  // height: "200px",
                 }}
               >
-                {/* <TerraTimeSeries
-                  collection="GPM_3IMERGHH_07"
-                  variable="precipitation"
-                  start-date="01/01/2019"
-                  end-date="03/01/2019"
-                  // location="33.9375,-86.9375"
-                  location={`${selectedLat},${selectedLon}`}
-                ></TerraTimeSeries> */}
+                {/* <OLMap /> */}
+                <TerraTimeAverageMap
+                  style={{
+                    height: "200px",
+                  }}
+                ></TerraTimeAverageMap>
+              </IonCol>
+              {/* )} */}
+              <IonCol
+                size="12"
+                style={
+                  {
+                    // minHeight: "300px",
+                    // height: "300px",
+                  }
+                }
+              >
                 <TimeSeriesPlot
                   plotRef={plotRef}
                   layout={plotState.layout}
@@ -674,6 +785,24 @@ const Visuals: React.FC = () => {
                   flexDirection: "column",
                 }}
               >
+                {/* {stateData.length !== 0 && (
+                  <Slider
+                    onLeftBtnClick={sliderLeftBtnHandler}
+                    onRightBtnClick={sliderRightBtnHandler}
+                    value={sliderValue}
+                    max={sliderRange[1]}
+                    min={sliderRange[0]}
+                    onValueChange={sliderValueChangeHandler}
+                    pinFormatter={(index: number) =>
+                      stateData[index]?.timestamp &&
+                      `${new Date(
+                        stateData[index]?.timestamp
+                      ).toLocaleDateString()}`
+                    }
+                    disabled={!stateData.length}
+                  />
+                )} */}
+
                 {stateData.length !== 0 && (
                   <Slider
                     onLeftBtnClick={sliderLeftBtnHandler}
@@ -691,6 +820,19 @@ const Visuals: React.FC = () => {
                     disabled={!stateData.length}
                   />
                 )}
+
+                {/* <IonRange
+                  // className={`ion-no-padding ${styles["ion-range"]}`}
+                  // style={{
+                  //   width: `100%`,
+                  // }}
+                  step={0.001}
+                  max={1}
+                  value={sliderValue}
+                  pin={true}
+                  pinFormatter={(index: number) => `${index}`}
+                  onIonInput={onValueChange}
+                ></IonRange> */}
               </IonCol>
             </IonRow>
           </IonGrid>

@@ -58,7 +58,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
     try {
       const data = await getAllItems();
       if (!data) return;
-
+      console.log(data);
       setCachedItems(data);
     } catch (error) {
       toastPresenter(
@@ -177,9 +177,9 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
         <StorageItem
           key={item.cachekey}
           item={item}
-          onPlot={(newParams: DataParams) => {
+          onPlot={() => {
             dismiss();
-            onPlot(newParams);
+            // onPlot(newParams);
           }}
           onDelete={() => {
             alertPresenter(

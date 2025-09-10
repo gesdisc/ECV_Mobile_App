@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { IonContent, IonPage } from "@ionic/react";
 import { MapContainer, TileLayer, Rectangle } from "react-leaflet";
 import L from "leaflet";

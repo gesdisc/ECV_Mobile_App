@@ -4,3 +4,7 @@ img {
   height: 100%;
   object-fit: cover;
 }
+
+terra-time-series::part(plot__base) {
+  aspect-ratio: 1 / 1;
+}
