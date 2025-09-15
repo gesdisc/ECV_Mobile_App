@@ -10,17 +10,22 @@ import { TimeSeriesData, TimeSeriesMetadata } from "../types/time-series.types";
  * localForage provides a user-friendly layer over IndexedDB, making it easier to work with.
  * It offers a simple API that mimics the ease of use of localStorage.
  */
-localforage.config({
-  driver: localforage.INDEXEDDB, // Force IndexedDB; same as using setDriver()
-  name: "myApp",
-  version: 1.0,
-  storeName: "keyvaluepairs", // Should be alphanumeric, with underscores.
-  description: "some description",
+// localforage.config({
+//   driver: localforage.INDEXEDDB, // Force IndexedDB; same as using setDriver()
+//   name: "myApp",
+//   version: 1.0,
+//   storeName: "keyvaluepairs", // Should be alphanumeric, with underscores.
+//   description: "some description",
+// });
+
+const timeSeriesDB = localforage.createInstance({
+  name: "terra", // DB name
+  storeName: "time-series", // storeName
 });
 
 export const clearCache = async () => {
   try {
-    await localforage.clear();
+    await timeSeriesDB.clear();
   } catch (err) {
     if (err instanceof Error) {
       throw new Error("Error clearing old cache: ", err);
@@ -40,7 +45,7 @@ export const setItem = async (key: string, value: TimeSeriesData) => {
 
 export const getItem = async (key: string) => {
   try {
-    const value: TimeSeriesData | null = await localforage.getItem(key);
+    const value: TimeSeriesData | null = await timeSeriesDB.getItem(key);
     return value;
   } catch (err) {
     if (err instanceof Error) {
@@ -51,7 +56,7 @@ export const getItem = async (key: string) => {
 
 export const removeItem = async (key: string) => {
   try {
-    await localforage.removeItem(key);
+    await timeSeriesDB.removeItem(key);
   } catch (err) {
     if (err instanceof Error) {
       throw new Error("Error removing item from IndexedDB: ", err);
@@ -80,14 +85,23 @@ export const getRecentDataKey = async (key: string) => {
   }
 };
 
+// cachedAt
+// data
+// endDate
+// environment
+// key
+// metadata
+// startDate
+// variableEntryId
 export const getAllItems = async () => {
   const items: { metadata: TimeSeriesMetadata; cachekey: string }[] = [];
 
   try {
-    await localforage.iterate(function (value: TimeSeriesData, key: string) {
+    await timeSeriesDB.iterate(function (value: TimeSeriesData, key: string) {
       if (key !== "CapacitorStorage.plotData_recent_data") {
         items.push({ metadata: value.metadata, cachekey: key });
       }
+      // console.log(value);
     });
     return items;
   } catch (err) {
