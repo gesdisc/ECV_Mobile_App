@@ -69,20 +69,20 @@ const StorageItem: React.FC<StorageItemProps> = ({
     // };
     // // for Terra Map use the code below to plot cached items
     // console.log("storage item", cachedDataParams);
-    console.log(item);
-    // const coords = extractLatLon(item.cachekey);
-    // if (coords !== null) {
-    //   setLatitude(coords.lat);
-    //   setLongitude(coords.lon);
-    //   setVariable(
-    //     `${item.metadata.prod_name}`
-    //       .replaceAll(".", "_")
-    //       .concat(`_${item.metadata.param_short_name}`)
-    //   );
-    //   setBeginTime(item.metadata.begin_time);
-    //   setEndTime(item.metadata.end_time);
-    //   onPlot();
-    // }
+
+    const coords = extractLatLon(item.cachekey);
+    if (coords !== null) {
+      setLatitude(coords.lat);
+      setLongitude(coords.lon);
+      setVariable(
+        `${item.metadata.prod_name}`
+          .replaceAll(".", "_")
+          .concat(`_${item.metadata.param_short_name}`)
+      );
+      setBeginTime(item.metadata.begin_time);
+      setEndTime(item.metadata.end_time);
+      onPlot();
+    }
   };
 
   return (
