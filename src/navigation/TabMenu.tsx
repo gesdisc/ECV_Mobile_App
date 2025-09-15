@@ -19,6 +19,8 @@ import {
 
 import { TabMenuLabels } from "../constants/ui";
 
+import TerraLoader from "@nasa-terra/components/dist/react/loader";
+
 import styles from "./TabMenu.module.css";
 
 const CatalogPage = React.lazy(() => import("../pages/CatalogPage"));
@@ -33,11 +35,12 @@ const TabMenu: React.FC = () => (
         <Suspense
           fallback={
             <div className={styles.suspense}>
-              <IonSpinner
+              {/* <IonSpinner
                 name="dots"
                 color="primary"
                 className={styles.spinner}
-              ></IonSpinner>
+              ></IonSpinner> */}
+              <TerraLoader variant="orbit"></TerraLoader>
             </div>
           }
         >

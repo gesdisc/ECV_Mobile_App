@@ -32,7 +32,7 @@ const Slider: React.FC<SliderProps> = ({
       <IonRange
         className={`ion-no-padding ${styles["ion-range"]}`}
         style={{
-          width: `calc(100% - ${MARGIN_INLINE * 2}px)`,
+          width: `calc(100% - ${160}px)`,
         }}
         step={1}
         min={min}
