@@ -1,0 +1,65 @@
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { IonToast } from "@ionic/react";
+
+interface ToastOptions {
+  isOpen: boolean;
+  message: string;
+  duration?: number;
+  color?: string;
+  position?: "top" | "middle" | "bottom";
+  buttons?: { text: string; role?: string; handler?: () => void }[];
+  icon?: string;
+}
+
+interface ToastContextType {
+  showToast: (options: ToastOptions) => void;
+  hideToast: () => void;
+}
+
+const ToastContext = createContext<ToastContextType>({
+  showToast: () => {
+    console.log("");
+  },
+  hideToast: () => {
+    console.log("");
+  },
+});
+
+export const ToastProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const [toastOptions, setToastOptions] = useState<ToastOptions | null>(null);
+
+  const showToast = (options: ToastOptions) => {
+    setToastOptions(options);
+  };
+
+  const hideToast = () => {
+    setToastOptions((prev) => (prev ? { ...prev, isOpen: false } : null));
+  };
+
+  return (
+    <ToastContext.Provider value={{ showToast, hideToast }}>
+      {children}
+      <IonToast
+        isOpen={toastOptions?.isOpen ?? false}
+        onDidDismiss={hideToast}
+        message={toastOptions?.message}
+        duration={toastOptions?.duration ?? 2000}
+        color={toastOptions?.color ?? "dark"}
+        position={toastOptions?.position ?? "bottom"}
+        buttons={toastOptions?.buttons}
+        positionAnchor="tab-bar"
+        icon={toastOptions?.icon}
+      />
+    </ToastContext.Provider>
+  );
+};
+
+export const useToast = () => {
+  const context = useContext(ToastContext);
+  if (context === undefined) {
+    throw new Error("useToast must be used within a ToastProvider");
+  }
+  return context;
+};

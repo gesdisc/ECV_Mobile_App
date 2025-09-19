@@ -61,7 +61,7 @@ const TabMenu: React.FC = () => (
           </Route>
         </Suspense>
       </IonRouterOutlet>
-      <IonTabBar slot="bottom" color={"primary"}>
+      <IonTabBar slot="bottom" color={"primary"} id="tab-bar">
         <IonTabButton
           tab={TabMenuLabels.CATALOG}
           href={`/${TabMenuLabels.CATALOG}`}
