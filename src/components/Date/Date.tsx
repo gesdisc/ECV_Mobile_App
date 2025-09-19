@@ -1,20 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
-import {
-  IonContent,
-  IonPage,
-  IonButton,
-  IonAlert,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonRange,
-} from "@ionic/react";
+import React from "react";
+import { IonContent, IonPage, IonGrid, IonRow, IonCol } from "@ionic/react";
 
 import catalog from "../Catalog/catalog.json";
 import { useDataParams } from "../../store/DataParamsContext";
 
 import DatePicker from "../UI/DatePicker";
-// import Header from "../Layout/Header";
 import Banner from "../UI/Banner";
 
 import styles from "./Date.module.css";
@@ -43,7 +33,6 @@ const Date = () => {
 
   return (
     <IonPage>
-      {/* <Header title="Date Picker" /> */}
       <Banner />
       <IonContent className="ion-padding" fullscreen={true}>
         <IonGrid fixed className={styles["date-picker-container"]}>

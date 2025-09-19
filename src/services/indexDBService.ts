@@ -1,5 +1,9 @@
 import localforage from "localforage";
-import { TimeSeriesData, TimeSeriesMetadata } from "../types/time-series.types";
+import {
+  TimeSeriesData,
+  TimeSeriesMetadata,
+  VariableDbEntry,
+} from "../types/time-series.types";
 
 /**
  * IndexDB API: a low-level API for client-side storage of significant amounts of structured data
@@ -10,13 +14,6 @@ import { TimeSeriesData, TimeSeriesMetadata } from "../types/time-series.types";
  * localForage provides a user-friendly layer over IndexedDB, making it easier to work with.
  * It offers a simple API that mimics the ease of use of localStorage.
  */
-// localforage.config({
-//   driver: localforage.INDEXEDDB, // Force IndexedDB; same as using setDriver()
-//   name: "myApp",
-//   version: 1.0,
-//   storeName: "keyvaluepairs", // Should be alphanumeric, with underscores.
-//   description: "some description",
-// });
 
 const timeSeriesDB = localforage.createInstance({
   name: "terra", // DB name
@@ -85,23 +82,17 @@ export const getRecentDataKey = async (key: string) => {
   }
 };
 
-// cachedAt
-// data
-// endDate
-// environment
-// key
-// metadata
-// startDate
-// variableEntryId
 export const getAllItems = async () => {
-  const items: { metadata: TimeSeriesMetadata; cachekey: string }[] = [];
+  const items: Partial<VariableDbEntry>[] = [];
 
   try {
-    await timeSeriesDB.iterate(function (value: TimeSeriesData, key: string) {
-      if (key !== "CapacitorStorage.plotData_recent_data") {
-        items.push({ metadata: value.metadata, cachekey: key });
-      }
-      // console.log(value);
+    await timeSeriesDB.iterate(function (value: VariableDbEntry) {
+      items.push({
+        data: value.data,
+        metadata: value.metadata,
+        variableEntryId: value.variableEntryId,
+        key: value.key,
+      });
     });
     return items;
   } catch (err) {
