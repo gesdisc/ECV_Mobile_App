@@ -22,24 +22,24 @@ export const schema: {
     },
     legend: { x: 0, y: 1 },
     hovermode: "x",
-    // shapes: [
-    //   {
-    //     visible: false,
-    //     type: "line",
-    //     opacity: 1,
-    //     x0: 0,
-    //     x1: 0,
-    //     y0: 0, // y bottom
-    //     y1: 0, // y top
-    //     yref: "paper",
-    //     ysizemode: "pixel",
-    //     line: {
-    //       color: "rgb(228, 24, 24)",
-    //       width: 2,
-    //       dash: "longdash",
-    //     },
-    //   },
-    // ],
+    shapes: [
+      {
+        visible: false,
+        type: "line",
+        opacity: 1,
+        x0: 0,
+        x1: 0,
+        y0: 0, // y bottom
+        y1: 0, // y top
+        yref: "paper",
+        ysizemode: "pixel",
+        line: {
+          color: "rgb(228, 24, 24)",
+          width: 2,
+          dash: "longdash",
+        },
+      },
+    ],
     xaxis: {
       title: "",
       showline: true,
