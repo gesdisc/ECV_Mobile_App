@@ -26,6 +26,7 @@ import { convertToLocalDate } from "../../utils/date";
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
 } from "@nasa-terra/components/dist/react/time-series";
+import TerraTimeAverageMap from "@nasa-terra/components/dist/react/time-average-map";
 import Slider from "./Slider";
 import StorageManager from "./Storage/StorageManager";
 import Banner from "../UI/Banner";
@@ -153,6 +154,14 @@ const Visuals: React.FC = () => {
           )}
           <IonGrid fixed>
             <IonRow>
+              {/* <IonCol size="12">
+                <TerraTimeAverageMap
+                  style={{
+                    height: "300px",
+                  }}
+                ></TerraTimeAverageMap>
+              </IonCol> */}
+
               <IonCol size="12">
                 <TerraTimeSeries
                   onTerraTimeSeriesDataChange={timeSeriesDataChangeHandler}
