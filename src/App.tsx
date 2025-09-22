@@ -2,7 +2,6 @@ import React from "react";
 import { IonApp, setupIonicReact } from "@ionic/react";
 
 import { DataParamsProvider } from "./store/DataParamsContext";
-import { PlotTypeProvider } from "./store/PlotTypeContext";
 import { NetworkProvider } from "./store/NetworkContext";
 import { ToastProvider } from "./store/ToastContext";
 
@@ -43,11 +42,9 @@ const App: React.FC = () => {
     <IonApp>
       <ToastProvider>
         <NetworkProvider>
-          <PlotTypeProvider>
-            <DataParamsProvider>
-              <AppContent />
-            </DataParamsProvider>
-          </PlotTypeProvider>
+          <DataParamsProvider>
+            <AppContent />
+          </DataParamsProvider>
         </NetworkProvider>
       </ToastProvider>
     </IonApp>

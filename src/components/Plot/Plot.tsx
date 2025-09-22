@@ -22,7 +22,6 @@ import {
 import { useDataParams } from "../../store/DataParamsContext";
 import { DefaultParams } from "../../constants/time-series";
 import { convertToLocalDate } from "../../utils/date";
-import { PLOT_TYPES, usePlotType } from "../../store/PlotTypeContext";
 
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
@@ -41,7 +40,6 @@ const Visuals: React.FC = () => {
   >(undefined);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [sliderValue, setSliderValue] = useState(0);
-  const { plotType } = usePlotType();
 
   const {
     latitude: selectedLat,
@@ -156,15 +154,14 @@ const Visuals: React.FC = () => {
           )}
           <IonGrid fixed>
             <IonRow>
-              {plotType === PLOT_TYPES.TIME_AVG && (
-                <IonCol size="12">
-                  <TerraTimeAverageMap
-                    style={{
-                      height: "300px",
-                    }}
-                  ></TerraTimeAverageMap>
-                </IonCol>
-              )}
+              {/* <IonCol size="12">
+                <TerraTimeAverageMap
+                  style={{
+                    height: "300px",
+                  }}
+                ></TerraTimeAverageMap>
+              </IonCol> */}
+
               <IonCol size="12">
                 <TerraTimeSeries
                   onTerraTimeSeriesDataChange={timeSeriesDataChangeHandler}
