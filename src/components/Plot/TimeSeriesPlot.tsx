@@ -36,13 +36,6 @@ const TimeSeriesPlot: React.FC<TimeSeriesProps> = ({
       style={{ width: "100%", height: "100%" }}
       config={{ responsive: true, displayModeBar: false }}
     />
-    // <TerraTimeSeries
-    //   collection="GPM_3IMERGHH_07"
-    //   variable="precipitation"
-    //   start-date="01/01/2019"
-    //   end-date="03/01/2019"
-    //   location="33.9375,-86.9375"
-    // ></TerraTimeSeries>
   );
 };
 

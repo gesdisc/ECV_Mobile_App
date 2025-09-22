@@ -35,9 +35,9 @@ ion-range {
   color: #ffffff;
   transform: scale(1.01);
 
-  top: -40px;
+  top: -55px;
   z-index: 12;
-  min-width: 90px;
+  min-width: 75px;
   width: auto;
   height: auto;
   border-radius: 2px;
@@ -52,22 +52,6 @@ ion-range {
 .ion-range::part(knob) {
   background: var(--ion-color-primary);
 }
-
-/* .ion-range::part(knob)::before {
-  z-index: 10;
-  content: "y: ";
-  width: 150px;
-  height: 30px;
-  background-color: var(--ion-color-primary);
-  position: absolute;
-  top: -425px;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 1;
-  border-radius: 0;
-  font-size: 18px;
-  color: white;
-} */
 
 .ion-range::part(knob)::after {
   --height: 400px;

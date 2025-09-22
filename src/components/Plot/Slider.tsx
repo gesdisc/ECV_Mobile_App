@@ -1,15 +1,17 @@
 import React from "react";
-import { IonButton, IonRange, IonIcon } from "@ionic/react";
+import { IonButton, IonRange, IonIcon, RangeCustomEvent } from "@ionic/react";
 import { caretForwardSharp, caretBackSharp } from "ionicons/icons";
-
-import { MARGIN_INLINE } from "./plotSchema";
 
 import styles from "./Slider.module.css";
 
 interface SliderProps {
-  onLeftBtnClick: (event: any) => void;
-  onRightBtnClick: (event: any) => void;
-  onValueChange: (event: any) => void;
+  onLeftBtnClick: (
+    event: React.MouseEvent<HTMLIonButtonElement, MouseEvent>
+  ) => void;
+  onRightBtnClick: (
+    event: React.MouseEvent<HTMLIonButtonElement, MouseEvent>
+  ) => void;
+  onValueChange: (event: RangeCustomEvent) => void;
   pinFormatter?: (index: number) => string;
   value: number;
   max?: number;

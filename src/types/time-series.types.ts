@@ -22,12 +22,8 @@ export type TimeSeriesMetadata = {
 
 export type MaybeBearerToken = string | null;
 
-export interface LocationState {
-  variable: string | undefined;
-}
-
 export type DataParams = {
-  variable: string | LocationState;
+  variable: string;
   begin_time: string;
   end_time: string;
   lat: number;
@@ -50,4 +46,16 @@ export type TimeAvgMetadata = {
 export type TimeAvgData = {
   metadata: TimeAvgMetadata;
   data: TimeAvgDataRow[];
+};
+
+export type VariableDbEntry = TimeSeriesData & {
+  variableEntryId: string;
+  startDate: string;
+  endDate: string;
+  /** unique key to identify unique record */
+  key: string;
+  /** environment used when fetching the data */
+  environment?: string;
+  /** timestamp when the data was cached */
+  cachedAt: number;
 };

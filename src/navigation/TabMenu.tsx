@@ -5,7 +5,6 @@ import {
   IonIcon,
   IonLabel,
   IonRouterOutlet,
-  IonSpinner,
   IonTabBar,
   IonTabButton,
   IonTabs,
@@ -28,6 +27,11 @@ const LocationPage = React.lazy(() => import("../pages/LocationPage"));
 const DatePickerPage = React.lazy(() => import("../pages/DatePickerPage"));
 const PlotPage = React.lazy(() => import("../pages/PlotPage"));
 
+// import CatalogPage from "../pages/CatalogPage";
+// import LocationPage from "../pages/LocationPage";
+// import DatePickerPage from "../pages/DatePickerPage";
+// import PlotPage from "../pages/PlotPage";
+
 const TabMenu: React.FC = () => (
   <IonReactRouter>
     <IonTabs>
@@ -35,11 +39,6 @@ const TabMenu: React.FC = () => (
         <Suspense
           fallback={
             <div className={styles.suspense}>
-              {/* <IonSpinner
-                name="dots"
-                color="primary"
-                className={styles.spinner}
-              ></IonSpinner> */}
               <TerraLoader variant="orbit"></TerraLoader>
             </div>
           }
@@ -61,7 +60,7 @@ const TabMenu: React.FC = () => (
           </Route>
         </Suspense>
       </IonRouterOutlet>
-      <IonTabBar slot="bottom" color={"primary"}>
+      <IonTabBar slot="bottom" color={"primary"} id="tab-bar">
         <IonTabButton
           tab={TabMenuLabels.CATALOG}
           href={`/${TabMenuLabels.CATALOG}`}
