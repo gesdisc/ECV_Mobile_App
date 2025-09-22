@@ -5,7 +5,6 @@ import {
   IonIcon,
   IonLabel,
   IonRouterOutlet,
-  IonSpinner,
   IonTabBar,
   IonTabButton,
   IonTabs,
@@ -35,11 +34,6 @@ const TabMenu: React.FC = () => (
         <Suspense
           fallback={
             <div className={styles.suspense}>
-              {/* <IonSpinner
-                name="dots"
-                color="primary"
-                className={styles.spinner}
-              ></IonSpinner> */}
               <TerraLoader variant="orbit"></TerraLoader>
             </div>
           }
