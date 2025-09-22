@@ -27,6 +27,11 @@ const LocationPage = React.lazy(() => import("../pages/LocationPage"));
 const DatePickerPage = React.lazy(() => import("../pages/DatePickerPage"));
 const PlotPage = React.lazy(() => import("../pages/PlotPage"));
 
+// import CatalogPage from "../pages/CatalogPage";
+// import LocationPage from "../pages/LocationPage";
+// import DatePickerPage from "../pages/DatePickerPage";
+// import PlotPage from "../pages/PlotPage";
+
 const TabMenu: React.FC = () => (
   <IonReactRouter>
     <IonTabs>

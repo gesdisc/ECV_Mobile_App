@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { IonContent, IonPage, IonGrid, IonRow, IonCol } from "@ionic/react";
 
 import catalog from "../Catalog/catalog.json";
 import { useDataParams } from "../../store/DataParamsContext";
+import { useToast } from "../../store/ToastContext";
+import { TabMenuLabels } from "../../constants/ui";
 
 import DatePicker from "../UI/DatePicker";
 import Banner from "../UI/Banner";
@@ -20,6 +23,8 @@ import styles from "./Date.module.css";
 const Date = () => {
   const { beginTime, endTime, variable, setEndTime, setBeginTime } =
     useDataParams();
+  const { showToast } = useToast();
+  const history = useHistory();
 
   const currentVariableData = catalog.find(
     (data) => data.dataFieldId === variable
@@ -28,8 +33,50 @@ const Date = () => {
   const beginDateUpdateHandler = (selectedDate: string) =>
     setBeginTime(selectedDate);
 
-  const endDateUpdateHandler = (selectedDate: string) =>
-    setEndTime(selectedDate);
+  // const beginDateUpdateHandler = (selectedDate: string) => {
+  //   if (selectedDate.split("T")[0] !== beginTime.split("T")[0]) {
+  //     showToast({
+  //       isOpen: true,
+  //       message: "Date Change detected",
+  //       color: "primary",
+  //       buttons: [
+  //         {
+  //           text: "Replot",
+  //           role: "confirm",
+  //           handler: () => setBeginTime(selectedDate),
+  //         },
+  //         {
+  //           text: "Dismiss",
+  //           role: "cancel",
+  //         },
+  //       ],
+  //     });
+  //   }
+  // };
+
+  const endDateUpdateHandler = (selectedDate: string) => {
+    if (selectedDate.split("T")[0] !== endTime.split("T")[0]) {
+      showToast({
+        isOpen: true,
+        message: "Date Change detected",
+        color: "primary",
+        buttons: [
+          {
+            text: "Replot",
+            role: "confirm",
+            handler: () => {
+              setEndTime(selectedDate);
+              history.push(`/${TabMenuLabels.PLOT}`);
+            },
+          },
+          {
+            text: "Cancel",
+            role: "cancel",
+          },
+        ],
+      });
+    }
+  };
 
   return (
     <IonPage>

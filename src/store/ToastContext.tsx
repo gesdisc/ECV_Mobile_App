@@ -1,13 +1,23 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { IonToast } from "@ionic/react";
 
+interface ToastButton {
+  text?: string;
+  icon?: string;
+  side?: "start" | "end";
+  role?: "cancel" | string;
+  cssClass?: string | string[];
+  htmlAttributes?: { [key: string]: any };
+  handler?: () => boolean | void | Promise<boolean | void>;
+}
+
 interface ToastOptions {
   isOpen: boolean;
   message: string;
   duration?: number;
   color?: string;
   position?: "top" | "middle" | "bottom";
-  buttons?: { text: string; role?: string; handler?: () => void }[];
+  buttons?: ToastButton[];
   icon?: string;
 }
 
@@ -45,7 +55,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({
         isOpen={toastOptions?.isOpen ?? false}
         onDidDismiss={hideToast}
         message={toastOptions?.message}
-        duration={toastOptions?.duration ?? 2000}
+        duration={toastOptions?.duration ?? 0}
         color={toastOptions?.color ?? "dark"}
         position={toastOptions?.position ?? "bottom"}
         buttons={toastOptions?.buttons}

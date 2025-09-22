@@ -128,9 +128,16 @@ const Visuals: React.FC = () => {
     });
   };
 
+  // Emitted whenever time series data has been fetched from Giovanni. Or zoomed in/out.
   const timeSeriesDataChangeHandler = (e: TerraTimeSeriesDataChangeEvent) => {
+    console.log(e);
     setStateData(e.detail.data.data);
     setStateMetaData(e.detail.data.metadata);
+  };
+
+  // Emitted whenever the date range is modified
+  const timeSeriesDateRangeChangeHandler = (e: CustomEvent) => {
+    console.log(e);
   };
 
   return (
@@ -164,6 +171,7 @@ const Visuals: React.FC = () => {
 
               <IonCol size="12">
                 <TerraTimeSeries
+                  onTerraDateRangeChange={timeSeriesDateRangeChangeHandler}
                   onTerraTimeSeriesDataChange={timeSeriesDataChangeHandler}
                   variableEntryId={selectedVariable}
                   start-date={selectedBeginTime.replace(
