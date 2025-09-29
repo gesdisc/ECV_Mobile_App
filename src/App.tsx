@@ -4,7 +4,7 @@ import { IonApp, setupIonicReact } from "@ionic/react";
 import { DataParamsProvider } from "./store/DataParamsContext";
 import { NetworkProvider } from "./store/NetworkContext";
 
-import TabBar from "./navigation/TabBar";
+import TabBar from "./navigation/TabMenu";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   IonContent,
   IonPage,
@@ -14,11 +14,7 @@ import { server } from "ionicons/icons";
 
 import { useLocation } from "react-router-dom";
 
-import {
-  TimeSeriesDataRow,
-  TimeSeriesMetadata,
-  DataParams,
-} from "../../types/time-series.types";
+import { TimeSeriesDataRow, DataParams } from "../../types/time-series.types";
 import { useDataParams } from "../../store/DataParamsContext";
 import { DefaultParams } from "../../constants/time-series";
 import { convertToLocalDate } from "../../utils/date";
@@ -33,25 +29,17 @@ import Banner from "../UI/Banner";
 
 import "./Plot.css";
 
-const Visuals: React.FC = () => {
+const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
-  const [stateMetadata, setStateMetaData] = useState<
-    TimeSeriesMetadata | undefined
-  >(undefined);
+  // const [stateMetadata, setStateMetaData] = useState<
+  //   TimeSeriesMetadata | undefined
+  // >(undefined);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [sliderValue, setSliderValue] = useState(0);
-  const plotRef = useRef<any>(null);
   const { params: ctxParams, updateParams } = useDataParams();
 
   const location = useLocation();
   const categoryPageVariable = location.state;
-
-  const cancelRequest = () => {
-    if (plotRef.current) {
-      plotRef.current.abortDataLoad();
-    }
-  };
-  // console.log(plotRef);
 
   /**
    *
@@ -70,29 +58,6 @@ const Visuals: React.FC = () => {
       variable: categoryPageVariable as string,
     });
   }, [categoryPageVariable]);
-
-  // const handlePlotData = ({
-  //   lat,
-  //   lon,
-  //   begin_time,
-  //   end_time,
-  //   variable,
-  // }: DataParams) => {
-  //   // const status = await Network.getStatus();
-  //   // const isOffline = !status.connected;
-  //   // TODO: Check internet connection before setting data parameters
-  //   // if (isOffline) {
-  //   //   setAlertMessage(
-  //   //     "You are offline and no cached data is available to plot."
-  //   //   );
-  //   //   return;
-  //   // }
-  //   // setLatitude(lat);
-  //   // setLongitude(lon);
-  //   // setVariable(variable);
-  //   // setBeginTime(begin_time);
-  //   // setEndTime(end_time);
-  // };
 
   const sliderValueChangeHandler = (e: RangeCustomEvent) => {
     if (!stateData.length) return;
@@ -124,15 +89,13 @@ const Visuals: React.FC = () => {
 
   // Emitted whenever time series data has been fetched from Giovanni. Or zoomed in/out.
   const timeSeriesDataChangeHandler = (e: TerraTimeSeriesDataChangeEvent) => {
-    // console.log(e);
     setStateData(e.detail.data.data);
-    setStateMetaData(e.detail.data.metadata);
+    // setStateMetaData(e.detail.data.metadata);
   };
 
   // Emitted whenever the date range is modified
-  const timeSeriesDateRangeChangeHandler = (e: CustomEvent) => {
-    // console.log(e);
-  };
+  // const timeSeriesDateRangeChangeHandler = (e: CustomEvent) => {
+  // };
 
   return (
     <IonPage>
@@ -165,8 +128,7 @@ const Visuals: React.FC = () => {
 
               <IonCol size="12">
                 <TerraTimeSeries
-                  ref={plotRef}
-                  onTerraDateRangeChange={timeSeriesDateRangeChangeHandler}
+                  // onTerraDateRangeChange={timeSeriesDateRangeChangeHandler}
                   onTerraTimeSeriesDataChange={timeSeriesDataChangeHandler}
                   variableEntryId={ctxParams.variable}
                   start-date={ctxParams.begin_time.replace(
@@ -208,13 +170,10 @@ const Visuals: React.FC = () => {
               </IonCol>
             </IonRow>
           </IonGrid>
-          {/* <IonButton expand="block" onClick={cancelRequest}>
-            {"Plot Data"}
-          </IonButton> */}
         </div>
       </IonContent>
     </IonPage>
   );
 };
 
-export default Visuals;
+export default Plot;
