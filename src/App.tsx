@@ -3,9 +3,8 @@ import { IonApp, setupIonicReact } from "@ionic/react";
 
 import { DataParamsProvider } from "./store/DataParamsContext";
 import { NetworkProvider } from "./store/NetworkContext";
-import { ToastProvider } from "./store/ToastContext";
 
-import AppContent from "./components/AppContent";
+import TabBar from "./navigation/TabBar";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -28,25 +27,22 @@ import "./theme/variables.css";
 import "./styles.css";
 
 /* Terra Styles */
-// import "@nasa-terra/components/dist/themes/light.css";
 import "@nasa-terra/components/dist/themes/horizon.css";
 
 import { setBasePath } from "@nasa-terra/components/dist/utilities/base-path";
 
-setBasePath("https://cdn.jsdelivr.net/npm/@nasa-terra/components@0.0.58/cdn/");
+setBasePath("https://cdn.jsdelivr.net/npm/@nasa-terra/components@0.0.105/cdn/");
 
 setupIonicReact();
 
 const App: React.FC = () => {
   return (
     <IonApp>
-      <ToastProvider>
-        <NetworkProvider>
-          <DataParamsProvider>
-            <AppContent />
-          </DataParamsProvider>
-        </NetworkProvider>
-      </ToastProvider>
+      <NetworkProvider>
+        <DataParamsProvider>
+          <TabBar />
+        </DataParamsProvider>
+      </NetworkProvider>
     </IonApp>
   );
 };

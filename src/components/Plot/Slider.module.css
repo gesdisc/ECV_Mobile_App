@@ -53,26 +53,89 @@ ion-range {
   background: var(--ion-color-primary);
 }
 
-.ion-range::part(knob)::after {
-  --height: 400px;
-
-  z-index: 1;
-  content: "";
-  width: 2px;
-  height: var(--height);
-  background-color: red;
-  position: absolute;
-  top: calc((var(--height) / -2));
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
 .buttons {
-  width: 101%;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.ion-range::part(knob)::after {
+  z-index: 1;
+  content: "";
+  width: 2px;
+  height: var(--ion-slider-v-line-height);
+  background-color: red;
+  position: absolute;
+  top: calc((var(--ion-slider-v-line-height) / -2));
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/******
+  FIX vertical line height
+******/
+
+/* Retina (DPR=2, most iPhones, many Androids) */
+@media (min-resolution: 2dppx) {
+  .ion-range::part(knob)::after {
+    --ion-slider-v-line-height: 150px; /* 150 CSS px * 2 DPR = 300 physical px */
+  }
+}
+
+/* Super Retina (DPR=3, e.g. iPhone Plus/Pro, Galaxy S/Pixel XL) */
+@media (min-resolution: 3dppx) {
+  .ion-range::part(knob)::after {
+    --ion-slider-v-line-height: 100px; /* 100 CSS px * 3 DPR = 300 physical px */
+  }
+}
+
+/* Ultra high DPI (DPR=4, some Android flagships) */
+@media (min-resolution: 4dppx) {
+  .ion-range::part(knob)::after {
+    --ion-slider-v-line-height: 75px; /* 75 CSS px * 4 DPR = 300 physical px */
+  }
+}
+
+/* Phones portrait */
+@media (max-width: 480px) and (orientation: portrait) {
+  .ion-range::part(knob)::after {
+    --ion-slider-v-line-height: calc(
+      var(--ion-slider-v-line-height) * 1
+    ); /* keep as is */
+  }
+}
+
+/* Phones landscape */
+@media (max-width: 896px) and (orientation: landscape) {
+  .ion-range::part(knob)::after {
+    --ion-slider-v-line-height: calc(
+      var(--ion-slider-v-line-height) * 0.8
+    ); /* a bit shorter */
+  }
+}
+
+/* Tablets portrait */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  .ion-range::part(knob)::after {
+    --ion-slider-v-line-height: calc(
+      var(--ion-slider-v-line-height) * 1.2
+    ); /* slightly taller */
+  }
+}
+
+/* Tablets landscape */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .ion-range::part(knob)::after {
+    --ion-slider-v-line-height: calc(
+      var(--ion-slider-v-line-height) * 1
+    ); /* default scaling */
+  }
+}
+
+.ion-range::part(knob)::after {
+  --ion-slider-v-line-height: 300px;
 }
