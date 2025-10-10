@@ -3,7 +3,6 @@ import {
   IonContent,
   IonPage,
   IonButton,
-  IonAlert,
   IonIcon,
   RangeCustomEvent,
   IonCol,
@@ -17,7 +16,7 @@ import { useLocation } from "react-router-dom";
 import { TimeSeriesDataRow, DataParams } from "../../types/time-series.types";
 import { useDataParams } from "../../store/DataParamsContext";
 import { DefaultParams } from "../../constants/time-series";
-import { convertToLocalDate } from "../../utils/date";
+import { toLocalShortDateTime } from "../../utils/date";
 
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
@@ -31,15 +30,11 @@ import "./Plot.css";
 
 const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
-  // const [stateMetadata, setStateMetaData] = useState<
-  //   TimeSeriesMetadata | undefined
-  // >(undefined);
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [sliderValue, setSliderValue] = useState(0);
-  const { params: ctxParams, updateParams } = useDataParams();
-
+  const [isStorageOpen, setIsStorageOpen] = useState(false);
+  const { params: ctxParams, updateParams, setMetadata } = useDataParams();
   const location = useLocation();
-  const categoryPageVariable = location.state;
+  const catalogPageVariable = location.state;
 
   /**
    *
@@ -48,16 +43,16 @@ const Plot: React.FC = () => {
    *
    */
   useEffect(() => {
-    if (!categoryPageVariable) return;
+    if (!catalogPageVariable) return;
 
     updateParams({
       lat: DefaultParams.LATITUDE,
       lon: DefaultParams.LONGITUDE,
       begin_time: DefaultParams.BEGIN_TIME,
       end_time: DefaultParams.END_TIME,
-      variable: categoryPageVariable as string,
+      variable: catalogPageVariable as string,
     });
-  }, [categoryPageVariable]);
+  }, [catalogPageVariable]);
 
   const sliderValueChangeHandler = (e: RangeCustomEvent) => {
     if (!stateData.length) return;
@@ -90,7 +85,7 @@ const Plot: React.FC = () => {
   // Emitted whenever time series data has been fetched from Giovanni. Or zoomed in/out.
   const timeSeriesDataChangeHandler = (e: TerraTimeSeriesDataChangeEvent) => {
     setStateData(e.detail.data.data);
-    // setStateMetaData(e.detail.data.metadata);
+    setMetadata(e.detail.data.metadata);
   };
 
   // Emitted whenever the date range is modified
@@ -101,21 +96,20 @@ const Plot: React.FC = () => {
     <IonPage>
       <IonContent fullscreen={true}>
         <Banner>
-          <IonButton slot="end" size="small" id="storage-manager">
+          <IonButton
+            slot="end"
+            size="small"
+            onClick={() => setIsStorageOpen(true)}
+          >
             <IonIcon aria-hidden="true" size="medium" icon={server} />
           </IonButton>
         </Banner>
         <div className="ion-padding">
-          <StorageManager onPlot={plotCachedItemHandler} />
-          {alertMessage && (
-            <IonAlert
-              isOpen={!!alertMessage}
-              header="Oops!"
-              message={alertMessage}
-              buttons={["OK"]}
-              onDidDismiss={() => setAlertMessage(null)}
-            />
-          )}
+          <StorageManager
+            onPlot={plotCachedItemHandler}
+            isOpen={isStorageOpen}
+            onModalClose={() => setIsStorageOpen(false)}
+          />
           <IonGrid fixed>
             <IonRow>
               {/* <IonCol size="12">
@@ -123,9 +117,14 @@ const Plot: React.FC = () => {
                   style={{
                     height: "300px",
                   }}
+                  collection="M2T1NXAER_5_12_4"
+                  variable="BCCMASS"
+                  start-date="01/01/2009"
+                  end-date="01/05/2009"
+                  location="62,5,95,40"
+                  bearer-token="YOUR_BEARER_TOKEN"
                 ></TerraTimeAverageMap>
               </IonCol> */}
-
               <IonCol size="12">
                 <TerraTimeSeries
                   // onTerraDateRangeChange={timeSeriesDateRangeChangeHandler}
@@ -159,9 +158,9 @@ const Plot: React.FC = () => {
                     onValueChange={sliderValueChangeHandler}
                     pinFormatter={(index: number) =>
                       stateData[index]?.timestamp
-                        ? `${convertToLocalDate(stateData[index].timestamp)}, ${
-                            stateData[index].value
-                          }`
+                        ? `${toLocalShortDateTime(
+                            stateData[index].timestamp
+                          )}, ${stateData[index].value}`
                         : "Oops!"
                     }
                     disabled={!stateData.length}

@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { DataParams } from "../types/time-series.types";
+import { DataParams, TimeSeriesMetadata } from "../types/time-series.types";
 import { DefaultParams } from "../constants/time-series";
 
 interface DataParamsContextType {
   params: DataParams;
   staged: Partial<DataParams>;
+  metadata: Partial<TimeSeriesMetadata>;
+  setMetadata: (metadata: TimeSeriesMetadata) => void;
   updateParams: (newParams: Partial<DataParams>) => void;
   requestUpdateParams: (newParams: Partial<DataParams>) => void;
   cancelRequest: () => void;
@@ -12,13 +14,17 @@ interface DataParamsContextType {
 
 const initialContextValue: DataParamsContextType = {
   params: {
-    variable: DefaultParams.VARIABLE,
+    variable: "",
     begin_time: DefaultParams.BEGIN_TIME,
     end_time: DefaultParams.END_TIME,
     lat: DefaultParams.LATITUDE,
     lon: DefaultParams.LONGITUDE,
   },
   staged: {},
+  metadata: {},
+  setMetadata: () => {
+    console.log("empty function!");
+  },
   updateParams: () => {
     console.log("empty function!");
   },
@@ -37,13 +43,14 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [params, setParams] = useState<DataParams>({
-    variable: DefaultParams.VARIABLE,
+    variable: "",
     begin_time: DefaultParams.BEGIN_TIME,
     end_time: DefaultParams.END_TIME,
     lat: DefaultParams.LATITUDE,
     lon: DefaultParams.LONGITUDE,
   });
   const [staged, setStaged] = useState<Partial<DataParams>>({});
+  const [metadata, setMetadata] = useState<Partial<TimeSeriesMetadata>>({});
 
   // immediate update
   const updateParams = (newParams: Partial<DataParams>) => {
@@ -63,6 +70,8 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   const contextValue: DataParamsContextType = {
     params,
     staged,
+    metadata,
+    setMetadata,
     updateParams,
     requestUpdateParams,
     cancelRequest,
