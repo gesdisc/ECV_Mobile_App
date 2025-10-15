@@ -164,6 +164,10 @@ const Plot: React.FC = () => {
                         : "Oops!"
                     }
                     disabled={!stateData.length}
+                    startDate={toLocalShortDateTime(stateData[0].timestamp)}
+                    endDate={toLocalShortDateTime(
+                      stateData[stateData.length - 1].timestamp
+                    )}
                   />
                 )}
               </IonCol>

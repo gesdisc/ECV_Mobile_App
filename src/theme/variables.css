@@ -1,6 +1,11 @@
 /* Ionic Variables and Theming. For more info, please see:
 http://ionicframework.com/docs/theming/ */
 
+:root {
+  --terra-color-nasa-red: #f64137;
+  --terra-color-nasa-blue: #1c68e3;
+}
+
 /** Ionic CSS Variables **/
 :root {
   /** primary **/
