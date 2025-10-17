@@ -1,3 +1,5 @@
+import { TimeIntervals, TimeIntervalKey } from "../../constants/time-series";
+
 /**
  *
  * @param arr Array with any values
@@ -51,4 +53,30 @@ export const extractLatLonFromCacheKey = (key: string) => {
   } else {
     return null; // return null if no coordinates found
   }
+};
+
+/**
+ *
+ * @summary Converts a base time interval (starting at value=1)
+ * into its equivalent in another time interval.
+ * Example: from="half-hour", to="week" -> 336 half-hours fit into 1 week -> returns 336
+ *
+ * @param from "half-hourly" | "hourly" | "3-hourly" | "daily" | "weekly" | "monthly"
+ * @param to "half-hourly" | "hourly" | "3-hourly" | "daily" | "weekly" | "monthly"
+ * @returns the number of source intervals ("from") that fit inside one target ("to") interval
+ *
+ */
+export const convertTimeInterval = (
+  from: TimeIntervalKey,
+  to: TimeIntervalKey
+) => {
+  // Unsupported time interval
+  if (!TimeIntervals[from] || !TimeIntervals[to]) {
+    return TimeIntervals[from];
+  }
+
+  const fromHours = TimeIntervals[from];
+  const toHours = TimeIntervals[to];
+
+  return toHours / fromHours;
 };

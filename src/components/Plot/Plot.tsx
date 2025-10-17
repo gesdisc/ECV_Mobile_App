@@ -15,8 +15,10 @@ import { useLocation } from "react-router-dom";
 
 import { TimeSeriesDataRow, DataParams } from "../../types/time-series.types";
 import { useDataParams } from "../../store/DataParamsContext";
-import { DefaultParams } from "../../constants/time-series";
+import { DefaultParams, TimeIntervalKey } from "../../constants/time-series";
 import { toLocalShortDateTime } from "../../utils/date";
+import { getMiddleIndex, convertTimeInterval } from "./helpers";
+import catalog from "./../Catalog/catalog.json";
 
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
@@ -25,6 +27,7 @@ import TerraTimeSeries, {
 import Slider from "./Slider";
 import StorageManager from "./Storage/StorageManager";
 import Banner from "../UI/Banner";
+import TimeInterval from "./TimeInterval";
 
 import "./Plot.css";
 
@@ -32,9 +35,29 @@ const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
   const [sliderValue, setSliderValue] = useState(0);
   const [isStorageOpen, setIsStorageOpen] = useState(false);
+  const [selectedTimeInterval, setSelectedTimeInterval] =
+    useState<TimeIntervalKey>("half-hourly");
   const { params: ctxParams, updateParams, setMetadata } = useDataParams();
   const location = useLocation();
   const catalogPageVariable = location.state;
+
+  const productDetailsFromCatalog = catalog.find(
+    (data) => data.dataFieldId === ctxParams.variable
+  );
+
+  const currentProductTimeInterval =
+    productDetailsFromCatalog?.dataProductTimeInterval;
+
+  useEffect(() => {
+    if (!productDetailsFromCatalog) return;
+    setSelectedTimeInterval(
+      productDetailsFromCatalog?.dataProductTimeInterval as TimeIntervalKey
+    );
+  }, [productDetailsFromCatalog]);
+
+  useEffect(() => {
+    setSliderValue(getMiddleIndex(stateData));
+  }, [stateData]);
 
   /**
    *
@@ -63,13 +86,33 @@ const Plot: React.FC = () => {
   const sliderLeftBtnHandler = () => {
     if (stateData.length === 0) return;
     if (sliderValue === 0) return;
-    setSliderValue((prevNum) => prevNum - 1);
+
+    setSliderValue((prevNum) =>
+      Math.max(
+        0,
+        prevNum -
+          convertTimeInterval(
+            currentProductTimeInterval as TimeIntervalKey,
+            selectedTimeInterval
+          )
+      )
+    );
   };
 
   const sliderRightBtnHandler = () => {
     if (stateData.length === 0) return;
     if (sliderValue === stateData.length - 1) return;
-    setSliderValue((prevNum) => prevNum + 1);
+
+    setSliderValue((prevNum) =>
+      Math.min(
+        stateData.length - 1,
+        prevNum +
+          convertTimeInterval(
+            currentProductTimeInterval as TimeIntervalKey,
+            selectedTimeInterval
+          )
+      )
+    );
   };
 
   const plotCachedItemHandler = (newParams: DataParams) => {
@@ -148,6 +191,7 @@ const Plot: React.FC = () => {
                   flexDirection: "column",
                 }}
               >
+                {/* FIXME: slider disappears when plot is fully zoomed in */}
                 {stateData.length !== 0 && (
                   <Slider
                     onLeftBtnClick={sliderLeftBtnHandler}
@@ -171,6 +215,17 @@ const Plot: React.FC = () => {
                   />
                 )}
               </IonCol>
+              {stateData.length !== 0 && (
+                <TimeInterval
+                  onIntervalChange={(option) =>
+                    setSelectedTimeInterval(option as TimeIntervalKey)
+                  }
+                  currentProductTimeInterval={
+                    currentProductTimeInterval as TimeIntervalKey
+                  }
+                  selectedOption={selectedTimeInterval}
+                />
+              )}
             </IonRow>
           </IonGrid>
         </div>
