@@ -10,8 +10,8 @@ import {
   IonRow,
 } from "@ionic/react";
 import { server } from "ionicons/icons";
-
 import { useLocation } from "react-router-dom";
+import { isEmpty } from "lodash";
 
 import { TimeSeriesDataRow, DataParams } from "../../types/time-series.types";
 import { useDataParams } from "../../store/DataParamsContext";
@@ -19,10 +19,10 @@ import { DefaultParams, TimeIntervalKey } from "../../constants/time-series";
 import { toLocalShortDateTime } from "../../utils/date";
 import { getMiddleIndex, convertTimeInterval } from "./helpers";
 import catalog from "./../Catalog/catalog.json";
-
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
 } from "@nasa-terra/components/dist/react/time-series";
+
 // import TerraTimeAverageMap from "@nasa-terra/components/dist/react/time-average-map";
 import Slider from "./Slider";
 import StorageManager from "./Storage/StorageManager";
@@ -37,7 +37,12 @@ const Plot: React.FC = () => {
   const [isStorageOpen, setIsStorageOpen] = useState(false);
   const [selectedTimeInterval, setSelectedTimeInterval] =
     useState<TimeIntervalKey>("half-hourly");
-  const { params: ctxParams, updateParams, setMetadata } = useDataParams();
+  const {
+    params: ctxParams,
+    updateParams,
+    setMetadata,
+    metadata,
+  } = useDataParams();
   const location = useLocation();
   const catalogPageVariable = location.state;
 
@@ -61,8 +66,8 @@ const Plot: React.FC = () => {
 
   /**
    *
-   * will only work when the user selects a variable on the catalog page
-   * Uses default parameters and user selected variable
+   * This will only work when user selects a variable on the catalog page.
+   * It uses default parameters and user selected variable.
    *
    */
   useEffect(() => {
@@ -83,6 +88,7 @@ const Plot: React.FC = () => {
     setSliderValue(activeIndex);
   };
 
+  /* FIXME: Slider buttons don't work when plot fully zoomed in -- check stateData */
   const sliderLeftBtnHandler = () => {
     if (stateData.length === 0) return;
     if (sliderValue === 0) return;
@@ -127,6 +133,7 @@ const Plot: React.FC = () => {
 
   // Emitted whenever time series data has been fetched from Giovanni. Or zoomed in/out.
   const timeSeriesDataChangeHandler = (e: TerraTimeSeriesDataChangeEvent) => {
+    /* FIXME: plot data disappears when fully zoomed in and then zoomed out -- setStateData causes the bug */
     setStateData(e.detail.data.data);
     setMetadata(e.detail.data.metadata);
   };
@@ -184,15 +191,8 @@ const Plot: React.FC = () => {
                   location={`${ctxParams.lat},${ctxParams.lon}`}
                 ></TerraTimeSeries>
               </IonCol>
-              <IonCol
-                size="12"
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                {/* FIXME: slider disappears when plot is fully zoomed in */}
-                {stateData.length !== 0 && (
+              <IonCol size="12">
+                {!isEmpty(metadata) && stateData.length !== 0 && (
                   <Slider
                     onLeftBtnClick={sliderLeftBtnHandler}
                     onRightBtnClick={sliderRightBtnHandler}
@@ -205,20 +205,20 @@ const Plot: React.FC = () => {
                         ? `${toLocalShortDateTime(
                             stateData[index].timestamp
                           )}, ${stateData[index].value}`
-                        : "Oops!"
+                        : ""
                     }
                     disabled={!stateData.length}
-                    startDate={toLocalShortDateTime(stateData[0].timestamp)}
+                    startDate={toLocalShortDateTime(stateData[0]?.timestamp)}
                     endDate={toLocalShortDateTime(
-                      stateData[stateData.length - 1].timestamp
+                      stateData[stateData.length - 1]?.timestamp
                     )}
                   />
                 )}
               </IonCol>
-              {stateData.length !== 0 && (
+              {!isEmpty(metadata) && stateData.length !== 0 && (
                 <TimeInterval
-                  onIntervalChange={(option) =>
-                    setSelectedTimeInterval(option as TimeIntervalKey)
+                  onIntervalChange={(intervalOption) =>
+                    setSelectedTimeInterval(intervalOption as TimeIntervalKey)
                   }
                   currentProductTimeInterval={
                     currentProductTimeInterval as TimeIntervalKey

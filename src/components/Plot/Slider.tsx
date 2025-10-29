@@ -17,8 +17,8 @@ interface SliderProps {
   max?: number;
   min?: number;
   disabled?: boolean;
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 const Slider: React.FC<SliderProps> = ({
@@ -34,7 +34,12 @@ const Slider: React.FC<SliderProps> = ({
   endDate,
 }) => {
   return (
-    <>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <IonRange
         className={`ion-no-padding ${styles["ion-range"]}`}
         style={{
@@ -51,12 +56,16 @@ const Slider: React.FC<SliderProps> = ({
         // ticks={true}
         // snaps={true}
       >
-        <span slot="end" className={styles["date-range"]}>
-          {startDate}
-        </span>
-        <span slot="start" className={styles["date-range"]}>
-          {endDate}
-        </span>
+        {startDate && (
+          <span slot="end" className={styles["date-range"]}>
+            {startDate}
+          </span>
+        )}
+        {endDate && (
+          <span slot="start" className={styles["date-range"]}>
+            {endDate}
+          </span>
+        )}
       </IonRange>
       <div className={styles.buttons}>
         <IonButton
@@ -86,7 +95,7 @@ const Slider: React.FC<SliderProps> = ({
           />
         </IonButton>
       </div>
-    </>
+    </div>
   );
 };
 

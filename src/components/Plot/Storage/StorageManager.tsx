@@ -103,9 +103,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({
   const getAllCachedItems = async () => {
     try {
       const data = await getAllData(IndexedDbStores.TIME_SERIES);
-
       if (!data) return;
-
       setCachedItems(data);
     } catch (error) {
       toastPresenter(
