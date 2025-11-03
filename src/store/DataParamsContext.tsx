@@ -46,7 +46,6 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   const {
     latitude: deviceLat,
     longitude: deviceLon,
-    permission,
     error: permissionError,
     getLocation,
   } = useDeviceLocation();
@@ -61,7 +60,6 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
 
   // Get device's location
   useEffect(() => {
-    console.log("run");
     const getDeviceLocation = async () => {
       try {
         await getLocation();
@@ -79,7 +77,7 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
       }
     };
     getDeviceLocation();
-  }, [deviceLat, deviceLon]);
+  }, [getLocation, deviceLat, deviceLon]);
 
   // immediate update
   const updateParams = (newParams: Partial<DataParams>) => {

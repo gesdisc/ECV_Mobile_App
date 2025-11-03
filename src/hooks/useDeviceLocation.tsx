@@ -16,7 +16,7 @@ export interface LocationState {
 
 /**
  *
- * @summary Detects current permission status (cross-platform).
+ * Detects current permission status.
  *
  * Note: There isn’t a single universal API that checks geolocation permissions across web + native. We need to manually check for both.
  *
@@ -59,12 +59,23 @@ export const requestPermission = async (): Promise<boolean> => {
   }
 };
 
+export const getDeviceLocation = async () => {
+  try {
+    // we can use the browser API here to detect the location if Capacitor is not installed
+
+    const pos = await Geolocation.getCurrentPosition(); // use capacitor
+    const coords: { latitude: number; longitude: number } = pos.coords;
+    return coords;
+  } catch {
+    return null;
+  }
+};
+
 /**
  *
- * @summary Custom hook that detects device's location.
+ * Detects device's location.
  *
  * Capacitor/geolocation detects location regardless of platform (ios/android/web).
- *
  * Read more: https://capacitorjs.com/docs/v6/apis/geolocation (TODO: check iOS requirements)
  *
  */
@@ -76,7 +87,7 @@ const useDeviceLocation = () => {
     error: undefined,
   });
 
-  const getLocation = async () => {
+  const getLocation = useCallback(async () => {
     try {
       const permission = await checkPermission();
 
@@ -103,10 +114,9 @@ const useDeviceLocation = () => {
         }
       }
 
-      // we can use the browser API here to detect the location if Capacitor is not installed
+      const coords = await getDeviceLocation();
 
-      const pos = await Geolocation.getCurrentPosition(); // use capacitor
-      const coords: { latitude: number; longitude: number } = pos.coords;
+      if (coords === null) throw new Error();
 
       setState({
         latitude: coords.latitude,
@@ -121,7 +131,7 @@ const useDeviceLocation = () => {
         error: (err instanceof Error && err.message) || ERROR_FAILED_TO_DETECT,
       });
     }
-  };
+  }, []);
 
   return {
     ...state,
