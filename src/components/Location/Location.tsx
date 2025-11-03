@@ -1,9 +1,10 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { IonContent, IonPage } from "@ionic/react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import L from "leaflet";
 
 import { useDataParams } from "../../store/DataParamsContext";
+import useDeviceLocation from "../../hooks/useDeviceLocation";
 
 // Import the marker images
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -27,8 +28,58 @@ L.Icon.Default.mergeOptions({
 
 const Location: React.FC = () => {
   const mapRef = useRef(null);
-  const { params: ctxParams, requestUpdateParams } = useDataParams();
+  const {
+    params: ctxParams,
+    requestUpdateParams,
+    updateParams,
+  } = useDataParams();
+  const {
+    latitude: deviceLat,
+    longitude: deviceLon,
+    permission,
+    error,
+    getLocation,
+  } = useDeviceLocation();
 
+  /**
+   *
+   * If user explicitly denied permission in the past (or blocked it
+   * permanently), further requests will not trigger a prompt it’ll just fail with an error.
+   *
+   */
+  useEffect(() => {
+    const getDeviceLocation = async () => {
+      try {
+        await getLocation();
+        console.log("ctxParams.lat", ctxParams.lat);
+        console.log("deviceLat", deviceLat);
+        console.log("permission", permission);
+        if (deviceLat?.toFixed(5) !== ctxParams.lat.toFixed(5)) {
+          console.log("deviceLat !== ctxParams.lat");
+        }
+
+        if (deviceLat?.toFixed(5) === ctxParams.lat.toFixed(5)) {
+          console.log("deviceLat === ctxParams.lat");
+        }
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        // if (!deviceLat || !deviceLon) return;
+        if (!deviceLat || !deviceLon) return;
+        updateParams({
+          lat: deviceLat,
+          lon: deviceLon,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getDeviceLocation();
+  }, [deviceLat, deviceLon]);
+  console.log("___permission", permission);
   const handleLatChange = (e: CustomEvent) => {
     const newLat = parseFloat(e.detail.value); // get new latitude
     if (!isNaN(newLat)) {
@@ -46,6 +97,37 @@ const Location: React.FC = () => {
   return (
     <IonPage>
       <Banner />
+      {/* <p style={{ color: "white" }}>
+        {deviceLat !== ctxParams.lat ? "different" : "same"}
+      </p> */}
+      <div>
+        {
+          /* prettier-ignore */
+          (deviceLat?.toFixed(5) !== ctxParams.lat.toFixed(5)) &&
+          permission === "granted" && (
+            <p style={{ color: "white" }}>
+              Using Default Coords. Do you want to use Your location?
+            </p>
+          )
+        }
+        {
+          /* prettier-ignore */
+          ( deviceLat?.toFixed(5) !== ctxParams.lat.toFixed(5)) &&
+          permission === "granted" && (
+            <button onClick={getLocation}>Use</button>
+          )
+        }
+        {
+          /* prettier-ignore */
+          ( deviceLat?.toFixed(5) !== ctxParams.lat.toFixed(5)) &&
+          permission === "denied" && (
+            <p style={{ color: "white" }}>
+              Using Default Coords. Go to your settings to allow the app to use
+              your location.
+            </p>
+          )
+        }
+      </div>
       <IonContent scrollY={false} fullscreen={false}>
         <div className={styles["map-container"]}>
           <MapContainer
