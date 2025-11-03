@@ -1,0 +1,5 @@
+.date-picker-container ion-col {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}

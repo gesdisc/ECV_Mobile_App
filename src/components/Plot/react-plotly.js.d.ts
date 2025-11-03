@@ -1,0 +1,47 @@
+declare module "react-plotly.js" {
+  import * as React from "react";
+  import * as Plotly from "plotly.js";
+
+  export interface Figure {
+    data: Plotly.Data[];
+    layout: Partial<Plotly.Layout>;
+    frames?: Partial<Plotly.Frame>[];
+  }
+
+  export interface PlotParams {
+    data: Plotly.Data[];
+    layout: Partial<Plotly.Layout>;
+    config?: Partial<Plotly.Config>;
+    frames?: Partial<Plotly.Frame>[];
+    revision?: number;
+    onInitialized?: (figure: Figure, graphDiv: HTMLElement) => void;
+    onUpdate?: (figure: Figure, graphDiv: HTMLElement) => void;
+    onPurge?: (figure: Figure, graphDiv: HTMLElement) => void;
+    onError?: (error: Error) => void;
+    onClick?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onHover?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onUnhover?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onSelected?: (event: Readonly<Plotly.PlotSelectionEvent>) => void;
+    onDeselect?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onButtonClicked?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onSliderChange?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onSliderEnd?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onRelayout?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onRelayouting?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onTransitioning?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onAfterPlot?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onAfterExport?: (event: Readonly<Plotly.PlotMouseEvent>) => void;
+    onRestyle?: (event: Readonly<Plotly.PlotRestyleEvent>) => void;
+    ref?: Plotly.PlotlyHTMLElement | HTMLElement | null;
+    style?: React.CSSProperties;
+    useResizeHandler?: boolean;
+    debug?: boolean;
+    className?: string;
+    divId?: string;
+    children?: React.ReactNode;
+  }
+
+  const Plot: React.FC<PlotParams>;
+
+  export default Plot;
+}
