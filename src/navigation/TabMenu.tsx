@@ -19,6 +19,7 @@ import {
 import { TabMenuLabels } from "../constants/ui";
 
 import TerraLoader from "@nasa-terra/components/dist/react/loader";
+import DataParamsWatcher from "../store/DataParamsWatcher";
 
 import styles from "./TabMenu.module.css";
 
@@ -27,13 +28,9 @@ const LocationPage = React.lazy(() => import("../pages/LocationPage"));
 const DatePickerPage = React.lazy(() => import("../pages/DatePickerPage"));
 const PlotPage = React.lazy(() => import("../pages/PlotPage"));
 
-// import CatalogPage from "../pages/CatalogPage";
-// import LocationPage from "../pages/LocationPage";
-// import DatePickerPage from "../pages/DatePickerPage";
-// import PlotPage from "../pages/PlotPage";
-
-const TabMenu: React.FC = () => (
+const TabBar: React.FC = () => (
   <IonReactRouter>
+    <DataParamsWatcher />
     <IonTabs>
       <IonRouterOutlet>
         <Suspense
@@ -88,4 +85,4 @@ const TabMenu: React.FC = () => (
   </IonReactRouter>
 );
 
-export default TabMenu;
+export default TabBar;

@@ -27,19 +27,19 @@ L.Icon.Default.mergeOptions({
 
 const Location: React.FC = () => {
   const mapRef = useRef(null);
-  const { latitude, longitude, setLatitude, setLongitude } = useDataParams();
+  const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
 
   const handleLatChange = (e: CustomEvent) => {
     const newLat = parseFloat(e.detail.value); // get new latitude
     if (!isNaN(newLat)) {
-      setLatitude(newLat); // update latitude
+      requestUpdateParams({ lat: newLat });
     }
   };
 
   const handleLngChange = (e: CustomEvent) => {
     const newLng = parseFloat(e.detail.value); // get new longitude
     if (!isNaN(newLng)) {
-      setLongitude(newLng); // update longitude
+      requestUpdateParams({ lon: newLng });
     }
   };
 
@@ -49,7 +49,7 @@ const Location: React.FC = () => {
       <IonContent scrollY={false} fullscreen={false}>
         <div className={styles["map-container"]}>
           <MapContainer
-            center={[latitude, longitude]}
+            center={[ctxParams.lat, ctxParams.lon]}
             zoom={8}
             style={{ height: "100%", width: "100%" }}
             ref={mapRef}
@@ -64,8 +64,8 @@ const Location: React.FC = () => {
         </div>
       </IonContent>
       <CoordinateInput
-        latitude={latitude}
-        longitude={longitude}
+        latitude={staged.lat || ctxParams.lat}
+        longitude={staged.lon || ctxParams.lon}
         onLatChange={handleLatChange}
         onLngChange={handleLngChange}
       />

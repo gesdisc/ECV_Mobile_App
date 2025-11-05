@@ -1,20 +1,9 @@
-export const formatDate = (isoDateString: string) => {
-  const date = new Date(isoDateString);
-  return date.toISOString().split("T")[0];
-};
+import dayjs from "dayjs";
 
-export const convertToLocalDate = (
-  input: string | number | Date,
-  locale?: string | string[],
-  options?: Intl.DateTimeFormatOptions
-): string => {
-  const date = input instanceof Date ? input : new Date(input);
+export function toLocalShortDateTime(str: string | number | Date): string {
+  return dayjs(str).format("YYYY-MM-DD HH:mm");
+}
 
-  return date.toLocaleString(
-    locale,
-    options ?? {
-      dateStyle: "short",
-      timeStyle: "short",
-    }
-  );
-};
+export function toStartOfDay(str: string | number | Date): string {
+  return dayjs(str).startOf("day").format("YYYY-MM-DD[T]HH:mm:ss");
+}

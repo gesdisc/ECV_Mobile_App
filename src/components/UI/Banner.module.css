@@ -1,7 +1,3 @@
-.banner {
-  --background: var(--color-giovanni-primary);
-}
-
 .banner-wrapper {
   display: flex;
   justify-content: space-between;

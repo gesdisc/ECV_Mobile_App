@@ -1,73 +1,126 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
+
+import { DataParams, TimeSeriesMetadata } from "../types/time-series.types";
 import { DefaultParams } from "../constants/time-series";
+import useDeviceLocation from "../hooks/useDeviceLocation";
 
 interface DataParamsContextType {
-  latitude: number;
-  longitude: number;
-  variable: string;
-  beginTime: string;
-  endTime: string;
-  setLatitude: (lat: number) => void;
-  setLongitude: (lng: number) => void;
-  setVariable: (variable: string) => void;
-  setBeginTime: (beginTime: string) => void;
-  setEndTime: (endTime: string) => void;
+  params: DataParams;
+  staged: Partial<DataParams>;
+  metadata: Partial<TimeSeriesMetadata>;
+  setMetadata: (metadata: TimeSeriesMetadata) => void;
+  updateParams: (newParams: Partial<DataParams>) => void;
+  requestUpdateParams: (newParams: Partial<DataParams>) => void;
+  cancelRequest: () => void;
 }
 
 const initialContextValue: DataParamsContextType = {
-  latitude: DefaultParams.LATITUDE,
-  longitude: DefaultParams.LONGITUDE,
-  variable: DefaultParams.VARIABLE,
-  beginTime: DefaultParams.BEGIN_TIME,
-  endTime: DefaultParams.END_TIME,
-  setLatitude: () => {
+  params: {
+    variable: "",
+    begin_time: DefaultParams.BEGIN_TIME,
+    end_time: DefaultParams.END_TIME,
+    lat: DefaultParams.LATITUDE,
+    lon: DefaultParams.LONGITUDE,
+  },
+  staged: {},
+  metadata: {},
+  setMetadata: () => {
     console.log("empty function!");
   },
-  setLongitude: () => {
+  updateParams: () => {
     console.log("empty function!");
   },
-  setVariable: () => {
+  requestUpdateParams: () => {
     console.log("empty function!");
   },
-  setBeginTime: () => {
-    console.log("empty function!");
-  },
-  setEndTime: () => {
+  cancelRequest: () => {
     console.log("empty function!");
   },
 };
 
-const DataParams = createContext<DataParamsContextType>(initialContextValue);
+const DataParamsContext =
+  createContext<DataParamsContextType>(initialContextValue);
 
 export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [latitude, setLatitude] = useState(DefaultParams.LATITUDE);
-  const [longitude, setLongitude] = useState(DefaultParams.LONGITUDE);
-  const [variable, setVariable] = useState(DefaultParams.VARIABLE);
-  const [beginTime, setBeginTime] = useState(DefaultParams.BEGIN_TIME);
-  const [endTime, setEndTime] = useState(DefaultParams.END_TIME);
+  const {
+    latitude: deviceLat,
+    longitude: deviceLon,
+    error: permissionError,
+    getLocation,
+  } = useDeviceLocation();
+  const [params, setParams] = useState<DataParams>({
+    variable: "",
+    begin_time: DefaultParams.BEGIN_TIME,
+    end_time: DefaultParams.END_TIME,
+    lat: DefaultParams.LATITUDE,
+    lon: DefaultParams.LONGITUDE,
+  });
+  const [staged, setStaged] = useState<Partial<DataParams>>({});
+  const [metadata, setMetadata] = useState<Partial<TimeSeriesMetadata>>({});
+
+  // Get device's location
+  useEffect(() => {
+    const getDeviceLocation = async () => {
+      try {
+        await getLocation();
+
+        if (permissionError) return;
+
+        if (!deviceLat || !deviceLon) return;
+
+        updateParams({
+          lat: deviceLat,
+          lon: deviceLon,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getDeviceLocation();
+  }, [getLocation, deviceLat, deviceLon]);
+
+  // immediate update
+  const updateParams = (newParams: Partial<DataParams>) => {
+    setParams((prev) => ({ ...prev, ...newParams }));
+    setStaged({});
+  };
+
+  // request confirmation before updating
+  const requestUpdateParams = (newParams: Partial<DataParams>) => {
+    setStaged((prev) => ({ ...prev, ...newParams }));
+  };
+
+  const cancelRequest = () => {
+    setStaged({});
+  };
 
   const contextValue: DataParamsContextType = {
-    latitude,
-    longitude,
-    variable,
-    beginTime,
-    endTime,
-    setLatitude,
-    setLongitude,
-    setVariable,
-    setBeginTime,
-    setEndTime,
+    params,
+    staged,
+    metadata,
+    setMetadata,
+    updateParams,
+    requestUpdateParams,
+    cancelRequest,
   };
 
   return (
-    <DataParams.Provider value={contextValue}>{children}</DataParams.Provider>
+    <DataParamsContext.Provider value={contextValue}>
+      {children}
+    </DataParamsContext.Provider>
   );
 };
 
 export const useDataParams = () => {
-  const context = useContext(DataParams);
+  const context = useContext(DataParamsContext);
   if (context === undefined) {
     throw new Error("useDataParams must be used within a DataParamsProvider");
   }

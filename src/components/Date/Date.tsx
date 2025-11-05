@@ -1,13 +1,11 @@
-import React, { useEffect } from "react";
-import { useHistory } from "react-router-dom";
+import React from "react";
 import { IonContent, IonPage, IonGrid, IonRow, IonCol } from "@ionic/react";
+import { IonDatetime, DatetimeChangeEventDetail } from "@ionic/react";
 
 import catalog from "../Catalog/catalog.json";
 import { useDataParams } from "../../store/DataParamsContext";
-import { useToast } from "../../store/ToastContext";
-import { TabMenuLabels } from "../../constants/ui";
+import { toStartOfDay } from "../../utils/date";
 
-import DatePicker from "../UI/DatePicker";
 import Banner from "../UI/Banner";
 
 import styles from "./Date.module.css";
@@ -21,61 +19,26 @@ import styles from "./Date.module.css";
  *
  */
 const Date = () => {
-  const { beginTime, endTime, variable, setEndTime, setBeginTime } =
-    useDataParams();
-  const { showToast } = useToast();
-  const history = useHistory();
+  const {
+    params: ctxParams,
+    staged: stagedParams,
+    requestUpdateParams,
+  } = useDataParams();
 
   const currentVariableData = catalog.find(
-    (data) => data.dataFieldId === variable
+    (data) => data.dataFieldId === ctxParams.variable
   );
 
-  const beginDateUpdateHandler = (selectedDate: string) =>
-    setBeginTime(selectedDate);
+  const beginDateUpdateHandler = (
+    event: CustomEvent<DatetimeChangeEventDetail>
+  ) => {
+    requestUpdateParams({ begin_time: event.detail.value as string });
+  };
 
-  // const beginDateUpdateHandler = (selectedDate: string) => {
-  //   if (selectedDate.split("T")[0] !== beginTime.split("T")[0]) {
-  //     showToast({
-  //       isOpen: true,
-  //       message: "Date Change detected",
-  //       color: "primary",
-  //       buttons: [
-  //         {
-  //           text: "Replot",
-  //           role: "confirm",
-  //           handler: () => setBeginTime(selectedDate),
-  //         },
-  //         {
-  //           text: "Dismiss",
-  //           role: "cancel",
-  //         },
-  //       ],
-  //     });
-  //   }
-  // };
-
-  const endDateUpdateHandler = (selectedDate: string) => {
-    if (selectedDate.split("T")[0] !== endTime.split("T")[0]) {
-      showToast({
-        isOpen: true,
-        message: "Date Change detected",
-        color: "primary",
-        buttons: [
-          {
-            text: "Replot",
-            role: "confirm",
-            handler: () => {
-              setEndTime(selectedDate);
-              history.push(`/${TabMenuLabels.PLOT}`);
-            },
-          },
-          {
-            text: "Cancel",
-            role: "cancel",
-          },
-        ],
-      });
-    }
+  const endDateUpdateHandler = (
+    event: CustomEvent<DatetimeChangeEventDetail>
+  ) => {
+    requestUpdateParams({ end_time: event.detail.value as string });
   };
 
   return (
@@ -85,24 +48,33 @@ const Date = () => {
         <IonGrid fixed className={styles["date-picker-container"]}>
           <IonRow className="ion-justify-content-center">
             <IonCol size="12" size-sm="6">
-              <DatePicker
-                label="Select Start Date"
-                defaultDate={beginTime}
-                onDateUpdate={beginDateUpdateHandler}
-                minDatetimeAllowed={
-                  currentVariableData?.dataProductBeginDateTime
-                }
-                maxDatetimeAllowed={endTime}
-              />
+              <IonDatetime
+                presentation="date"
+                value={toStartOfDay(
+                  stagedParams.begin_time || ctxParams.begin_time
+                )}
+                onIonChange={beginDateUpdateHandler}
+                min={currentVariableData?.dataProductBeginDateTime}
+                max={toStartOfDay(stagedParams.end_time || ctxParams.end_time)}
+                style={{ width: "100%" }}
+              >
+                <span slot="title">Select Start Date</span>
+              </IonDatetime>
             </IonCol>
             <IonCol size="12" size-sm="6">
-              <DatePicker
-                label="Select End Date"
-                defaultDate={endTime}
-                onDateUpdate={endDateUpdateHandler}
-                minDatetimeAllowed={beginTime}
-                // maxDatetimeAllowed={currentVariableData?.dataProductEndDateTime}
-              />
+              <IonDatetime
+                presentation="date"
+                value={toStartOfDay(
+                  stagedParams.end_time || ctxParams.end_time
+                )}
+                onIonChange={endDateUpdateHandler}
+                min={toStartOfDay(
+                  stagedParams.begin_time || ctxParams.begin_time
+                )}
+                style={{ width: "100%" }}
+              >
+                <span slot="title">Select End Date</span>
+              </IonDatetime>
             </IonCol>
           </IonRow>
         </IonGrid>

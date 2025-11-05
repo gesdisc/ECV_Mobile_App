@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   IonButton,
   IonModal,
@@ -11,15 +11,15 @@ import {
   IonList,
   useIonToast,
   useIonAlert,
-  IonIcon,
 } from "@ionic/react";
-import { refreshOutline } from "ionicons/icons";
 import { DataParams, VariableDbEntry } from "../../../types/time-series.types";
 
 import {
-  clearCache,
-  removeItem,
-  getAllItems,
+  getAllData,
+  deleteAllData,
+  IndexedDbStores,
+  deleteDataByKey,
+  getDataByKey,
 } from "../../../services/indexDBService";
 import useCheckIndexedDBUsage from "../../../hooks/useCheckIndexedDBUsage";
 
@@ -27,14 +27,16 @@ import StorageItem from "./StorageItem";
 
 interface StorageManagerProps {
   onPlot: (newParams: DataParams) => void;
+  onModalClose: () => void;
+  isOpen: boolean;
 }
 
-const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
-  const modal = useRef<HTMLIonModalElement>(null);
-  const page = useRef(null);
-  const [presentingElement, setPresentingElement] =
-    useState<HTMLElement | null>(null);
-
+// TODO: Close toast messages after closing the modal
+const StorageManager: React.FC<StorageManagerProps> = ({
+  onPlot,
+  onModalClose,
+  isOpen,
+}) => {
   // Note: This doesn't calculate the space used by this storage. It includes all or some of the other cached assets by the app.
   // To replicate, delete all items and see that the usedSpace isn't 0%.
   const {
@@ -49,28 +51,10 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
   const [presentToast] = useIonToast();
   const [presentAlert] = useIonAlert();
 
-  const getAllCachedItems = async () => {
-    try {
-      const data = await getAllItems();
-      if (!data) return;
-
-      setCachedItems(data);
-    } catch (error) {
-      toastPresenter(
-        "Something went wrong while retrieving cached data!",
-        "top",
-        "danger"
-      );
-    }
-  };
-
   useEffect(() => {
-    setPresentingElement(page.current);
-  }, []);
-
-  useEffect(() => {
+    if (!isOpen) return;
     getAllCachedItems();
-  }, []);
+  }, [isOpen]);
 
   const toastPresenter = (
     message: string,
@@ -82,7 +66,6 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
       duration: 2500,
       position: position,
       positionAnchor: "storage-header",
-      swipeGesture: "vertical",
       color: color,
     });
   };
@@ -117,18 +100,30 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
     });
   };
 
-  const dismiss = () => {
-    modal.current?.dismiss();
-  };
-
-  const canDismiss = async (data?: any, role?: string) => {
-    return role !== "gesture";
+  const getAllCachedItems = async () => {
+    try {
+      const data = await getAllData(IndexedDbStores.TIME_SERIES);
+      if (!data) return;
+      setCachedItems(data);
+    } catch (error) {
+      toastPresenter(
+        "Something went wrong while retrieving cached data!",
+        "top",
+        "danger"
+      );
+    }
   };
 
   const deleteCachedItemHandler = async (key: string) => {
     try {
-      await removeItem(key);
+      const item = await getDataByKey(IndexedDbStores.TIME_SERIES, key);
+
+      if (!item) throw Error;
+
+      await deleteDataByKey(IndexedDbStores.TIME_SERIES, key);
+
       await getAllCachedItems();
+
       toastPresenter("Successfully deleted!", "top", "success");
     } catch (error) {
       toastPresenter(
@@ -139,11 +134,12 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
     }
   };
 
-  // TODO: the system should remove the plotted data (update the state) when all items are deleted
   const deleteAllItemsHandler = async () => {
     try {
-      await clearCache();
+      await deleteAllData(IndexedDbStores.TIME_SERIES);
+
       await getAllCachedItems();
+
       toastPresenter("Successfully deleted all items!", "top", "success");
     } catch (error) {
       toastPresenter(
@@ -165,7 +161,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
           key={item.key}
           item={item}
           onPlot={(newParams: DataParams) => {
-            dismiss();
+            onModalClose();
             onPlot(newParams);
           }}
           onDelete={() => {
@@ -183,61 +179,45 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
   };
 
   return (
-    <>
-      <IonModal
-        ref={modal}
-        trigger="storage-manager"
-        canDismiss={canDismiss}
-        presentingElement={presentingElement!}
-      >
-        <IonHeader id="storage-header">
-          <IonToolbar>
-            <IonButtons slot="start">
-              <IonButton onClick={getAllCachedItems}>
-                <IonIcon
-                  aria-hidden="true"
-                  size="medium"
-                  icon={refreshOutline}
-                />
-              </IonButton>
-            </IonButtons>
-
-            <IonTitle>Storage</IonTitle>
-            <IonButtons slot="end">
-              <IonButton onClick={() => dismiss()}>Close</IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent className="ion-padding">
-          <IonCol>
-            {usedSpace && totalSpace && (
-              <div>
-                Used space: {((usedSpace / totalSpace) * 100).toFixed(7)}%
-              </div>
-            )}
-            <IonList>{displayCachedItems()}</IonList>
-            {cachedItems.length !== 0 && (
-              <IonButton
-                expand="block"
-                color="danger"
-                onClick={() =>
-                  alertPresenter(
-                    "Delete all items?",
-                    undefined,
-                    undefined,
-                    undefined,
-                    deleteAllItemsHandler
-                  )
-                }
-                disabled={!cachedItems.length}
-              >
-                Delete All
-              </IonButton>
-            )}
-          </IonCol>
-        </IonContent>
-      </IonModal>
-    </>
+    <IonModal isOpen={isOpen} onDidDismiss={onModalClose}>
+      <IonHeader id="storage-header">
+        <IonToolbar>
+          <IonTitle>Storage</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={onModalClose}>Close</IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent className="ion-padding">
+        <IonCol>
+          {usedSpace && totalSpace && (
+            <div>
+              Used space: {((usedSpace / totalSpace) * 100).toFixed(7)}%
+            </div>
+          )}
+          <IonList>{displayCachedItems()}</IonList>
+          {cachedItems.length !== 0 && (
+            <IonButton
+              className="ion-margin-top"
+              expand="block"
+              color="danger"
+              onClick={() =>
+                alertPresenter(
+                  "Delete all items?",
+                  undefined,
+                  undefined,
+                  undefined,
+                  deleteAllItemsHandler
+                )
+              }
+              disabled={!cachedItems.length}
+            >
+              Delete All
+            </IonButton>
+          )}
+        </IonCol>
+      </IonContent>
+    </IonModal>
   );
 };
 

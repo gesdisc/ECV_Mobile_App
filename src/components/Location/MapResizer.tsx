@@ -12,7 +12,7 @@ import { useDataParams } from "../../store/DataParamsContext";
  * Fixes react-leaflet gray/not fully loaded tile problem.
  */
 const MapResizer: React.FC = () => {
-  const { latitude, longitude } = useDataParams();
+  const { params: ctxParams } = useDataParams();
   const map = useMap();
 
   useEffect(() => {
@@ -20,11 +20,12 @@ const MapResizer: React.FC = () => {
       map.invalidateSize();
     }, 250);
 
-    map.setView([latitude, longitude], map.getZoom(), {
+    map.setView([ctxParams.lat, ctxParams.lon], map.getZoom(), {
       animate: true,
     });
     return () => clearTimeout(timeoutId);
-  }, [map, latitude, longitude]);
+  }, [map, ctxParams.lat, ctxParams.lon]);
+
   return null;
 };
 

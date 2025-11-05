@@ -17,6 +17,8 @@ interface SliderProps {
   max?: number;
   min?: number;
   disabled?: boolean;
+  startDate?: string;
+  endDate?: string;
 }
 
 const Slider: React.FC<SliderProps> = ({
@@ -28,9 +30,16 @@ const Slider: React.FC<SliderProps> = ({
   max,
   min,
   disabled = false,
+  startDate,
+  endDate,
 }) => {
   return (
-    <>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <IonRange
         className={`ion-no-padding ${styles["ion-range"]}`}
         style={{
@@ -46,16 +55,47 @@ const Slider: React.FC<SliderProps> = ({
         disabled={disabled}
         // ticks={true}
         // snaps={true}
-      ></IonRange>
+      >
+        {startDate && (
+          <span slot="end" className={styles["date-range"]}>
+            {startDate}
+          </span>
+        )}
+        {endDate && (
+          <span slot="start" className={styles["date-range"]}>
+            {endDate}
+          </span>
+        )}
+      </IonRange>
       <div className={styles.buttons}>
-        <IonButton disabled={disabled} size="small" onClick={onLeftBtnClick}>
-          <IonIcon aria-hidden="true" size="default" icon={caretBackSharp} />
+        <IonButton
+          disabled={disabled}
+          size="default"
+          onClick={onLeftBtnClick}
+          fill="clear"
+        >
+          <IonIcon
+            aria-hidden="true"
+            size="large"
+            icon={caretBackSharp}
+            slot="icon-only"
+          />
         </IonButton>
-        <IonButton disabled={disabled} size="small" onClick={onRightBtnClick}>
-          <IonIcon aria-hidden="true" size="default" icon={caretForwardSharp} />
+        <IonButton
+          disabled={disabled}
+          size="default"
+          onClick={onRightBtnClick}
+          fill="clear"
+        >
+          <IonIcon
+            aria-hidden="true"
+            size="large"
+            icon={caretForwardSharp}
+            slot="icon-only"
+          />
         </IonButton>
       </div>
-    </>
+    </div>
   );
 };
 
