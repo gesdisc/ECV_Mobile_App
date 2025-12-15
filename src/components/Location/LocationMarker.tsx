@@ -2,12 +2,17 @@ import React from "react";
 import { useMapEvents, Marker } from "react-leaflet";
 
 import { useDataParams } from "../../store/DataParamsContext";
+import { convertToFixedFloat } from "../../utils/converter";
 
 const LocationMarker: React.FC = () => {
   const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
+
   useMapEvents({
     click(e) {
-      requestUpdateParams({ lat: e.latlng.lat, lon: e.latlng.lng });
+      requestUpdateParams({
+        lat: convertToFixedFloat(e.latlng.lat, 4),
+        lon: convertToFixedFloat(e.latlng.lng, 4),
+      });
     },
   });
 

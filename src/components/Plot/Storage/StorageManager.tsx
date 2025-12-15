@@ -31,7 +31,6 @@ interface StorageManagerProps {
   isOpen: boolean;
 }
 
-// TODO: Close toast messages after closing the modal
 const StorageManager: React.FC<StorageManagerProps> = ({
   onPlot,
   onModalClose,
@@ -48,11 +47,15 @@ const StorageManager: React.FC<StorageManagerProps> = ({
   const [cachedItems, setCachedItems] = useState<Partial<VariableDbEntry>[]>(
     []
   );
-  const [presentToast] = useIonToast();
+  const [presentToast, dismissToast] = useIonToast();
   const [presentAlert] = useIonAlert();
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      // hide toast when storage is closed
+      dismissToast();
+      return;
+    }
     getAllCachedItems();
   }, [isOpen]);
 
@@ -102,6 +105,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({
 
   const getAllCachedItems = async () => {
     try {
+      // TODO: check for empty array
       const data = await getAllData(IndexedDbStores.TIME_SERIES);
       if (!data) return;
       setCachedItems(data);

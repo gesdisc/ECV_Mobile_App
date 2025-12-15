@@ -8,6 +8,8 @@ import React, {
 
 import { DataParams, TimeSeriesMetadata } from "../types/time-series.types";
 import { DefaultParams } from "../constants/time-series";
+import { convertToFixedFloat } from "../utils/converter";
+import { isValidUTC } from "../utils/date";
 import useDeviceLocation from "../hooks/useDeviceLocation";
 
 interface DataParamsContextType {
@@ -77,8 +79,8 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
         if (!deviceLat || !deviceLon) return;
 
         updateParams({
-          lat: deviceLat,
-          lon: deviceLon,
+          lat: convertToFixedFloat(deviceLat, 4),
+          lon: convertToFixedFloat(deviceLon, 4),
         });
       } catch (error) {
         console.error(error);
@@ -89,12 +91,14 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
 
   // immediate update
   const updateParams = (newParams: Partial<DataParams>) => {
+    checkDateFormat(newParams, "params");
     setParams((prev) => ({ ...prev, ...newParams }));
     setStaged({});
   };
 
   // request confirmation before updating
   const requestUpdateParams = (newParams: Partial<DataParams>) => {
+    checkDateFormat(newParams, "staged");
     setStaged((prev) => ({ ...prev, ...newParams }));
   };
 
@@ -125,4 +129,14 @@ export const useDataParams = () => {
     throw new Error("useDataParams must be used within a DataParamsProvider");
   }
   return context;
+};
+
+const checkDateFormat = (param: Partial<DataParams>, store?: string) => {
+  if (param.begin_time && !isValidUTC(param.begin_time)) {
+    console.error(`${store} has invalid date: ${param.begin_time}`);
+  }
+
+  if (param.end_time && !isValidUTC(param.end_time)) {
+    console.error(`${store} has invalid date: ${param.end_time}`);
+  }
 };
