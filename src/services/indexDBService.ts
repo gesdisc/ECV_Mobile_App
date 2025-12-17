@@ -68,18 +68,40 @@ export async function getAllData(
   store: IndexedDbStores
 ): Promise<Partial<VariableDbEntry>[]> {
   return withDb(async (db) => {
-    const items = await db.getAll(store);
+    try {
+      if (!db.objectStoreNames.contains(store)) return [];
 
-    return items.map((item) => ({
-      metadata: item.metadata,
-      variableEntryId: item.variableEntryId,
-      key: item.key,
-    }));
+      const items = await db.getAll(store);
+
+      return items.map((item) => ({
+        startDate: item.startDate,
+        endDate: item.endDate,
+        metadata: item.metadata,
+        variableEntryId: item.variableEntryId,
+        key: item.key,
+      }));
+    } catch (error) {
+      console.error("Error from getAllData: ", error);
+      throw error;
+    }
   });
 }
 
 export async function deleteAllData(store: IndexedDbStores) {
   return withDb(async (db) => {
+    if (!db.objectStoreNames.contains(store)) return;
     await db.clear(store);
+  });
+}
+
+export async function getLatestCachedData(
+  store: IndexedDbStores
+): Promise<VariableDbEntry> {
+  return withDb(async (db) => {
+    if (!db.objectStoreNames.contains(store)) return {};
+
+    const items = await db.getAll(store);
+
+    return items.sort((a, b) => b.cachedAt - a.cachedAt)[0];
   });
 }

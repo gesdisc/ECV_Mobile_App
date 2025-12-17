@@ -11,18 +11,28 @@ import {
 } from "@ionic/react";
 import { server } from "ionicons/icons";
 import { useLocation } from "react-router-dom";
+import dayjs from "dayjs";
 import { isEmpty } from "lodash";
 
 import { TimeSeriesDataRow, DataParams } from "../../types/time-series.types";
+import { TimeIntervalKey } from "../../constants/time-series";
 import { useDataParams } from "../../store/DataParamsContext";
-import { DefaultParams, TimeIntervalKey } from "../../constants/time-series";
 import { toLocalShortDateTime } from "../../utils/date";
-import { getMiddleIndex, convertTimeInterval } from "./helpers";
+import {
+  getMiddleIndex,
+  convertTimeInterval,
+  getDefaultDateRange,
+  extractLatLonFromCacheKey,
+} from "./helpers";
+import {
+  getLatestCachedData,
+  IndexedDbStores,
+} from "../../services/indexDBService";
 import catalog from "./../Catalog/catalog.json";
+
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
 } from "@nasa-terra/components/dist/react/time-series";
-
 // import TerraTimeAverageMap from "@nasa-terra/components/dist/react/time-average-map";
 import Slider from "./Slider";
 import StorageManager from "./Storage/StorageManager";
@@ -53,6 +63,35 @@ const Plot: React.FC = () => {
   const currentProductTimeInterval =
     productDetailsFromCatalog?.dataProductTimeInterval;
 
+  // Plot latest cached data
+  useEffect(() => {
+    if (!isEmpty(metadata)) return;
+
+    getLatestCached();
+  }, []);
+
+  const getLatestCached = async () => {
+    try {
+      const data = await getLatestCachedData(IndexedDbStores.TIME_SERIES);
+
+      if (isEmpty(data)) return;
+
+      const coords = extractLatLonFromCacheKey(data.key);
+
+      if (!coords) return;
+
+      updateParams({
+        lat: coords.lat,
+        lon: coords.lon,
+        begin_time: data.metadata.begin_time,
+        end_time: data.metadata.end_time,
+        variable: data.variableEntryId,
+      });
+    } catch (error) {
+      console.error("ERROR: ", error);
+    }
+  };
+
   useEffect(() => {
     if (!productDetailsFromCatalog) return;
     setSelectedTimeInterval(
@@ -73,11 +112,20 @@ const Plot: React.FC = () => {
   useEffect(() => {
     if (!catalogPageVariable) return;
 
+    const productDetailsFromCatalog = catalog.find(
+      (data) => data.dataFieldId === catalogPageVariable
+    );
+
+    const { startDate: defaultStartDate, endDate: defaultEndDate } =
+      getDefaultDateRange(
+        dayjs(productDetailsFromCatalog?.dataProductBeginDateTime),
+        dayjs(productDetailsFromCatalog?.dataProductEndDateTime),
+        productDetailsFromCatalog?.dataProductTimeInterval as TimeIntervalKey
+      );
+
     updateParams({
-      lat: DefaultParams.LATITUDE,
-      lon: DefaultParams.LONGITUDE,
-      begin_time: DefaultParams.BEGIN_TIME,
-      end_time: DefaultParams.END_TIME,
+      begin_time: defaultStartDate,
+      end_time: defaultEndDate,
       variable: catalogPageVariable as string,
     });
   }, [catalogPageVariable]);
@@ -133,7 +181,6 @@ const Plot: React.FC = () => {
 
   // Emitted whenever time series data has been fetched from Giovanni. Or zoomed in/out.
   const timeSeriesDataChangeHandler = (e: TerraTimeSeriesDataChangeEvent) => {
-    /* FIXME: plot data disappears when fully zoomed in and then zoomed out -- setStateData causes the bug */
     setStateData(e.detail.data.data);
     setMetadata(e.detail.data.metadata);
   };
@@ -192,28 +239,26 @@ const Plot: React.FC = () => {
                 ></TerraTimeSeries>
               </IonCol>
               <IonCol size="12">
-                {!isEmpty(metadata) && stateData.length !== 0 && (
-                  <Slider
-                    onLeftBtnClick={sliderLeftBtnHandler}
-                    onRightBtnClick={sliderRightBtnHandler}
-                    value={sliderValue}
-                    max={stateData.length - 1}
-                    min={0}
-                    onValueChange={sliderValueChangeHandler}
-                    pinFormatter={(index: number) =>
-                      stateData[index]?.timestamp
-                        ? `${toLocalShortDateTime(
-                            stateData[index].timestamp
-                          )}, ${stateData[index].value}`
-                        : ""
-                    }
-                    disabled={!stateData.length}
-                    startDate={toLocalShortDateTime(stateData[0]?.timestamp)}
-                    endDate={toLocalShortDateTime(
-                      stateData[stateData.length - 1]?.timestamp
-                    )}
-                  />
-                )}
+                <Slider
+                  onLeftBtnClick={sliderLeftBtnHandler}
+                  onRightBtnClick={sliderRightBtnHandler}
+                  value={sliderValue}
+                  max={stateData.length - 1}
+                  min={0}
+                  onValueChange={sliderValueChangeHandler}
+                  pinFormatter={(index: number) =>
+                    stateData[index]?.timestamp
+                      ? `${toLocalShortDateTime(stateData[index].timestamp)}, ${
+                          stateData[index].value
+                        }`
+                      : ""
+                  }
+                  disabled={isEmpty(metadata) && stateData.length === 0}
+                  startDate={toLocalShortDateTime(stateData[0]?.timestamp)}
+                  endDate={toLocalShortDateTime(
+                    stateData[stateData.length - 1]?.timestamp
+                  )}
+                />
               </IonCol>
               {!isEmpty(metadata) && stateData.length !== 0 && (
                 <TimeInterval

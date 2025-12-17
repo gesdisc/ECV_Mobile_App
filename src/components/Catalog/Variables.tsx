@@ -2,20 +2,27 @@ import React from "react";
 import {
   IonAccordion,
   IonAccordionGroup,
+  IonButton,
+  IonIcon,
   IonItem,
   IonLabel,
   IonList,
 } from "@ionic/react";
+import { informationCircleOutline } from "ionicons/icons";
 
 import catalog from "./catalog.json";
 
 interface VariablesProps {
-  onVariableChange: (value: string) => void;
+  onVariableChange: (dataFieldId: string) => void;
+  onRequestInfo: (dataFieldId: string) => void;
 }
 
 const topics = ["Atmosphere", "Land", "Ocean"];
 
-const Variables: React.FC<VariablesProps> = ({ onVariableChange }) => {
+const Variables: React.FC<VariablesProps> = ({
+  onVariableChange,
+  onRequestInfo,
+}) => {
   const displayCatalog = topics.map((topic) => {
     return (
       <IonAccordion key={topic} value={topic}>
@@ -33,6 +40,20 @@ const Variables: React.FC<VariablesProps> = ({ onVariableChange }) => {
                   key={data.label}
                 >
                   <IonLabel>{data.label}</IonLabel>
+                  <IonButton
+                    size="small"
+                    fill="clear"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRequestInfo(data.dataFieldId);
+                    }}
+                  >
+                    <IonIcon
+                      aria-hidden="true"
+                      size="large"
+                      icon={informationCircleOutline}
+                    />
+                  </IonButton>
                 </IonItem>
               );
             })}

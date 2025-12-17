@@ -4,6 +4,7 @@ import { MapContainer, TileLayer } from "react-leaflet";
 import L from "leaflet";
 
 import { useDataParams } from "../../store/DataParamsContext";
+import { convertToFixedFloat } from "../../utils/converter";
 
 // Import the marker images
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -30,17 +31,13 @@ const Location: React.FC = () => {
   const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
 
   const handleLatChange = (e: CustomEvent) => {
-    const newLat = parseFloat(e.detail.value); // get new latitude
-    if (!isNaN(newLat)) {
-      requestUpdateParams({ lat: newLat });
-    }
+    const newLat = e.detail.value; // get new latitude
+    requestUpdateParams({ lat: convertToFixedFloat(newLat, 4) });
   };
 
   const handleLngChange = (e: CustomEvent) => {
-    const newLng = parseFloat(e.detail.value); // get new longitude
-    if (!isNaN(newLng)) {
-      requestUpdateParams({ lon: newLng });
-    }
+    const newLng = e.detail.value; // get new longitude
+    requestUpdateParams({ lon: convertToFixedFloat(newLng, 4) });
   };
 
   return (
