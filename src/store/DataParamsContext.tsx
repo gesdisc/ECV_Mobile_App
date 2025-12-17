@@ -132,6 +132,8 @@ export const useDataParams = () => {
 };
 
 const checkDateFormat = (param: Partial<DataParams>, store?: string) => {
+  if (process.env.NODE_ENV !== "development") return;
+
   if (param.begin_time && !isValidUTC(param.begin_time)) {
     console.error(`${store} has invalid date: ${param.begin_time}`);
   }

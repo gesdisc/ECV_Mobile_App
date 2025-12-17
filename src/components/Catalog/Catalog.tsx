@@ -46,11 +46,11 @@ const Catalog: React.FC = () => {
         value: currentVariable?.dataProductSpatialResolution ?? "",
       },
       {
-        label: "Data Product Name",
+        label: "Product Name",
         value: currentVariable?.dataProductShortName ?? "",
       },
       {
-        label: "Data Product Version",
+        label: "Product Version",
         value: currentVariable?.dataProductVersion ?? "",
       },
       {

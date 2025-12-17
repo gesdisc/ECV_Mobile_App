@@ -105,7 +105,6 @@ const StorageManager: React.FC<StorageManagerProps> = ({
 
   const getAllCachedItems = async () => {
     try {
-      // TODO: check for empty array
       const data = await getAllData(IndexedDbStores.TIME_SERIES);
       if (!data) return;
       setCachedItems(data);
