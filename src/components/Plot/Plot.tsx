@@ -22,7 +22,6 @@ import { convertToLocalDate } from "../../utils/date";
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
 } from "@nasa-terra/components/dist/react/time-series";
-// import TerraTimeAverageMap from "@nasa-terra/components/dist/react/time-average-map";
 import Slider from "./Slider";
 import StorageManager from "./Storage/StorageManager";
 import Banner from "../UI/Banner";
@@ -31,9 +30,7 @@ import "./Plot.css";
 
 const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
-  // const [stateMetadata, setStateMetaData] = useState<
-  //   TimeSeriesMetadata | undefined
-  // >(undefined);
+
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [sliderValue, setSliderValue] = useState(0);
   const { params: ctxParams, updateParams } = useDataParams();
@@ -51,8 +48,6 @@ const Plot: React.FC = () => {
     if (!categoryPageVariable) return;
 
     updateParams({
-      lat: DefaultParams.LATITUDE,
-      lon: DefaultParams.LONGITUDE,
       begin_time: DefaultParams.BEGIN_TIME,
       end_time: DefaultParams.END_TIME,
       variable: categoryPageVariable as string,
@@ -93,10 +88,6 @@ const Plot: React.FC = () => {
     // setStateMetaData(e.detail.data.metadata);
   };
 
-  // Emitted whenever the date range is modified
-  // const timeSeriesDateRangeChangeHandler = (e: CustomEvent) => {
-  // };
-
   return (
     <IonPage>
       <IonContent fullscreen={true}>
@@ -118,17 +109,8 @@ const Plot: React.FC = () => {
           )}
           <IonGrid fixed>
             <IonRow>
-              {/* <IonCol size="12">
-                <TerraTimeAverageMap
-                  style={{
-                    height: "300px",
-                  }}
-                ></TerraTimeAverageMap>
-              </IonCol> */}
-
               <IonCol size="12">
                 <TerraTimeSeries
-                  // onTerraDateRangeChange={timeSeriesDateRangeChangeHandler}
                   onTerraTimeSeriesDataChange={timeSeriesDataChangeHandler}
                   variableEntryId={ctxParams.variable}
                   start-date={ctxParams.begin_time.replace(

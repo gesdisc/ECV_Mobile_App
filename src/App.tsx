@@ -30,7 +30,7 @@ import "@nasa-terra/components/dist/themes/horizon.css";
 
 import { setBasePath } from "@nasa-terra/components/dist/utilities/base-path";
 
-setBasePath("https://cdn.jsdelivr.net/npm/@nasa-terra/components@0.0.105/cdn/");
+setBasePath("https://cdn.jsdelivr.net/npm/@nasa-terra/components@0.0.79/cdn/");
 
 setupIonicReact();
 
