@@ -13,22 +13,17 @@ import {
   useIonAlert,
   IonIcon,
 } from "@ionic/react";
-import {
-  DataParams,
-  TimeSeriesMetadata,
-} from "../../../types/time-series.types";
+import { refreshOutline } from "ionicons/icons";
+import { DataParams, VariableDbEntry } from "../../../types/time-series.types";
 
 import {
   clearCache,
   removeItem,
   getAllItems,
-  // getRecentDataKey,
 } from "../../../services/indexDBService";
-// import { RECENT_DATA_CACHE_KEY } from "../../../constants/time-series";
 import useCheckIndexedDBUsage from "../../../hooks/useCheckIndexedDBUsage";
 
 import StorageItem from "./StorageItem";
-import { refreshOutline } from "ionicons/icons";
 
 interface StorageManagerProps {
   onPlot: (newParams: DataParams) => void;
@@ -48,9 +43,9 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
     error: indexedDBUsageError,
   } = useCheckIndexedDBUsage();
 
-  const [cachedItems, setCachedItems] = useState<
-    { metadata: TimeSeriesMetadata; cachekey: string }[]
-  >([]);
+  const [cachedItems, setCachedItems] = useState<Partial<VariableDbEntry>[]>(
+    []
+  );
   const [presentToast] = useIonToast();
   const [presentAlert] = useIonAlert();
 
@@ -130,16 +125,8 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
     return role !== "gesture";
   };
 
-  // TODO: check for edge cases like deleting the latest cached item.
-  // TODO: the system should remove the plotted data (update the state) when currently visualized item is deleted.
   const deleteCachedItemHandler = async (key: string) => {
     try {
-      // const recentCachedDataKey = await getRecentDataKey(RECENT_DATA_CACHE_KEY);
-
-      // TODO: set new data as recent??
-      // if (recentCachedDataKey === key) {
-      //   console.log("recentCachedDataKey: ", recentCachedDataKey);
-      // }
       await removeItem(key);
       await getAllCachedItems();
       toastPresenter("Successfully deleted!", "top", "success");
@@ -175,7 +162,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
     return cachedItems.map((item) => {
       return (
         <StorageItem
-          key={item.cachekey}
+          key={item.key}
           item={item}
           onPlot={(newParams: DataParams) => {
             dismiss();
@@ -187,7 +174,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({ onPlot }) => {
               undefined,
               undefined,
               undefined,
-              () => deleteCachedItemHandler(item.cachekey)
+              () => item.key && deleteCachedItemHandler(item.key)
             );
           }}
         />

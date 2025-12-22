@@ -2,6 +2,8 @@ import React from "react";
 import Plot from "react-plotly.js";
 import Plotly from "plotly.js-dist-min";
 
+import TerraTimeSeries from "@nasa-terra/components/dist/react/time-series";
+
 interface TimeSeriesProps {
   plotData: Partial<Plotly.Data>[];
   layout: Partial<Plotly.Layout>;

@@ -31,13 +31,13 @@ ion-range {
   justify-content: center;
   position: absolute;
 
-  background: #410eea;
+  background: var(--ion-color-primary);
   color: #ffffff;
   transform: scale(1.01);
 
-  top: -40px;
-  z-index: 2;
-  min-width: 90px;
+  top: -55px;
+  z-index: 12;
+  min-width: 75px;
   width: auto;
   height: auto;
   border-radius: 2px;
@@ -47,25 +47,24 @@ ion-range {
 
 .ion-range::part(pin)::before {
   content: none;
-
-  /* 
-  CUSTOM VERTICAL LINE
-  USE THE CODE BELOW FOR PIXEL BASED SLIDER 
-  */
-
-  /* z-index: 1;
-  content: "";
-  width: 2px;
-  height: 500px;
-  background-color: red;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -90%); */
 }
 
 .ion-range::part(knob) {
-  background: #480ecf;
+  background: var(--ion-color-primary);
+}
+
+.ion-range::part(knob)::after {
+  --height: 400px;
+
+  z-index: 1;
+  content: "";
+  width: 2px;
+  height: var(--height);
+  background-color: red;
+  position: absolute;
+  top: calc((var(--height) / -2));
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .buttons {

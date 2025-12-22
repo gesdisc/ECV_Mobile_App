@@ -1,10 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { IonContent, IonPage } from "@ionic/react";
-import { MapContainer, TileLayer, Rectangle } from "react-leaflet";
+import { MapContainer, TileLayer } from "react-leaflet";
 import L from "leaflet";
 
 import { useDataParams } from "../../store/DataParamsContext";
-import { usePlotType, PLOT_TYPES } from "../../store/PlotTypeContext";
 
 // Import the marker images
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -29,7 +28,6 @@ L.Icon.Default.mergeOptions({
 const Location: React.FC = () => {
   const mapRef = useRef(null);
   const { latitude, longitude, setLatitude, setLongitude } = useDataParams();
-  const { plotType } = usePlotType();
 
   const handleLatChange = (e: CustomEvent) => {
     const newLat = parseFloat(e.detail.value); // get new latitude
@@ -60,16 +58,8 @@ const Location: React.FC = () => {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" // tile source
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' // attribution
             />
-            {plotType === PLOT_TYPES.POINT_BASED && <LocationMarker />}
+            <LocationMarker />
             <MapResizer />
-            {plotType === PLOT_TYPES.TIME_AVG && (
-              <Rectangle
-                bounds={[
-                  [-13.47, -45],
-                  [51.2, 126.4],
-                ]}
-              />
-            )}
           </MapContainer>
         </div>
       </IonContent>
