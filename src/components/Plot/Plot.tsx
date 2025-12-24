@@ -33,7 +33,6 @@ import catalog from "./../Catalog/catalog.json";
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
 } from "@nasa-terra/components/dist/react/time-series";
-// import TerraTimeAverageMap from "@nasa-terra/components/dist/react/time-average-map";
 import Slider from "./Slider";
 import StorageManager from "./Storage/StorageManager";
 import Banner from "../UI/Banner";
@@ -209,19 +208,6 @@ const Plot: React.FC = () => {
           />
           <IonGrid fixed>
             <IonRow>
-              {/* <IonCol size="12">
-                <TerraTimeAverageMap
-                  style={{
-                    height: "300px",
-                  }}
-                  collection="M2T1NXAER_5_12_4"
-                  variable="BCCMASS"
-                  start-date="01/01/2009"
-                  end-date="01/05/2009"
-                  location="62,5,95,40"
-                  bearer-token="YOUR_BEARER_TOKEN"
-                ></TerraTimeAverageMap>
-              </IonCol> */}
               <IonCol size="12">
                 <TerraTimeSeries
                   // onTerraDateRangeChange={timeSeriesDateRangeChangeHandler}
