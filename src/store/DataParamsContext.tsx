@@ -1,6 +1,13 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { DataParams, TimeSeriesMetadata } from "../types/time-series.types";
 import { DefaultParams } from "../constants/time-series";
+import useDeviceLocation from "../hooks/useDeviceLocation";
 
 interface DataParamsContextType {
   params: DataParams;
@@ -42,6 +49,12 @@ const DataParamsContext =
 export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  const {
+    latitude: deviceLat,
+    longitude: deviceLon,
+    error: permissionError,
+    getLocation,
+  } = useDeviceLocation();
   const [params, setParams] = useState<DataParams>({
     variable: "",
     begin_time: DefaultParams.BEGIN_TIME,
@@ -51,6 +64,27 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   });
   const [staged, setStaged] = useState<Partial<DataParams>>({});
   const [metadata, setMetadata] = useState<Partial<TimeSeriesMetadata>>({});
+
+  // Get device's location
+  useEffect(() => {
+    const getDeviceLocation = async () => {
+      try {
+        await getLocation();
+
+        if (permissionError) return;
+
+        if (!deviceLat || !deviceLon) return;
+
+        updateParams({
+          lat: deviceLat,
+          lon: deviceLon,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getDeviceLocation();
+  }, [getLocation, deviceLat, deviceLon]);
 
   // immediate update
   const updateParams = (newParams: Partial<DataParams>) => {

@@ -22,8 +22,6 @@ import catalog from "./../Catalog/catalog.json";
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
 } from "@nasa-terra/components/dist/react/time-series";
-
-// import TerraTimeAverageMap from "@nasa-terra/components/dist/react/time-average-map";
 import Slider from "./Slider";
 import StorageManager from "./Storage/StorageManager";
 import Banner from "../UI/Banner";
@@ -74,8 +72,6 @@ const Plot: React.FC = () => {
     if (!catalogPageVariable) return;
 
     updateParams({
-      lat: DefaultParams.LATITUDE,
-      lon: DefaultParams.LONGITUDE,
       begin_time: DefaultParams.BEGIN_TIME,
       end_time: DefaultParams.END_TIME,
       variable: catalogPageVariable as string,
@@ -138,10 +134,6 @@ const Plot: React.FC = () => {
     setMetadata(e.detail.data.metadata);
   };
 
-  // Emitted whenever the date range is modified
-  // const timeSeriesDateRangeChangeHandler = (e: CustomEvent) => {
-  // };
-
   return (
     <IonPage>
       <IonContent fullscreen={true}>
@@ -162,22 +154,8 @@ const Plot: React.FC = () => {
           />
           <IonGrid fixed>
             <IonRow>
-              {/* <IonCol size="12">
-                <TerraTimeAverageMap
-                  style={{
-                    height: "300px",
-                  }}
-                  collection="M2T1NXAER_5_12_4"
-                  variable="BCCMASS"
-                  start-date="01/01/2009"
-                  end-date="01/05/2009"
-                  location="62,5,95,40"
-                  bearer-token="YOUR_BEARER_TOKEN"
-                ></TerraTimeAverageMap>
-              </IonCol> */}
               <IonCol size="12">
                 <TerraTimeSeries
-                  // onTerraDateRangeChange={timeSeriesDateRangeChangeHandler}
                   onTerraTimeSeriesDataChange={timeSeriesDataChangeHandler}
                   variableEntryId={ctxParams.variable}
                   start-date={ctxParams.begin_time.replace(

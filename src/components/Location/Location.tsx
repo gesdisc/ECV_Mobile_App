@@ -27,7 +27,7 @@ L.Icon.Default.mergeOptions({
 
 const Location: React.FC = () => {
   const mapRef = useRef(null);
-  const { params: ctxParams, requestUpdateParams } = useDataParams();
+  const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
 
   const handleLatChange = (e: CustomEvent) => {
     const newLat = parseFloat(e.detail.value); // get new latitude
@@ -64,8 +64,8 @@ const Location: React.FC = () => {
         </div>
       </IonContent>
       <CoordinateInput
-        latitude={ctxParams.lat}
-        longitude={ctxParams.lon}
+        latitude={staged.lat || ctxParams.lat}
+        longitude={staged.lon || ctxParams.lon}
         onLatChange={handleLatChange}
         onLngChange={handleLngChange}
       />
