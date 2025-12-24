@@ -2,7 +2,6 @@ import React from "react";
 import { IonApp, setupIonicReact } from "@ionic/react";
 
 import { DataParamsProvider } from "./store/DataParamsContext";
-import { NetworkProvider } from "./store/NetworkContext";
 
 import TabBar from "./navigation/TabMenu";
 
@@ -38,11 +37,9 @@ setupIonicReact();
 const App: React.FC = () => {
   return (
     <IonApp>
-      <NetworkProvider>
-        <DataParamsProvider>
-          <TabBar />
-        </DataParamsProvider>
-      </NetworkProvider>
+      <DataParamsProvider>
+        <TabBar />
+      </DataParamsProvider>
     </IonApp>
   );
 };
