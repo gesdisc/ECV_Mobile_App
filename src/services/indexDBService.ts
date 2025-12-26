@@ -105,3 +105,18 @@ export async function getLatestCachedData(
     return items.sort((a, b) => b.cachedAt - a.cachedAt)[0];
   });
 }
+
+// export async function getTerraGeneralDB(): Promise<IDBPDatabase> {
+//   try {
+//     const DB_NAME = "terra-general-cache";
+//     const STORE_NAME = "terra_general_cache_store";
+//     const KEY = "apollo-cache-persist";
+//     const db = await openDB(DB_NAME);
+
+//     const data = await db.get(STORE_NAME, KEY);
+//     return data;
+//   } catch (error) {
+//     console.error("Error opening DB:", error);
+//     throw error;
+//   }
+// }

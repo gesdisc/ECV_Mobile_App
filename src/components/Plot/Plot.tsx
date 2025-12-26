@@ -39,6 +39,7 @@ import Banner from "../UI/Banner";
 import TimeInterval from "./TimeInterval";
 
 import "./Plot.css";
+import useSelectedProductDetails from "../../hooks/useSelectedProductDetails";
 
 const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
@@ -54,13 +55,10 @@ const Plot: React.FC = () => {
   } = useDataParams();
   const location = useLocation();
   const catalogPageVariable = location.state;
-
-  const productDetailsFromCatalog = catalog.find(
-    (data) => data.dataFieldId === ctxParams.variable
-  );
+  const selectedProductDetails: any = useSelectedProductDetails();
 
   const currentProductTimeInterval =
-    productDetailsFromCatalog?.dataProductTimeInterval;
+    selectedProductDetails?.dataProductTimeInterval;
 
   // Plot latest cached data
   useEffect(() => {
@@ -92,11 +90,11 @@ const Plot: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!productDetailsFromCatalog) return;
+    if (!selectedProductDetails) return;
     setSelectedTimeInterval(
-      productDetailsFromCatalog?.dataProductTimeInterval as TimeIntervalKey
+      selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
     );
-  }, [productDetailsFromCatalog]);
+  }, [selectedProductDetails]);
 
   useEffect(() => {
     setSliderValue(getMiddleIndex(stateData));
@@ -111,20 +109,22 @@ const Plot: React.FC = () => {
   useEffect(() => {
     if (!catalogPageVariable) return;
 
-    const productDetailsFromCatalog = catalog.find(
+    const selectedProductDetails = catalog.find(
       (data) => data.dataFieldId === catalogPageVariable
     );
 
-    const { startDate: defaultStartDate, endDate: defaultEndDate } =
-      getDefaultDateRange(
-        dayjs(productDetailsFromCatalog?.dataProductBeginDateTime),
-        dayjs(productDetailsFromCatalog?.dataProductEndDateTime),
-        productDetailsFromCatalog?.dataProductTimeInterval as TimeIntervalKey
-      );
+    // const { startDate: defaultStartDate, endDate: defaultEndDate } =
+    //   getDefaultDateRange(
+    //     dayjs(selectedProductDetails?.dataProductBeginDateTime),
+    //     dayjs(selectedProductDetails?.dataProductEndDateTime),
+    //     selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
+    //   );
 
     updateParams({
-      begin_time: defaultStartDate,
-      end_time: defaultEndDate,
+      // begin_time: defaultStartDate,
+      // end_time: defaultEndDate,
+      begin_time: "2019-10-01T00:00:00Z",
+      end_time: "2019-12-01T00:00:00Z",
       variable: catalogPageVariable as string,
     });
   }, [catalogPageVariable]);

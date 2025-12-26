@@ -1,3 +1,4 @@
+import { GET_VARIABLES } from "../../components/Catalog/queries";
 import type {
   MaybeBearerToken,
   DataParams,
@@ -81,49 +82,33 @@ export const fetchData = async (
 };
 
 /**
- *
  * fetching graphql data
- * ask for the key
+ *
+ * @param query - graphql query string
  *
  */
-// pass variable id
-// {"query":"{\n  getVariables(variableEntryIds: [\"OMAERUVd_003_FinalAerosolAbsOpticalDepth388\"]) { variables { dataFieldId, dataFieldLongName } } }"}
-// export const fetchCatalog = async () => {
-//     const url =
-//       "https://u2u5qu332rhmxpiazjcqz6gkdm.appsync-api.us-east-1.amazonaws.com/graphql";
-//     const query = `
-//                 query {
-//                     getVariables {
-//                     variables {
-//                         dataFieldId
-//                         dataFieldLongName
-//                     }
-//                     }
-//                 }
-//                 `;
-//     const requestOptions = {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//         "x-api-key": "",
-//       },
-//       // body: "query":"{\n  getVariables { variables { dataFieldId, dataFieldLongName } } }",
-//       body: JSON.stringify({ query }),
-//     };
+export const fetchCatalog = async (query: string) => {
+  const url =
+    "https://u2u5qu332rhmxpiazjcqz6gkdm.appsync-api.us-east-1.amazonaws.com/graphql";
 
-//     try {
-//       console.log("loading catalog data...");
+  const requestOptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": "da2-hg7462xbijdjvocfgx2xlxuytq",
+    },
+    body: JSON.stringify({ query }),
+  };
 
-//       const response = await fetch(
-//         url,
-//         requestOptions
-//       );
-//       // const response = await axios.post(url, requestOptions);
-//       // const data = await response.json();
-//       console.log(response);
-//     } catch (error) {
-//       console.log("Catalog error: ", error);
-//     } finally {
-//       // console.log("catalog data loaded...");
-//     }
-//   };
+  try {
+    console.log("loading catalog data...");
+
+    const response = await fetch(url, requestOptions);
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.log("Catalog error: ", error);
+  }
+};

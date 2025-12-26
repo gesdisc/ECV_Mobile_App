@@ -15,6 +15,7 @@ import catalog from "./catalog.json";
 interface VariablesProps {
   onVariableChange: (dataFieldId: string) => void;
   onRequestInfo: (dataFieldId: string) => void;
+  filteredVars?: any[];
 }
 
 const topics = ["Atmosphere", "Land", "Ocean"];
@@ -22,6 +23,7 @@ const topics = ["Atmosphere", "Land", "Ocean"];
 const Variables: React.FC<VariablesProps> = ({
   onVariableChange,
   onRequestInfo,
+  filteredVars,
 }) => {
   const displayCatalog = topics.map((topic) => {
     return (
@@ -30,8 +32,8 @@ const Variables: React.FC<VariablesProps> = ({
           <IonLabel>{topic}</IonLabel>
         </IonItem>
         <IonList slot="content">
-          {catalog
-            .filter((data) => data.group === topic)
+          {filteredVars
+            ?.filter((data) => data.group === topic)
             .map((data) => {
               return (
                 <IonItem

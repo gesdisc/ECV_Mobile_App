@@ -2,9 +2,9 @@ import React from "react";
 import { IonContent, IonPage, IonGrid, IonRow, IonCol } from "@ionic/react";
 import { IonDatetime, DatetimeChangeEventDetail } from "@ionic/react";
 
-import catalog from "../Catalog/catalog.json";
 import { useDataParams } from "../../store/DataParamsContext";
 import { toStartOfDay } from "../../utils/date";
+import useSelectedProductDetails from "../../hooks/useSelectedProductDetails";
 
 import Banner from "../UI/Banner";
 
@@ -25,9 +25,7 @@ const Date = () => {
     requestUpdateParams,
   } = useDataParams();
 
-  const currentVariableData = catalog.find(
-    (data) => data.dataFieldId === ctxParams.variable
-  );
+  const selectedProductDetails = useSelectedProductDetails();
 
   const beginDateUpdateHandler = (
     event: CustomEvent<DatetimeChangeEventDetail>
@@ -54,7 +52,7 @@ const Date = () => {
                   stagedParams.begin_time || ctxParams.begin_time
                 )}
                 onIonChange={beginDateUpdateHandler}
-                min={currentVariableData?.dataProductBeginDateTime}
+                min={selectedProductDetails?.dataProductBeginDateTime}
                 max={toStartOfDay(stagedParams.end_time || ctxParams.end_time)}
                 style={{ width: "100%" }}
               >

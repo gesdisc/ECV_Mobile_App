@@ -1,20 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IonContent, IonPage } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 
+import { VariableWithLabel } from "./browse-variables.types";
 import { TabMenuLabels } from "../../constants/ui";
 import { getDate } from "../../utils/date";
-import catalog from "./catalog.json";
+import { getAllData } from "./localforage";
 
 import Banner from "../UI/Banner";
 import Variables from "./Variables";
 import InfoPanel from "../UI/InfoPanel";
 
+import { IndexedDbStores } from "./localforage";
+
 const Catalog: React.FC = () => {
   const [variableId, setVariableId] = useState("");
+  const [filteredVariables, setFilteredVariables] = useState<
+    VariableWithLabel[]
+  >([]);
   const history = useHistory();
-
-  const currentVariable = catalog.find(
+  const [isLoadingCatalog, setIsLoadingCatalog] = useState(false);
+  const currentVariable = filteredVariables.find(
     (data) => data.dataFieldId === variableId
   );
 
@@ -25,6 +31,23 @@ const Catalog: React.FC = () => {
     setVariableId(dataFieldId);
 
   const afterInfoPanelDismiss = () => setVariableId("");
+
+  useEffect(() => {
+    const getCatalog = async () => {
+      try {
+        setIsLoadingCatalog(true);
+
+        const cachedItems = await getAllData(IndexedDbStores.CATALOG);
+
+        setFilteredVariables(cachedItems);
+      } catch (error) {
+        console.error("Error fetching catalog:", error);
+      } finally {
+        setIsLoadingCatalog(false);
+      }
+    };
+    getCatalog();
+  }, []);
 
   const variableInfo = {
     title: currentVariable?.label || "Invalid label",
@@ -82,10 +105,15 @@ const Catalog: React.FC = () => {
           afterDismiss={afterInfoPanelDismiss}
         />
         <div className="ion-padding">
-          <Variables
-            onVariableChange={variableChangeHandler}
-            onRequestInfo={variableInfoHandler}
-          />
+          {/* TODO: USE LOADING SPINNER */}
+          {isLoadingCatalog && <p>Loading catalog...</p>}
+          {!isLoadingCatalog && (
+            <Variables
+              onVariableChange={variableChangeHandler}
+              onRequestInfo={variableInfoHandler}
+              filteredVars={filteredVariables}
+            />
+          )}
         </div>
       </IonContent>
     </IonPage>

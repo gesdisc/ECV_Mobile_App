@@ -30,6 +30,7 @@ import "./styles.css";
 import "@nasa-terra/components/dist/themes/horizon.css";
 
 import { setBasePath } from "@nasa-terra/components/dist/utilities/base-path";
+import AppBootstrap from "./data/bootstrap";
 
 setBasePath("https://cdn.jsdelivr.net/npm/@nasa-terra/components@0.0.105/cdn/");
 
@@ -40,6 +41,7 @@ const App: React.FC = () => {
     <IonApp>
       <NetworkProvider>
         <DataParamsProvider>
+          <AppBootstrap />
           <TabBar />
         </DataParamsProvider>
       </NetworkProvider>
