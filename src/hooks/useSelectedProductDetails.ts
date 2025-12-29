@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 
 import { useDataParams } from "../store/DataParamsContext";
-import { getDataByKey } from "../components/Catalog/localforage";
-import { IndexedDbStores } from "../components/Catalog/localforage";
-import { VariableWithLabel } from "../components/Catalog/browse-variables.types";
+import { getDataByKey, IndexedDbStores } from "../data/localforage";
+import { VariableWithLabel } from "../data/browse-variables.types";
 
-const useSelectedProductDetails = () => {
-  const [selectedProductDetails, setSelectedProductDetails] = useState<
-    VariableWithLabel | Record<string, never>
-  >({});
+export type SelectedProductDetailsType =
+  | VariableWithLabel
+  | Record<string, never>;
+
+const useSelectedProductDetails = (): SelectedProductDetailsType => {
+  const [selectedProductDetails, setSelectedProductDetails] =
+    useState<SelectedProductDetailsType>({});
   const { params: ctxParams } = useDataParams();
 
   useEffect(() => {

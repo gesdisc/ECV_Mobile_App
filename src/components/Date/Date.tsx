@@ -15,7 +15,6 @@ import styles from "./Date.module.css";
  * The component restricts selecting a start date that is after the end date
  * AND end date that is before the start date
  *
- * Minimum allowed date of a variable can be found in catalog.json
  *
  */
 const Date = () => {

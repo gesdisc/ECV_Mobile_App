@@ -28,7 +28,6 @@ import {
   getLatestCachedData,
   IndexedDbStores,
 } from "../../services/indexDBService";
-import catalog from "./../Catalog/catalog.json";
 
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
@@ -39,7 +38,9 @@ import Banner from "../UI/Banner";
 import TimeInterval from "./TimeInterval";
 
 import "./Plot.css";
-import useSelectedProductDetails from "../../hooks/useSelectedProductDetails";
+import useSelectedProductDetails, {
+  SelectedProductDetailsType,
+} from "../../hooks/useSelectedProductDetails";
 
 const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
@@ -53,9 +54,10 @@ const Plot: React.FC = () => {
     setMetadata,
     metadata,
   } = useDataParams();
+  const selectedProductDetails: SelectedProductDetailsType =
+    useSelectedProductDetails();
   const location = useLocation();
   const catalogPageVariable = location.state;
-  const selectedProductDetails: any = useSelectedProductDetails();
 
   const currentProductTimeInterval =
     selectedProductDetails?.dataProductTimeInterval;
@@ -109,22 +111,18 @@ const Plot: React.FC = () => {
   useEffect(() => {
     if (!catalogPageVariable) return;
 
-    const selectedProductDetails = catalog.find(
-      (data) => data.dataFieldId === catalogPageVariable
-    );
-
-    // const { startDate: defaultStartDate, endDate: defaultEndDate } =
-    //   getDefaultDateRange(
-    //     dayjs(selectedProductDetails?.dataProductBeginDateTime),
-    //     dayjs(selectedProductDetails?.dataProductEndDateTime),
-    //     selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
-    //   );
+    const { startDate: defaultStartDate, endDate: defaultEndDate } =
+      getDefaultDateRange(
+        dayjs(selectedProductDetails?.dataProductBeginDateTime),
+        dayjs(selectedProductDetails?.dataProductEndDateTime),
+        selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
+      );
 
     updateParams({
-      // begin_time: defaultStartDate,
-      // end_time: defaultEndDate,
-      begin_time: "2019-10-01T00:00:00Z",
-      end_time: "2019-12-01T00:00:00Z",
+      begin_time: defaultStartDate,
+      end_time: defaultEndDate,
+      // begin_time: "2019-10-01T00:00:00Z",
+      // end_time: "2019-12-01T00:00:00Z",
       variable: catalogPageVariable as string,
     });
   }, [catalogPageVariable]);

@@ -10,12 +10,12 @@ import {
 } from "@ionic/react";
 import { informationCircleOutline } from "ionicons/icons";
 
-import catalog from "./catalog.json";
+import { VariableWithLabel } from "../../data/browse-variables.types";
 
 interface VariablesProps {
   onVariableChange: (dataFieldId: string) => void;
   onRequestInfo: (dataFieldId: string) => void;
-  filteredVars?: any[];
+  catalog: VariableWithLabel[];
 }
 
 const topics = ["Atmosphere", "Land", "Ocean"];
@@ -23,7 +23,7 @@ const topics = ["Atmosphere", "Land", "Ocean"];
 const Variables: React.FC<VariablesProps> = ({
   onVariableChange,
   onRequestInfo,
-  filteredVars,
+  catalog,
 }) => {
   const displayCatalog = topics.map((topic) => {
     return (
@@ -32,7 +32,7 @@ const Variables: React.FC<VariablesProps> = ({
           <IonLabel>{topic}</IonLabel>
         </IonItem>
         <IonList slot="content">
-          {filteredVars
+          {catalog
             ?.filter((data) => data.group === topic)
             .map((data) => {
               return (

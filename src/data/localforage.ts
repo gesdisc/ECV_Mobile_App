@@ -4,12 +4,8 @@ import { VariableWithLabel } from "./browse-variables.types";
 export const DB_NAME = "gmobile";
 export enum IndexedDbStores {
   CATALOG = "catalog",
+  LAST_SYNC = "last_sync",
 }
-
-/**
- * a helper for wrapping code that depends on an active database connection
- * this function will open the database, run the callback, and then cleanly close the database
- */
 export async function withDb<T>(callback: (db: IDBPDatabase) => Promise<T>) {
   const db = await getDb();
 
@@ -20,16 +16,17 @@ export async function withDb<T>(callback: (db: IDBPDatabase) => Promise<T>) {
   }
 }
 
-/**
- *
- * @returns database found in the IndexedDB
- *
- */
 export async function getDb() {
   return await openDB(DB_NAME, 2, {
     upgrade(db, oldVersion) {
       if (oldVersion < 1) {
         db.createObjectStore(IndexedDbStores.CATALOG, {
+          keyPath: "key",
+        });
+      }
+
+      if (oldVersion < 2) {
+        db.createObjectStore(IndexedDbStores.LAST_SYNC, {
           keyPath: "key",
         });
       }
@@ -55,6 +52,7 @@ export function getDataByKey<T>(
   key: string
 ): Promise<T> {
   return withDb(async (db) => {
+    if (!db.objectStoreNames.contains(store)) return null;
     return await db.get(store, key);
   });
 }
@@ -69,12 +67,12 @@ export async function getAllData(
   store: IndexedDbStores
 ): Promise<VariableWithLabel[]> {
   return withDb(async (db) => {
+    // eslint-disable-next-line no-useless-catch
     try {
       if (!db.objectStoreNames.contains(store)) return [];
       const items = await db.getAll(store);
       return items;
     } catch (error) {
-      console.error("Error from getAllData: ", error);
       throw error;
     }
   });
@@ -86,15 +84,3 @@ export async function deleteAllData(store: IndexedDbStores) {
     await db.clear(store);
   });
 }
-
-// export async function getLatestCachedData(
-//   store: IndexedDbStores
-// ): Promise<VariableDbEntry> {
-//   return withDb(async (db) => {
-//     if (!db.objectStoreNames.contains(store)) return {};
-
-//     const items = await db.getAll(store);
-
-//     return items.sort((a, b) => b.cachedAt - a.cachedAt)[0];
-//   });
-// }

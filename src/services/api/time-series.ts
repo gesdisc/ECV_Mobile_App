@@ -1,4 +1,3 @@
-import { GET_VARIABLES } from "../../components/Catalog/queries";
 import type {
   MaybeBearerToken,
   DataParams,
@@ -100,15 +99,18 @@ export const fetchCatalog = async (query: string) => {
     body: JSON.stringify({ query }),
   };
 
+  // eslint-disable-next-line no-useless-catch
   try {
-    console.log("loading catalog data...");
-
     const response = await fetch(url, requestOptions);
+
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch catalog data: ${response.statusText}`);
+    }
 
     const data = await response.json();
 
     return data;
   } catch (error) {
-    console.log("Catalog error: ", error);
+    throw error;
   }
 };

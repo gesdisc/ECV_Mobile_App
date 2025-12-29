@@ -2,16 +2,14 @@ import React, { useEffect, useState } from "react";
 import { IonContent, IonPage } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 
-import { VariableWithLabel } from "./browse-variables.types";
+import { VariableWithLabel } from "../../data/browse-variables.types";
 import { TabMenuLabels } from "../../constants/ui";
 import { getDate } from "../../utils/date";
-import { getAllData } from "./localforage";
+import { getAllData, IndexedDbStores } from "../../data/localforage";
 
 import Banner from "../UI/Banner";
 import Variables from "./Variables";
 import InfoPanel from "../UI/InfoPanel";
-
-import { IndexedDbStores } from "./localforage";
 
 const Catalog: React.FC = () => {
   const [variableId, setVariableId] = useState("");
@@ -41,7 +39,7 @@ const Catalog: React.FC = () => {
 
         setFilteredVariables(cachedItems);
       } catch (error) {
-        console.error("Error fetching catalog:", error);
+        console.error("Error fetching catalog from IndexedDB:", error);
       } finally {
         setIsLoadingCatalog(false);
       }
@@ -107,11 +105,13 @@ const Catalog: React.FC = () => {
         <div className="ion-padding">
           {/* TODO: USE LOADING SPINNER */}
           {isLoadingCatalog && <p>Loading catalog...</p>}
-          {!isLoadingCatalog && (
+          {!isLoadingCatalog && filteredVariables.length === 0 ? (
+            <p>Couldn&apos;t Find Catalog!</p>
+          ) : (
             <Variables
               onVariableChange={variableChangeHandler}
               onRequestInfo={variableInfoHandler}
-              filteredVars={filteredVariables}
+              catalog={filteredVariables}
             />
           )}
         </div>

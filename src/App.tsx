@@ -2,7 +2,6 @@ import React from "react";
 import { IonApp, setupIonicReact } from "@ionic/react";
 
 import { DataParamsProvider } from "./store/DataParamsContext";
-import { NetworkProvider } from "./store/NetworkContext";
 
 import TabBar from "./navigation/TabMenu";
 
@@ -30,7 +29,7 @@ import "./styles.css";
 import "@nasa-terra/components/dist/themes/horizon.css";
 
 import { setBasePath } from "@nasa-terra/components/dist/utilities/base-path";
-import AppBootstrap from "./data/bootstrap";
+import AppBootstrap from "./data";
 
 setBasePath("https://cdn.jsdelivr.net/npm/@nasa-terra/components@0.0.105/cdn/");
 
@@ -39,12 +38,10 @@ setupIonicReact();
 const App: React.FC = () => {
   return (
     <IonApp>
-      <NetworkProvider>
-        <DataParamsProvider>
-          <AppBootstrap />
-          <TabBar />
-        </DataParamsProvider>
-      </NetworkProvider>
+      <DataParamsProvider>
+        <AppBootstrap />
+        <TabBar />
+      </DataParamsProvider>
     </IonApp>
   );
 };
