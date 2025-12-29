@@ -1,10 +1,10 @@
 import React from "react";
 import { IonContent, IonPage, IonGrid, IonRow, IonCol } from "@ionic/react";
+import { IonDatetime, DatetimeChangeEventDetail } from "@ionic/react";
 
 import catalog from "../Catalog/catalog.json";
 import { useDataParams } from "../../store/DataParamsContext";
 
-import DatePicker from "../UI/DatePicker";
 import Banner from "../UI/Banner";
 
 import styles from "./Date.module.css";
@@ -18,18 +18,27 @@ import styles from "./Date.module.css";
  *
  */
 const Date = () => {
-  const { beginTime, endTime, variable, setEndTime, setBeginTime } =
-    useDataParams();
+  const {
+    params: ctxParams,
+    staged: stagedParams,
+    requestUpdateParams,
+  } = useDataParams();
 
   const currentVariableData = catalog.find(
-    (data) => data.dataFieldId === variable
+    (data) => data.dataFieldId === ctxParams.variable
   );
 
-  const beginDateUpdateHandler = (selectedDate: string) =>
-    setBeginTime(selectedDate);
+  const beginDateUpdateHandler = (
+    event: CustomEvent<DatetimeChangeEventDetail>
+  ) => {
+    requestUpdateParams({ begin_time: event.detail.value as string });
+  };
 
-  const endDateUpdateHandler = (selectedDate: string) =>
-    setEndTime(selectedDate);
+  const endDateUpdateHandler = (
+    event: CustomEvent<DatetimeChangeEventDetail>
+  ) => {
+    requestUpdateParams({ end_time: event.detail.value as string });
+  };
 
   return (
     <IonPage>
@@ -38,24 +47,27 @@ const Date = () => {
         <IonGrid fixed className={styles["date-picker-container"]}>
           <IonRow className="ion-justify-content-center">
             <IonCol size="12" size-sm="6">
-              <DatePicker
-                label="Select Start Date"
-                defaultDate={beginTime}
-                onDateUpdate={beginDateUpdateHandler}
-                minDatetimeAllowed={
-                  currentVariableData?.dataProductBeginDateTime
-                }
-                maxDatetimeAllowed={endTime}
-              />
+              <IonDatetime
+                presentation="date"
+                value={stagedParams.begin_time || ctxParams.begin_time}
+                onIonChange={beginDateUpdateHandler}
+                min={currentVariableData?.dataProductBeginDateTime}
+                max={stagedParams.end_time || ctxParams.end_time}
+                style={{ width: "100%" }}
+              >
+                <span slot="title">Select Start Date</span>
+              </IonDatetime>
             </IonCol>
             <IonCol size="12" size-sm="6">
-              <DatePicker
-                label="Select End Date"
-                defaultDate={endTime}
-                onDateUpdate={endDateUpdateHandler}
-                minDatetimeAllowed={beginTime}
-                // maxDatetimeAllowed={currentVariableData?.dataProductEndDateTime}
-              />
+              <IonDatetime
+                presentation="date"
+                value={stagedParams.end_time || ctxParams.end_time}
+                onIonChange={endDateUpdateHandler}
+                min={stagedParams.begin_time || ctxParams.begin_time}
+                style={{ width: "100%" }}
+              >
+                <span slot="title">Select End Date</span>
+              </IonDatetime>
             </IonCol>
           </IonRow>
         </IonGrid>
