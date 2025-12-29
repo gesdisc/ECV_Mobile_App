@@ -1,9 +1,4 @@
-import {
-  setItem,
-  getItem,
-  setRecentDataKey,
-} from "../../services/indexDBService";
-import { TimeSeriesData } from "../../types/time-series.types";
+import { TimeIntervals, TimeIntervalKey } from "../../constants/time-series";
 
 /**
  *
@@ -28,58 +23,6 @@ export const filterDataBetweenDates = (
       new Date(date).getTime() >= new Date(startDate).getTime() &&
       new Date(date).getTime() <= new Date(endDate).getTime()
   );
-};
-
-/**
- *
- * @param cachedData time series data that has to be cached
- * @param dataCacheKey storage key for time series data
- * @param recentDataCacheKey storage key for recently fetched data
- */
-export const cacheTimeSeriesData = async (
-  cachedData: TimeSeriesData,
-  dataCacheKey: string,
-  recentDataCacheKey: string
-) => {
-  try {
-    await setItem(dataCacheKey, cachedData);
-    await setRecentDataKey(recentDataCacheKey, dataCacheKey);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(
-        `Something went wrong while caching data: ${error.message}`
-      );
-    }
-  }
-};
-
-/**
- *
- * @param dataCacheKey storage key for time series data
- * @param recentDataCacheKey storage key for recently fetched data
- * @returns cached data (TimeSeriesData) OR undefined
- *
- * @summary checks if data with a key (dataCacheKey) exists in the storage.
- * If yes, returns the cached data and replaces the recently cached data value with the returned data (cachedData) key.
- */
-export const getCachedData = async (
-  dataCacheKey: string,
-  recentDataCacheKey: string
-): Promise<TimeSeriesData | undefined> => {
-  try {
-    const cachedData = await getItem(dataCacheKey);
-
-    if (!cachedData) return;
-    await setRecentDataKey(recentDataCacheKey, dataCacheKey);
-
-    return cachedData;
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(
-        `Something went wrong while fetching data from IndexedDB: ${error.message}`
-      );
-    }
-  }
 };
 
 /**
@@ -110,4 +53,30 @@ export const extractLatLonFromCacheKey = (key: string) => {
   } else {
     return null; // return null if no coordinates found
   }
+};
+
+/**
+ *
+ * @summary Converts a base time interval (starting at value=1)
+ * into its equivalent in another time interval.
+ * Example: from="half-hour", to="week" -> 336 half-hours fit into 1 week -> returns 336
+ *
+ * @param from "half-hourly" | "hourly" | "3-hourly" | "daily" | "weekly" | "monthly"
+ * @param to "half-hourly" | "hourly" | "3-hourly" | "daily" | "weekly" | "monthly"
+ * @returns the number of source intervals ("from") that fit inside one target ("to") interval
+ *
+ */
+export const convertTimeInterval = (
+  from: TimeIntervalKey,
+  to: TimeIntervalKey
+) => {
+  // Unsupported time interval
+  if (!TimeIntervals[from] || !TimeIntervals[to]) {
+    return TimeIntervals[from];
+  }
+
+  const fromHours = TimeIntervals[from];
+  const toHours = TimeIntervals[to];
+
+  return toHours / fromHours;
 };

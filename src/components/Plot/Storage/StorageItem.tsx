@@ -1,10 +1,10 @@
 import React from "react";
-import { IonButton, IonIcon, IonItem, IonLabel } from "@ionic/react";
+import { IonButton, IonIcon, IonItem, IonLabel, IonText } from "@ionic/react";
 import { trash } from "ionicons/icons";
 
 import { DataParams, VariableDbEntry } from "../../../types/time-series.types";
 import { extractLatLonFromCacheKey } from "../helpers";
-import { convertToLocalDate } from "../../../utils/date";
+import { toLocalShortDateTime } from "../../../utils/date";
 import catalog from "../../Catalog/catalog.json";
 
 import styles from "./StorageItem.module.css";
@@ -20,12 +20,8 @@ const StorageItem: React.FC<StorageItemProps> = ({
   onDelete,
   onPlot,
 }) => {
-  const currentVariableData = catalog.find(
-    (data) =>
-      data.dataFieldId ===
-      `${item.metadata?.prod_name}`
-        .replaceAll(".", "_")
-        .concat(`_${item.metadata?.param_short_name}`)
+  const itemMetadataFromCatalog = catalog.find(
+    (data) => data.dataFieldId === item.variableEntryId
   );
 
   const plotCachedItemHandler = () => {
@@ -48,30 +44,43 @@ const StorageItem: React.FC<StorageItemProps> = ({
 
   return (
     <IonItem>
-      <IonLabel className={`ion-padding-vertical ${styles["storage-item"]}`}>
-        <p className={styles["item-label"]}>{currentVariableData?.label}</p>
-        {item.metadata?.Request_time && (
-          <p>Timestamp: {convertToLocalDate(item.metadata.Request_time)}</p>
-        )}
-        {item.metadata?.begin_time && (
-          <p>Begin Time: {convertToLocalDate(item.metadata.begin_time)}</p>
-        )}
-        {item.metadata?.end_time && (
-          <p>End Time: {convertToLocalDate(item.metadata.end_time)}</p>
-        )}
-        <p>Latitude: {item.metadata?.lat}</p>
-        <p>Longitude: {item.metadata?.lon}</p>
+      <IonLabel className="ion-padding-top">
+        <IonText>
+          <h2 className={styles["item-label"]}>
+            {itemMetadataFromCatalog?.label}
+          </h2>
+          {item.metadata?.Request_time && (
+            <p>Timestamp: {toLocalShortDateTime(item.metadata.Request_time)}</p>
+          )}
+          {item.metadata?.begin_time && (
+            <p>Begin Time: {toLocalShortDateTime(item.metadata.begin_time)}</p>
+          )}
+          {item.metadata?.end_time && (
+            <p>End Time: {toLocalShortDateTime(item.metadata.end_time)}</p>
+          )}
+          <p>Latitude: {item.metadata?.lat}</p>
+          <p>Longitude: {item.metadata?.lon}</p>
+        </IonText>
+        <div className={`${styles["button-group"]} ion-margin-top`}>
+          <IonButton
+            size="default"
+            expand="block"
+            className={styles.button}
+            onClick={plotCachedItemHandler}
+          >
+            <IonLabel>Plot</IonLabel>
+          </IonButton>
+          <IonButton
+            size="default"
+            color="danger"
+            expand="block"
+            className={styles.button}
+            onClick={() => item.key && onDelete(item.key)}
+          >
+            <IonIcon aria-hidden="true" icon={trash} />
+          </IonButton>
+        </div>
       </IonLabel>
-      <IonButton size="default" onClick={plotCachedItemHandler}>
-        <IonLabel>Plot</IonLabel>
-      </IonButton>
-      <IonButton
-        size="default"
-        color={"danger"}
-        onClick={() => item.key && onDelete(item.key)}
-      >
-        <IonIcon aria-hidden="true" icon={trash} />
-      </IonButton>
     </IonItem>
   );
 };

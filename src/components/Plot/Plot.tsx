@@ -3,7 +3,6 @@ import {
   IonContent,
   IonPage,
   IonButton,
-  IonAlert,
   IonIcon,
   RangeCustomEvent,
   IonCol,
@@ -11,48 +10,73 @@ import {
   IonRow,
 } from "@ionic/react";
 import { server } from "ionicons/icons";
-
 import { useLocation } from "react-router-dom";
+import { isEmpty } from "lodash";
 
 import { TimeSeriesDataRow, DataParams } from "../../types/time-series.types";
 import { useDataParams } from "../../store/DataParamsContext";
-import { DefaultParams } from "../../constants/time-series";
-import { convertToLocalDate } from "../../utils/date";
-
+import { DefaultParams, TimeIntervalKey } from "../../constants/time-series";
+import { toLocalShortDateTime } from "../../utils/date";
+import { getMiddleIndex, convertTimeInterval } from "./helpers";
+import catalog from "./../Catalog/catalog.json";
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
 } from "@nasa-terra/components/dist/react/time-series";
 import Slider from "./Slider";
 import StorageManager from "./Storage/StorageManager";
 import Banner from "../UI/Banner";
+import TimeInterval from "./TimeInterval";
 
 import "./Plot.css";
 
 const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
-
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [sliderValue, setSliderValue] = useState(0);
-  const { params: ctxParams, updateParams } = useDataParams();
-
+  const [isStorageOpen, setIsStorageOpen] = useState(false);
+  const [selectedTimeInterval, setSelectedTimeInterval] =
+    useState<TimeIntervalKey>("half-hourly");
+  const {
+    params: ctxParams,
+    updateParams,
+    setMetadata,
+    metadata,
+  } = useDataParams();
   const location = useLocation();
-  const categoryPageVariable = location.state;
+  const catalogPageVariable = location.state;
+
+  const productDetailsFromCatalog = catalog.find(
+    (data) => data.dataFieldId === ctxParams.variable
+  );
+
+  const currentProductTimeInterval =
+    productDetailsFromCatalog?.dataProductTimeInterval;
+
+  useEffect(() => {
+    if (!productDetailsFromCatalog) return;
+    setSelectedTimeInterval(
+      productDetailsFromCatalog?.dataProductTimeInterval as TimeIntervalKey
+    );
+  }, [productDetailsFromCatalog]);
+
+  useEffect(() => {
+    setSliderValue(getMiddleIndex(stateData));
+  }, [stateData]);
 
   /**
    *
-   * will only work when the user selects a variable on the catalog page
-   * Uses default parameters and user selected variable
+   * This will only work when user selects a variable on the catalog page.
+   * It uses default parameters and user selected variable.
    *
    */
   useEffect(() => {
-    if (!categoryPageVariable) return;
+    if (!catalogPageVariable) return;
 
     updateParams({
       begin_time: DefaultParams.BEGIN_TIME,
       end_time: DefaultParams.END_TIME,
-      variable: categoryPageVariable as string,
+      variable: catalogPageVariable as string,
     });
-  }, [categoryPageVariable]);
+  }, [catalogPageVariable]);
 
   const sliderValueChangeHandler = (e: RangeCustomEvent) => {
     if (!stateData.length) return;
@@ -60,16 +84,37 @@ const Plot: React.FC = () => {
     setSliderValue(activeIndex);
   };
 
+  /* FIXME: Slider buttons don't work when plot fully zoomed in -- check stateData */
   const sliderLeftBtnHandler = () => {
     if (stateData.length === 0) return;
     if (sliderValue === 0) return;
-    setSliderValue((prevNum) => prevNum - 1);
+
+    setSliderValue((prevNum) =>
+      Math.max(
+        0,
+        prevNum -
+          convertTimeInterval(
+            currentProductTimeInterval as TimeIntervalKey,
+            selectedTimeInterval
+          )
+      )
+    );
   };
 
   const sliderRightBtnHandler = () => {
     if (stateData.length === 0) return;
     if (sliderValue === stateData.length - 1) return;
-    setSliderValue((prevNum) => prevNum + 1);
+
+    setSliderValue((prevNum) =>
+      Math.min(
+        stateData.length - 1,
+        prevNum +
+          convertTimeInterval(
+            currentProductTimeInterval as TimeIntervalKey,
+            selectedTimeInterval
+          )
+      )
+    );
   };
 
   const plotCachedItemHandler = (newParams: DataParams) => {
@@ -84,29 +129,29 @@ const Plot: React.FC = () => {
 
   // Emitted whenever time series data has been fetched from Giovanni. Or zoomed in/out.
   const timeSeriesDataChangeHandler = (e: TerraTimeSeriesDataChangeEvent) => {
+    /* FIXME: plot data disappears when fully zoomed in and then zoomed out -- setStateData causes the bug */
     setStateData(e.detail.data.data);
-    // setStateMetaData(e.detail.data.metadata);
+    setMetadata(e.detail.data.metadata);
   };
 
   return (
     <IonPage>
       <IonContent fullscreen={true}>
         <Banner>
-          <IonButton slot="end" size="small" id="storage-manager">
+          <IonButton
+            slot="end"
+            size="small"
+            onClick={() => setIsStorageOpen(true)}
+          >
             <IonIcon aria-hidden="true" size="medium" icon={server} />
           </IonButton>
         </Banner>
         <div className="ion-padding">
-          <StorageManager onPlot={plotCachedItemHandler} />
-          {alertMessage && (
-            <IonAlert
-              isOpen={!!alertMessage}
-              header="Oops!"
-              message={alertMessage}
-              buttons={["OK"]}
-              onDidDismiss={() => setAlertMessage(null)}
-            />
-          )}
+          <StorageManager
+            onPlot={plotCachedItemHandler}
+            isOpen={isStorageOpen}
+            onModalClose={() => setIsStorageOpen(false)}
+          />
           <IonGrid fixed>
             <IonRow>
               <IonCol size="12">
@@ -124,14 +169,8 @@ const Plot: React.FC = () => {
                   location={`${ctxParams.lat},${ctxParams.lon}`}
                 ></TerraTimeSeries>
               </IonCol>
-              <IonCol
-                size="12"
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                {stateData.length !== 0 && (
+              <IonCol size="12">
+                {!isEmpty(metadata) && stateData.length !== 0 && (
                   <Slider
                     onLeftBtnClick={sliderLeftBtnHandler}
                     onRightBtnClick={sliderRightBtnHandler}
@@ -141,15 +180,30 @@ const Plot: React.FC = () => {
                     onValueChange={sliderValueChangeHandler}
                     pinFormatter={(index: number) =>
                       stateData[index]?.timestamp
-                        ? `${convertToLocalDate(stateData[index].timestamp)}, ${
-                            stateData[index].value
-                          }`
-                        : "Oops!"
+                        ? `${toLocalShortDateTime(
+                            stateData[index].timestamp
+                          )}, ${stateData[index].value}`
+                        : ""
                     }
                     disabled={!stateData.length}
+                    startDate={toLocalShortDateTime(stateData[0]?.timestamp)}
+                    endDate={toLocalShortDateTime(
+                      stateData[stateData.length - 1]?.timestamp
+                    )}
                   />
                 )}
               </IonCol>
+              {!isEmpty(metadata) && stateData.length !== 0 && (
+                <TimeInterval
+                  onIntervalChange={(intervalOption) =>
+                    setSelectedTimeInterval(intervalOption as TimeIntervalKey)
+                  }
+                  currentProductTimeInterval={
+                    currentProductTimeInterval as TimeIntervalKey
+                  }
+                  selectedOption={selectedTimeInterval}
+                />
+              )}
             </IonRow>
           </IonGrid>
         </div>

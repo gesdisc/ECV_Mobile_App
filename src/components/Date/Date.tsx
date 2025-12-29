@@ -4,6 +4,7 @@ import { IonDatetime, DatetimeChangeEventDetail } from "@ionic/react";
 
 import catalog from "../Catalog/catalog.json";
 import { useDataParams } from "../../store/DataParamsContext";
+import { toStartOfDay } from "../../utils/date";
 
 import Banner from "../UI/Banner";
 
@@ -49,10 +50,12 @@ const Date = () => {
             <IonCol size="12" size-sm="6">
               <IonDatetime
                 presentation="date"
-                value={stagedParams.begin_time || ctxParams.begin_time}
+                value={toStartOfDay(
+                  stagedParams.begin_time || ctxParams.begin_time
+                )}
                 onIonChange={beginDateUpdateHandler}
                 min={currentVariableData?.dataProductBeginDateTime}
-                max={stagedParams.end_time || ctxParams.end_time}
+                max={toStartOfDay(stagedParams.end_time || ctxParams.end_time)}
                 style={{ width: "100%" }}
               >
                 <span slot="title">Select Start Date</span>
@@ -61,9 +64,13 @@ const Date = () => {
             <IonCol size="12" size-sm="6">
               <IonDatetime
                 presentation="date"
-                value={stagedParams.end_time || ctxParams.end_time}
+                value={toStartOfDay(
+                  stagedParams.end_time || ctxParams.end_time
+                )}
                 onIonChange={endDateUpdateHandler}
-                min={stagedParams.begin_time || ctxParams.begin_time}
+                min={toStartOfDay(
+                  stagedParams.begin_time || ctxParams.begin_time
+                )}
                 style={{ width: "100%" }}
               >
                 <span slot="title">Select End Date</span>

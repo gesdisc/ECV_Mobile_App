@@ -1,31 +1,34 @@
 import React from "react";
 import { useHistory } from "react-router";
+import isEmpty from "lodash/isEmpty";
 
 import { TabMenuLabels } from "../constants/ui";
 import { useDataParams } from "./DataParamsContext";
+import { DefaultParams } from "../constants/time-series";
+
 import { IonToast } from "@ionic/react";
 
-function isEmpty(obj: Record<string, any>) {
-  for (const prop in obj) {
-    if (Object.hasOwn(obj, prop)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-// “logic-only” component
 const DataParamsWatcher: React.FC = () => {
-  const { staged, updateParams, cancelRequest } = useDataParams();
+  const {
+    staged,
+    metadata,
+    params: ctxParams,
+    updateParams,
+    cancelRequest,
+  } = useDataParams();
   const history = useHistory();
 
   const buttons = [
     {
-      text: "Update Plot",
+      text: !isEmpty(metadata) ? "Update Plot" : "Plot",
       role: "confirm",
       handler: () => {
-        updateParams(staged);
+        updateParams({
+          ...staged,
+          variable: ctxParams.variable
+            ? ctxParams.variable
+            : DefaultParams.VARIABLE,
+        });
         history.push(`/${TabMenuLabels.PLOT}`);
       },
     },
@@ -39,7 +42,11 @@ const DataParamsWatcher: React.FC = () => {
   return (
     <IonToast
       isOpen={!isEmpty(staged)}
-      message={"Parameters have been modified."}
+      message={
+        !isEmpty(metadata)
+          ? "Parameters have been modified."
+          : `Do you want to plot "${DefaultParams.VARIABLE}"?`
+      }
       color={"primary"}
       position={"bottom"}
       buttons={buttons}
