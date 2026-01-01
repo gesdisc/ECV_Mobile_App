@@ -25,6 +25,7 @@ export function addMissingProperties(list: Variable[]): VariableWithLabel[] {
 }
 
 export async function cacheAllProductDetails(items: VariableWithLabel[]) {
+  console.log("Caching product details for items:", items);
   // eslint-disable-next-line no-useless-catch
   try {
     await Promise.all(

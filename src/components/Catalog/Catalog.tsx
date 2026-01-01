@@ -7,20 +7,39 @@ import { TabMenuLabels } from "../../constants/ui";
 import { getDate } from "../../utils/date";
 import { getAllData, IndexedDbStores } from "../../data/localforage";
 
+// import { fetchAndCacheCatalog } from "../../data/queryClient";
+import { useCatalogQuery } from "../../data/useCatalogQuery";
+
 import Banner from "../UI/Banner";
 import Variables from "./Variables";
 import InfoPanel from "../UI/InfoPanel";
 
 const Catalog: React.FC = () => {
   const [variableId, setVariableId] = useState("");
-  const [filteredVariables, setFilteredVariables] = useState<
-    VariableWithLabel[]
-  >([]);
   const history = useHistory();
-  const [isLoadingCatalog, setIsLoadingCatalog] = useState(false);
-  const currentVariable = filteredVariables.find(
+  const { data: catalog = [], isLoading, isFetching } = useCatalogQuery();
+  console.log("Catalog data:", catalog);
+  const currentVariable = catalog.find(
     (data) => data.dataFieldId === variableId
   );
+
+  console.log("isFetching:", isFetching);
+  console.log("isLoading:", isLoading);
+
+  //   const getCatalog = async () => {
+  //   try {
+  //     setIsLoadingCatalog(true);
+
+  //     const cachedItems = await getAllData(IndexedDbStores.CATALOG);
+  //     console.log("Fetched catalog from IndexedDB:", cachedItems);
+  //     setCatalog(cachedItems);
+  //     setHydrated(true);
+  //   } catch (error) {
+  //     console.error("Error fetching catalog from IndexedDB:", error);
+  //   } finally {
+  //     setIsLoadingCatalog(false);
+  //   }
+  // };
 
   const variableChangeHandler = (variable: string) =>
     history.push(`/${TabMenuLabels.PLOT}`, variable);
@@ -29,23 +48,6 @@ const Catalog: React.FC = () => {
     setVariableId(dataFieldId);
 
   const afterInfoPanelDismiss = () => setVariableId("");
-
-  useEffect(() => {
-    const getCatalog = async () => {
-      try {
-        setIsLoadingCatalog(true);
-
-        const cachedItems = await getAllData(IndexedDbStores.CATALOG);
-
-        setFilteredVariables(cachedItems);
-      } catch (error) {
-        console.error("Error fetching catalog from IndexedDB:", error);
-      } finally {
-        setIsLoadingCatalog(false);
-      }
-    };
-    getCatalog();
-  }, []);
 
   const variableInfo = {
     title: currentVariable?.label || "Invalid label",
@@ -104,14 +106,14 @@ const Catalog: React.FC = () => {
         />
         <div className="ion-padding">
           {/* TODO: USE LOADING SPINNER */}
-          {isLoadingCatalog && <p>Loading catalog...</p>}
-          {!isLoadingCatalog && filteredVariables.length === 0 ? (
+          {isLoading && <p>Loading catalog...</p>}
+          {!isLoading && catalog.length === 0 ? (
             <p>Couldn&apos;t Find Catalog!</p>
           ) : (
             <Variables
               onVariableChange={variableChangeHandler}
               onRequestInfo={variableInfoHandler}
-              catalog={filteredVariables}
+              catalog={catalog}
             />
           )}
         </div>

@@ -38,8 +38,8 @@ export default function AppBootstrap() {
           const list: Variable[] = data?.data?.getVariables?.variables;
 
           const modifiedList = addMissingProperties(list);
-
-          if (data.length === 0) return;
+          console.log("Fetched and modified catalog data:", modifiedList);
+          // if (data.length === 0) return;
 
           await cacheAllProductDetails(modifiedList);
 

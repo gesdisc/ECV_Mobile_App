@@ -2,6 +2,9 @@ import React from "react";
 import { IonApp, setupIonicReact } from "@ionic/react";
 
 import { DataParamsProvider } from "./store/DataParamsContext";
+import { queryClient } from "./data/queryClient";
+import { setupQueryPersistence } from "./data/persister";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 import TabBar from "./navigation/TabMenu";
 
@@ -29,20 +32,22 @@ import "./styles.css";
 import "@nasa-terra/components/dist/themes/horizon.css";
 
 import { setBasePath } from "@nasa-terra/components/dist/utilities/base-path";
-import AppBootstrap from "./data";
 
 setBasePath("https://cdn.jsdelivr.net/npm/@nasa-terra/components@0.0.105/cdn/");
 
 setupIonicReact();
 
+setupQueryPersistence();
+
 const App: React.FC = () => {
   return (
-    <IonApp>
-      <DataParamsProvider>
-        <AppBootstrap />
-        <TabBar />
-      </DataParamsProvider>
-    </IonApp>
+    <QueryClientProvider client={queryClient}>
+      <IonApp>
+        <DataParamsProvider>
+          <TabBar />
+        </DataParamsProvider>
+      </IonApp>
+    </QueryClientProvider>
   );
 };
 

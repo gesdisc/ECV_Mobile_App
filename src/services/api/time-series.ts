@@ -108,8 +108,8 @@ export const fetchCatalog = async (query: string) => {
     }
 
     const data = await response.json();
-
-    return data;
+    console.log("Fetched catalog data:", data);
+    return data?.data?.getVariables?.variables;
   } catch (error) {
     throw error;
   }
