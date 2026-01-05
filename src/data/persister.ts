@@ -3,14 +3,19 @@ import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persi
 import localforage from "localforage";
 import { queryClient } from "./queryClient";
 
-export const setupQueryPersistence = async () => {
+export const reactQueryStorage = localforage.createInstance({
+  name: "react-query-cache",
+  storeName: "query-cache",
+});
+
+export function setupQueryPersistence() {
   const persister = createAsyncStoragePersister({
-    storage: localforage,
+    storage: reactQueryStorage,
   });
 
-  await persistQueryClient({
+  persistQueryClient({
     queryClient,
     persister,
     maxAge: Infinity,
   });
-};
+}

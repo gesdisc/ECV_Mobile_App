@@ -11,48 +11,48 @@ const SYNC_TTL = 30 * 60 * 1000; // 30 minutes
 
 // Fetches and caches catalog data on app bootstrap and every SYNC_TTL interval
 export default function AppBootstrap() {
-  useEffect(() => {
-    const fetchAndCacheCatalog = async () => {
-      try {
-        const now = Date.now();
-        const status = await Network.getStatus();
-        const isOffline = !status.connected;
+  //   useEffect(() => {
+  //     const fetchAndCacheCatalog = async () => {
+  //       try {
+  //         const now = Date.now();
+  //         const status = await Network.getStatus();
+  //         const isOffline = !status.connected;
 
-        if (isOffline) {
-          console.warn("Device is offline, skipping catalog fetch.");
-          return;
-        }
+  //         if (isOffline) {
+  //           console.warn("Device is offline, skipping catalog fetch.");
+  //           return;
+  //         }
 
-        const cachedLast: { timestamp: number } = await getDataByKey(
-          IndexedDbStores.LAST_SYNC,
-          "cachedAt"
-        );
+  //         const cachedLast: { timestamp: number } = await getDataByKey(
+  //           IndexedDbStores.LAST_SYNC,
+  //           "cachedAt"
+  //         );
 
-        if (
-          !cachedLast ||
-          !cachedLast.timestamp ||
-          now - cachedLast.timestamp > SYNC_TTL
-        ) {
-          const data = await fetchCatalog(GET_PREDEFINED_VARIABLES);
+  //         if (
+  //           !cachedLast ||
+  //           !cachedLast.timestamp ||
+  //           now - cachedLast.timestamp > SYNC_TTL
+  //         ) {
+  //           const data = await fetchCatalog(GET_PREDEFINED_VARIABLES);
 
-          const list: Variable[] = data?.data?.getVariables?.variables;
+  //           const list: Variable[] = data?.data?.getVariables?.variables;
 
-          const modifiedList = addMissingProperties(list);
-          console.log("Fetched and modified catalog data:", modifiedList);
-          // if (data.length === 0) return;
+  //           const modifiedList = addMissingProperties(list);
+  //           console.log("Fetched and modified catalog data:", modifiedList);
+  //           // if (data.length === 0) return;
 
-          await cacheAllProductDetails(modifiedList);
+  //           await cacheAllProductDetails(modifiedList);
 
-          await storeDataByKey(IndexedDbStores.LAST_SYNC, "cachedAt", {
-            timestamp: now,
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching catalog:", error);
-      }
-    };
-    fetchAndCacheCatalog();
-  }, []);
+  //           await storeDataByKey(IndexedDbStores.LAST_SYNC, "cachedAt", {
+  //             timestamp: now,
+  //           });
+  //         }
+  //       } catch (error) {
+  //         console.error("Error fetching catalog:", error);
+  //       }
+  //     };
+  //     fetchAndCacheCatalog();
+  //   }, []);
 
   return null;
 }

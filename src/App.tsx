@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { IonApp, setupIonicReact } from "@ionic/react";
 
 import { DataParamsProvider } from "./store/DataParamsContext";
-import { queryClient } from "./data/queryClient";
 import { setupQueryPersistence } from "./data/persister";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 import TabBar from "./navigation/TabMenu";
 
@@ -32,6 +31,7 @@ import "./styles.css";
 import "@nasa-terra/components/dist/themes/horizon.css";
 
 import { setBasePath } from "@nasa-terra/components/dist/utilities/base-path";
+import { catalogQuery } from "./data/catalog.query";
 
 setBasePath("https://cdn.jsdelivr.net/npm/@nasa-terra/components@0.0.105/cdn/");
 
@@ -40,14 +40,18 @@ setupIonicReact();
 setupQueryPersistence();
 
 const App: React.FC = () => {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    queryClient.prefetchQuery(catalogQuery);
+  }, [queryClient]);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <IonApp>
-        <DataParamsProvider>
-          <TabBar />
-        </DataParamsProvider>
-      </IonApp>
-    </QueryClientProvider>
+    <IonApp>
+      <DataParamsProvider>
+        <TabBar />
+      </DataParamsProvider>
+    </IonApp>
   );
 };
 
