@@ -1,6 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 
-const SYNC_TTL = 30 * 60 * 1000; // 30 minutes
+const SYNC_TTL = 5000; // 30 minutes
 
 export const queryClient = new QueryClient({
   defaultOptions: {

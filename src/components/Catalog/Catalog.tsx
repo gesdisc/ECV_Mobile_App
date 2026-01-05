@@ -87,9 +87,10 @@ const Catalog: React.FC = () => {
           {isLoading && (
             <TerraLoader indeterminate variant="large"></TerraLoader>
           )}
-          {catalog.length === 0 ? (
+          {!isLoading && catalog.length === 0 && (
             <p>Couldn&apos;t Find Catalog!</p>
-          ) : (
+          )}
+          {!isLoading && catalog.length > 0 && (
             <Variables
               onVariableChange={variableChangeHandler}
               onRequestInfo={variableInfoHandler}

@@ -1,9 +1,8 @@
-import { fetchCatalog } from "../services/api/time-series";
-import { GET_PREDEFINED_VARIABLES } from "./queries";
+import { getCatalog } from "../services/api/catalog";
 import { addMissingProperties } from "./helpers";
 
 export const catalogQuery = {
   queryKey: ["catalog"],
-  queryFn: () => fetchCatalog(GET_PREDEFINED_VARIABLES),
+  queryFn: getCatalog,
   select: addMissingProperties,
 };

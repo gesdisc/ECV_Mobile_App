@@ -79,38 +79,3 @@ export const fetchData = async (
     }
   }
 };
-
-/**
- * fetching graphql data
- *
- * @param query - graphql query string
- *
- */
-export const fetchCatalog = async (query: string) => {
-  const url =
-    "https://u2u5qu332rhmxpiazjcqz6gkdm.appsync-api.us-east-1.amazonaws.com/graphql";
-
-  const requestOptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": "da2-hg7462xbijdjvocfgx2xlxuytq",
-    },
-    body: JSON.stringify({ query }),
-  };
-
-  // eslint-disable-next-line no-useless-catch
-  try {
-    const response = await fetch(url, requestOptions);
-
-    if (response.status !== 200) {
-      throw new Error(`Failed to fetch catalog data: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    console.log("Fetched catalog data:", data);
-    return data?.data?.getVariables?.variables;
-  } catch (error) {
-    throw error;
-  }
-};
