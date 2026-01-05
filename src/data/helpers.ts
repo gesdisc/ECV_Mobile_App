@@ -1,5 +1,4 @@
 import { Variable, VariableWithLabel } from "./browse-variables.types";
-import { storeDataByKey, IndexedDbStores } from "./localforage";
 import catalog from "./catalog.json";
 
 /**
@@ -22,18 +21,4 @@ export function addMissingProperties(list: Variable[]): VariableWithLabel[] {
       subgroup: catalogItem?.subgroup || "unknown",
     };
   });
-}
-
-export async function cacheAllProductDetails(items: VariableWithLabel[]) {
-  console.log("Caching product details for items:", items);
-  // eslint-disable-next-line no-useless-catch
-  try {
-    await Promise.all(
-      items.map(async (item) =>
-        storeDataByKey(IndexedDbStores.CATALOG, item.dataFieldId, item)
-      )
-    );
-  } catch (error) {
-    throw error;
-  }
 }
