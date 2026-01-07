@@ -18,7 +18,10 @@ import { useDataParams } from "../../store/DataParamsContext";
 import { DefaultParams, TimeIntervalKey } from "../../constants/time-series";
 import { toLocalShortDateTime } from "../../utils/date";
 import { getMiddleIndex, convertTimeInterval } from "./helpers";
-import catalog from "./../Catalog/catalog.json";
+import useSelectedProductDetails, {
+  SelectedProductDetailsType,
+} from "../../hooks/useSelectedProductDetails";
+
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
 } from "@nasa-terra/components/dist/react/time-series";
@@ -41,22 +44,20 @@ const Plot: React.FC = () => {
     setMetadata,
     metadata,
   } = useDataParams();
+  const selectedProductDetails: SelectedProductDetailsType =
+    useSelectedProductDetails();
   const location = useLocation();
   const catalogPageVariable = location.state;
 
-  const productDetailsFromCatalog = catalog.find(
-    (data) => data.dataFieldId === ctxParams.variable
-  );
-
   const currentProductTimeInterval =
-    productDetailsFromCatalog?.dataProductTimeInterval;
+    selectedProductDetails?.dataProductTimeInterval;
 
   useEffect(() => {
-    if (!productDetailsFromCatalog) return;
+    if (!selectedProductDetails) return;
     setSelectedTimeInterval(
-      productDetailsFromCatalog?.dataProductTimeInterval as TimeIntervalKey
+      selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
     );
-  }, [productDetailsFromCatalog]);
+  }, [selectedProductDetails]);
 
   useEffect(() => {
     setSliderValue(getMiddleIndex(stateData));
