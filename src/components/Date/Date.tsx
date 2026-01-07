@@ -4,7 +4,7 @@ import { IonDatetime, DatetimeChangeEventDetail } from "@ionic/react";
 
 import { useDataParams } from "../../store/DataParamsContext";
 import { toStartOfDay } from "../../utils/date";
-import useSelectedProductDetails from "../../hooks/useSelectedProductDetails";
+import useProductDetails from "../../hooks/useProductDetails";
 
 import Banner from "../UI/Banner";
 
@@ -24,7 +24,7 @@ const Date = () => {
     requestUpdateParams,
   } = useDataParams();
 
-  const selectedProductDetails = useSelectedProductDetails();
+  const selectedProductDetails = useProductDetails(ctxParams.variable);
 
   const beginDateUpdateHandler = (
     event: CustomEvent<DatetimeChangeEventDetail>

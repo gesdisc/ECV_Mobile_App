@@ -24,9 +24,9 @@ import {
   getDefaultDateRange,
   extractLatLonFromCacheKey,
 } from "./helpers";
-import useSelectedProductDetails, {
+import useProductDetails, {
   SelectedProductDetailsType,
-} from "../../hooks/useSelectedProductDetails";
+} from "../../hooks/useProductDetails";
 import {
   getLatestCachedData,
   IndexedDbStores,
@@ -42,7 +42,6 @@ import TimeInterval from "./TimeInterval";
 
 import "./Plot.css";
 
-
 const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
   const [sliderValue, setSliderValue] = useState(0);
@@ -55,13 +54,22 @@ const Plot: React.FC = () => {
     setMetadata,
     metadata,
   } = useDataParams();
-  const selectedProductDetails: SelectedProductDetailsType =
-    useSelectedProductDetails();
+
   const location = useLocation();
   const catalogPageVariable = location.state;
 
+  // Get details of the variable selected by the user on the catalog page.
+  const selectedProductDetails: SelectedProductDetailsType = useProductDetails(
+    catalogPageVariable as string
+  );
+
+  // Get details of currently plotted variable
+  const plottedProductDetails: SelectedProductDetailsType = useProductDetails(
+    ctxParams.variable
+  );
+
   const currentProductTimeInterval =
-    selectedProductDetails?.dataProductTimeInterval;
+    plottedProductDetails?.dataProductTimeInterval;
 
   // Plot latest cached data
   useEffect(() => {
@@ -93,11 +101,11 @@ const Plot: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!selectedProductDetails) return;
+    if (!plottedProductDetails) return;
     setSelectedTimeInterval(
-      selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
+      plottedProductDetails?.dataProductTimeInterval as TimeIntervalKey
     );
-  }, [selectedProductDetails]);
+  }, [plottedProductDetails]);
 
   useEffect(() => {
     setSliderValue(getMiddleIndex(stateData));
