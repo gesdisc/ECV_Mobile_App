@@ -24,6 +24,9 @@ import {
   getDefaultDateRange,
   extractLatLonFromCacheKey,
 } from "./helpers";
+import useSelectedProductDetails, {
+  SelectedProductDetailsType,
+} from "../../hooks/useSelectedProductDetails";
 import {
   getLatestCachedData,
   IndexedDbStores,
@@ -38,9 +41,7 @@ import Banner from "../UI/Banner";
 import TimeInterval from "./TimeInterval";
 
 import "./Plot.css";
-import useSelectedProductDetails, {
-  SelectedProductDetailsType,
-} from "../../hooks/useSelectedProductDetails";
+
 
 const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
@@ -182,10 +183,6 @@ const Plot: React.FC = () => {
     setMetadata(e.detail.data.metadata);
   };
 
-  // Emitted whenever the date range is modified
-  // const timeSeriesDateRangeChangeHandler = (e: CustomEvent) => {
-  // };
-
   return (
     <IonPage>
       <IonContent fullscreen={true}>
@@ -208,7 +205,6 @@ const Plot: React.FC = () => {
             <IonRow>
               <IonCol size="12">
                 <TerraTimeSeries
-                  // onTerraDateRangeChange={timeSeriesDateRangeChangeHandler}
                   onTerraTimeSeriesDataChange={timeSeriesDataChangeHandler}
                   variableEntryId={ctxParams.variable}
                   start-date={ctxParams.begin_time.replace(

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { IonContent, IonPage } from "@ionic/react";
 import { useHistory } from "react-router-dom";
-import { useCatalogQuery } from "../../data/useCatalogQuery";
 
 import { TabMenuLabels } from "../../constants/ui";
 import { getDate } from "../../utils/date";
+import { useCatalogQuery } from "../../data/useCatalogQuery";
 
 import TerraLoader from "@nasa-terra/components/dist/react/loader";
 import Banner from "../UI/Banner";
@@ -14,9 +14,9 @@ import InfoPanel from "../UI/InfoPanel";
 const Catalog: React.FC = () => {
   const [variableId, setVariableId] = useState("");
   const history = useHistory();
-  const { data: catalog = [], isLoading, isFetching } = useCatalogQuery();
+  const { data: catalog, isLoading, isFetching } = useCatalogQuery();
 
-  const currentVariable = catalog.find(
+  const currentVariable = catalog?.find(
     (data) => data.dataFieldId === variableId
   );
 
@@ -87,14 +87,14 @@ const Catalog: React.FC = () => {
           {isLoading && (
             <TerraLoader indeterminate variant="large"></TerraLoader>
           )}
-          {!isLoading && catalog.length === 0 && (
+          {!isLoading && catalog?.length === 0 && (
             <p>Couldn&apos;t Find Catalog!</p>
           )}
-          {!isLoading && catalog.length > 0 && (
+          {!isLoading && (
             <Variables
               onVariableChange={variableChangeHandler}
               onRequestInfo={variableInfoHandler}
-              catalog={catalog}
+              catalog={catalog || []}
             />
           )}
         </div>

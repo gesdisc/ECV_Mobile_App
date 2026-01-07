@@ -5,7 +5,6 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-
 import { DataParams, TimeSeriesMetadata } from "../types/time-series.types";
 import { DefaultParams } from "../constants/time-series";
 import { convertToFixedFloat } from "../utils/converter";
