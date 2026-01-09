@@ -24,16 +24,17 @@ import {
   getDefaultDateRange,
   extractLatLonFromCacheKey,
 } from "./helpers";
+import useProductDetails, {
+  SelectedProductDetailsType,
+} from "../../hooks/useProductDetails";
 import {
   getLatestCachedData,
   IndexedDbStores,
 } from "../../services/indexDBService";
-import catalog from "./../Catalog/catalog.json";
 
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
 } from "@nasa-terra/components/dist/react/time-series";
-// import TerraTimeAverageMap from "@nasa-terra/components/dist/react/time-average-map";
 import Slider from "./Slider";
 import StorageManager from "./Storage/StorageManager";
 import Banner from "../UI/Banner";
@@ -53,15 +54,22 @@ const Plot: React.FC = () => {
     setMetadata,
     metadata,
   } = useDataParams();
+
   const location = useLocation();
   const catalogPageVariable = location.state;
 
-  const productDetailsFromCatalog = catalog.find(
-    (data) => data.dataFieldId === ctxParams.variable
+  // Get details of the variable selected by the user on the catalog page.
+  const selectedProductDetails: SelectedProductDetailsType = useProductDetails(
+    catalogPageVariable as string
+  );
+
+  // Get details of currently plotted variable
+  const plottedProductDetails: SelectedProductDetailsType = useProductDetails(
+    ctxParams.variable
   );
 
   const currentProductTimeInterval =
-    productDetailsFromCatalog?.dataProductTimeInterval;
+    plottedProductDetails?.dataProductTimeInterval;
 
   // Plot latest cached data
   useEffect(() => {
@@ -93,11 +101,11 @@ const Plot: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!productDetailsFromCatalog) return;
+    if (!plottedProductDetails) return;
     setSelectedTimeInterval(
-      productDetailsFromCatalog?.dataProductTimeInterval as TimeIntervalKey
+      plottedProductDetails?.dataProductTimeInterval as TimeIntervalKey
     );
-  }, [productDetailsFromCatalog]);
+  }, [plottedProductDetails]);
 
   useEffect(() => {
     setSliderValue(getMiddleIndex(stateData));
@@ -112,20 +120,18 @@ const Plot: React.FC = () => {
   useEffect(() => {
     if (!catalogPageVariable) return;
 
-    const productDetailsFromCatalog = catalog.find(
-      (data) => data.dataFieldId === catalogPageVariable
-    );
-
     const { startDate: defaultStartDate, endDate: defaultEndDate } =
       getDefaultDateRange(
-        dayjs(productDetailsFromCatalog?.dataProductBeginDateTime),
-        dayjs(productDetailsFromCatalog?.dataProductEndDateTime),
-        productDetailsFromCatalog?.dataProductTimeInterval as TimeIntervalKey
+        dayjs(selectedProductDetails?.dataProductBeginDateTime),
+        dayjs(selectedProductDetails?.dataProductEndDateTime),
+        selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
       );
 
     updateParams({
       begin_time: defaultStartDate,
       end_time: defaultEndDate,
+      // begin_time: "2019-10-01T00:00:00Z",
+      // end_time: "2019-12-01T00:00:00Z",
       variable: catalogPageVariable as string,
     });
   }, [catalogPageVariable]);
@@ -185,10 +191,6 @@ const Plot: React.FC = () => {
     setMetadata(e.detail.data.metadata);
   };
 
-  // Emitted whenever the date range is modified
-  // const timeSeriesDateRangeChangeHandler = (e: CustomEvent) => {
-  // };
-
   return (
     <IonPage>
       <IonContent fullscreen={true}>
@@ -209,22 +211,8 @@ const Plot: React.FC = () => {
           />
           <IonGrid fixed>
             <IonRow>
-              {/* <IonCol size="12">
-                <TerraTimeAverageMap
-                  style={{
-                    height: "300px",
-                  }}
-                  collection="M2T1NXAER_5_12_4"
-                  variable="BCCMASS"
-                  start-date="01/01/2009"
-                  end-date="01/05/2009"
-                  location="62,5,95,40"
-                  bearer-token="YOUR_BEARER_TOKEN"
-                ></TerraTimeAverageMap>
-              </IonCol> */}
               <IonCol size="12">
                 <TerraTimeSeries
-                  // onTerraDateRangeChange={timeSeriesDateRangeChangeHandler}
                   onTerraTimeSeriesDataChange={timeSeriesDataChangeHandler}
                   variableEntryId={ctxParams.variable}
                   start-date={ctxParams.begin_time.replace(

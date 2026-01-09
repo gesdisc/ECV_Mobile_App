@@ -1,0 +1,163 @@
+[
+  {
+    "dataFieldId": "GPM_3IMERGHH_07_precipitation",
+    "label": "Precipitation - Half Hourly",
+    "param": "Precipitation Rate",
+    "group": "Atmosphere",
+    "subgroup": "Surface"
+  },
+  {
+    "dataFieldId": "M2T1NXSLV_5_12_4_SLP",
+    "label": "Surface Pressure",
+    "param": "Sea Level Pressure",
+    "group": "Atmosphere",
+    "subgroup": "Surface"
+  },
+  {
+    "dataFieldId": "M2IMNXASM_5_12_4_T2M",
+    "label": "Surface Temperature - Monthly",
+    "param": "2-metter air temperature",
+    "group": "Atmosphere",
+    "subgroup": "Surface"
+  },
+  {
+    "dataFieldId": "M2T1NXFLX_5_12_4_SPEEDMAX",
+    "label": "Max Wind Speed",
+    "param": "surface wind max speed",
+    "group": "Atmosphere",
+    "subgroup": "Surface"
+  },
+  {
+    "dataFieldId": "M2T1NXFLX_5_12_4_SPEED",
+    "label": "Mean Wind Speed",
+    "param": "surface wind speed time averaged",
+    "group": "Atmosphere",
+    "subgroup": "Surface"
+  },
+  {
+    "dataFieldId": "GPM_3IMERGM_07_precipitation",
+    "label": "Precipitation - Monthly",
+    "param": "Precipitation Rate",
+    "group": "Atmosphere",
+    "subgroup": "Surface"
+  },
+  {
+    "dataFieldId": "MYD08_M3_6_1_Aerosol_Optical_Depth_Land_Ocean_Mean_Mean",
+    "label": "PM2.5 - Hourly",
+    "param": "AOD Mean",
+    "group": "Atmosphere",
+    "subgroup": "Atmospheric Composition"
+  },
+  {
+    "dataFieldId": "MOD08_D3_6_1_AOD_550_Dark_Target_Deep_Blue_Combined_Mean",
+    "label": "PM2.5 - Daily",
+    "param": "AOD Mean Daily",
+    "group": "Atmosphere",
+    "subgroup": "Atmospheric Composition"
+  },
+  {
+    "dataFieldId": "OCO2_GEOS_L3CO2_MONTH_10r_XCO2",
+    "label": "Carbon Dioxide",
+    "param": "CO2 Column Average",
+    "group": "Atmosphere",
+    "subgroup": "Atmospheric Composition"
+  },
+  {
+    "dataFieldId": "M2TMNXCHM_5_12_4_COSC",
+    "label": "Carbon Monoxide",
+    "param": "CO Surface Concentrate",
+    "group": "Atmosphere",
+    "subgroup": "Atmospheric Composition"
+  },
+  {
+    "dataFieldId": "OMDOAO3e_003_ColumnAmountO3",
+    "label": "Ozone - Daily",
+    "param": "Ozone - Total Column, Time Averaged",
+    "group": "Atmosphere",
+    "subgroup": "Atmospheric Composition"
+  },
+  {
+    "dataFieldId": "M2T1NXSLV_5_12_4_TO3",
+    "label": "Ozone - Hourly",
+    "param": "Ozone - Total Column",
+    "group": "Atmosphere",
+    "subgroup": "Atmospheric Composition"
+  },
+  {
+    "dataFieldId": "OMHCHOd_003_key_science_data_column_amount",
+    "label": "Formaldehyde",
+    "param": "HCHO Column Amount",
+    "group": "Atmosphere",
+    "subgroup": "Atmospheric Composition"
+  },
+  {
+    "dataFieldId": "OMNO2d_003_ColumnAmountNO2TropCloudScreened",
+    "label": "Nitrogen Dioxide - Troposphere",
+    "param": "NO2 Tropospheric Column",
+    "group": "Atmosphere",
+    "subgroup": "Atmospheric Composition"
+  },
+  {
+    "dataFieldId": "OMNO2d_003_ColumnAmountNO2CloudScreened",
+    "label": "Nitrogen Dioxide - Total Column",
+    "param": "NO2 Total Column",
+    "group": "Atmosphere",
+    "subgroup": "Atmospheric Composition"
+  },
+  {
+    "dataFieldId": "M2T1NXAER_5_12_4_TOTCMASS25",
+    "label": "PM2.5 - Monthly",
+    "param": "AOD Total Column Mass Density",
+    "group": "Atmosphere",
+    "subgroup": "Atmospheric Composition"
+  },
+  {
+    "dataFieldId": "GRACEDADM_CLSM0125US_7D_4_0_gws_inst",
+    "label": "Groundwater - Weekly",
+    "param": "Ground Water Stroage %",
+    "group": "Land",
+    "subgroup": "Hydrology"
+  },
+  {
+    "dataFieldId": "GLDAS_CLSM025_DA1_D_2_2_GWS_tavg",
+    "label": "Groundwater - Daily",
+    "param": "Ground Water Storage",
+    "group": "Land",
+    "subgroup": "Hydrology"
+  },
+  {
+    "dataFieldId": "GLDAS_NOAH025_M_2_1_Evap_tavg",
+    "label": "Evaporation from Land",
+    "param": "Total Evapotranspiration",
+    "group": "Land",
+    "subgroup": "Hydrology"
+  },
+  {
+    "dataFieldId": "GLDAS_NOAH025_M_2_1_RootMoist_inst",
+    "label": "Soil Moisture",
+    "param": "Root Zone Soil Moisture",
+    "group": "Land",
+    "subgroup": "Hydrology"
+  },
+  {
+    "dataFieldId": "GLDAS_CLSM025_DA1_D_2_2_Qs_tavg",
+    "label": "Surface Runoff",
+    "param": "Storm Surface Runoff",
+    "group": "Land",
+    "subgroup": "Hydrology"
+  },
+  {
+    "dataFieldId": "GLDAS_CLSM025_DA1_D_2_2_SWE_tavg",
+    "label": "Snow",
+    "param": "Snow Depth Water Equivalent",
+    "group": "Land",
+    "subgroup": "Cryosphere"
+  },
+  {
+    "dataFieldId": "GLDAS_NOAH025_M_2_1_Albedo_inst",
+    "label": "Albedo",
+    "param": "Albedo",
+    "group": "Land",
+    "subgroup": "Biology"
+  }
+]

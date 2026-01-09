@@ -7,7 +7,7 @@ import { TabMenuLabels } from "../constants/ui";
 import { useDataParams } from "./DataParamsContext";
 import { DefaultParams } from "../constants/time-series";
 
-import catalog from "../components/Catalog/catalog.json";
+import catalog from "../data/catalog.json";
 
 const DataParamsWatcher: React.FC = () => {
   const {
