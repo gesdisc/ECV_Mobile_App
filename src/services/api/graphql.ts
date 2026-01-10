@@ -1,4 +1,4 @@
-import { GET_PREDEFINED_VARIABLES } from "../../data/queries";
+import { GET_CATALOG, GET_VARIABLE_END_DATE } from "../../data/queries";
 
 /**
  * fetching graphql data
@@ -27,6 +27,11 @@ export const getTerraGraphQLData = async (query: string) => {
 };
 
 export async function getCatalog() {
-  const data = await getTerraGraphQLData(GET_PREDEFINED_VARIABLES);
+  const data = await getTerraGraphQLData(GET_CATALOG);
+  return data?.data?.getVariables?.variables;
+}
+
+export async function updateCatalog() {
+  const data = await getTerraGraphQLData(GET_VARIABLE_END_DATE);
   return data?.data?.getVariables?.variables;
 }

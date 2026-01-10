@@ -6,7 +6,10 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 0,
-      refetchInterval: SYNC_TTL,
+      refetchInterval: () => {
+        if (!window.navigator.onLine) return false; // Stop the interval when offline
+        return SYNC_TTL;
+      },
       gcTime: Infinity,
       networkMode: "offlineFirst",
       refetchOnWindowFocus: false,

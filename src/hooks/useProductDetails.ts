@@ -1,7 +1,5 @@
-import { useQueryClient } from "@tanstack/react-query";
-
 import { VariableWithLabel } from "../data/browse-variables.types";
-import { catalogQuery } from "../data/catalog.query";
+import { useCatalogQuery } from "../data/useCatalogQuery";
 
 export type SelectedProductDetailsType =
   | VariableWithLabel
@@ -16,12 +14,9 @@ export type SelectedProductDetailsType =
  *
  */
 const useProductDetails = (variable: string): SelectedProductDetailsType => {
-  const queryClient = useQueryClient();
+  const { data: catalog } = useCatalogQuery();
 
-  const cachedCatalog =
-    queryClient.getQueryData<VariableWithLabel[]>(catalogQuery.queryKey) ?? [];
-
-  const cachedItem = cachedCatalog.find(
+  const cachedItem = catalog?.find(
     (product) => product.dataFieldId === variable
   );
 

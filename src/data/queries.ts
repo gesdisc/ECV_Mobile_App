@@ -1,6 +1,4 @@
-export const GET_PREDEFINED_VARIABLES = `
-                query {
-                  getVariables(variableEntryIds: [
+const CATALOG = `[
                     "GPM_3IMERGHH_07_precipitation",
                     "M2T1NXSLV_5_12_4_SLP",
                     "M2IMNXASM_5_12_4_T2M",
@@ -24,7 +22,11 @@ export const GET_PREDEFINED_VARIABLES = `
                     "GLDAS_CLSM025_DA1_D_2_2_Qs_tavg",
                     "GLDAS_CLSM025_DA1_D_2_2_SWE_tavg",
                     "GLDAS_NOAH025_M_2_1_Albedo_inst"
-                  ]) {
+                  ]`;
+
+export const GET_CATALOG = `
+                query {
+                  getVariables(variableEntryIds: ${CATALOG}) {
                     variables {
                         dataFieldId
                         dataProductShortName
@@ -46,6 +48,17 @@ export const GET_PREDEFINED_VARIABLES = `
                         dataProductDescriptionUrl
                         dataFieldDescriptionUrl
                         dataProductInstrumentShortName
+                    }
+                    }
+                }
+                `;
+
+export const GET_VARIABLE_END_DATE = `
+                query {
+                  getVariables(variableEntryIds: ${CATALOG}) {
+                    variables {
+                        dataFieldId      
+                        dataProductEndDateTime
                     }
                     }
                 }
