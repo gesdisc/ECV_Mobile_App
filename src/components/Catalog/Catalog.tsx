@@ -1,23 +1,31 @@
-import React, { useState } from "react";
-import { IonContent, IonPage } from "@ionic/react";
+import React, { useEffect, useRef, useState } from "react";
+import { IonContent, IonPage, IonButton } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 
 import { TabMenuLabels } from "../../constants/ui";
 import { getDate } from "../../utils/date";
 import { useCatalogQuery } from "../../data/useCatalogQuery";
+import { useAuth } from "../../store/AuthContext";
 
 import TerraLoader from "@nasa-terra/components/dist/react/loader";
+import TerraLogin from "@nasa-terra/components/dist/react/login";
+import TerraButton from "@nasa-terra/components/dist/react/button";
 import Banner from "../UI/Banner";
 import Variables from "./Variables";
 import InfoPanel from "../UI/InfoPanel";
+import Login from "./Login";
+
+const EDL_DOMAIN = "https://uat.urs.earthdata.nasa.gov";
 
 const Catalog: React.FC = () => {
   const [variableId, setVariableId] = useState("");
   const history = useHistory();
   const { data: catalog, isLoading, isFetching } = useCatalogQuery();
 
+  const { user } = useAuth();
+
   const currentVariable = catalog?.find(
-    (data) => data.dataFieldId === variableId
+    (data) => data.dataFieldId === variableId,
   );
 
   const variableChangeHandler = (variable: string) =>
@@ -77,13 +85,26 @@ const Catalog: React.FC = () => {
   return (
     <IonPage>
       <IonContent>
-        <Banner />
+        <Banner>
+          {/* <IonButton
+            slot="end"
+            size="small"
+            onClick={() => setIsStorageOpen(true)}
+          >
+            <IonIcon aria-hidden="true" size="medium" icon={server} />
+          </IonButton> */}
+
+          <Login />
+        </Banner>
+
         <InfoPanel
           dataList={variableInfo}
           isOpen={!!variableId}
           afterDismiss={afterInfoPanelDismiss}
         />
         <div className="ion-padding">
+          {/* TODO: check if user exists */}
+          <p>Welcome {user?.first_name}.</p>
           {isLoading && (
             <TerraLoader indeterminate variant="large"></TerraLoader>
           )}

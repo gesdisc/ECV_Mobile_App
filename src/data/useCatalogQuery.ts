@@ -21,7 +21,7 @@ export function useCatalogQuery() {
       // Update dataProductEndDateTime of existing (cached) catalog variables
       return cached.map((prod) => {
         const update = updates.find(
-          (u: Variable) => u.dataFieldId === prod.dataFieldId
+          (u: Variable) => u.dataFieldId === prod.dataFieldId,
         );
         return update
           ? { ...prod, dataProductEndDateTime: update.dataProductEndDateTime }
