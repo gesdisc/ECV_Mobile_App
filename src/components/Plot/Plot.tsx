@@ -60,50 +60,51 @@ const Plot: React.FC = () => {
 
   // Get details of the variable selected by the user on the catalog page.
   const selectedProductDetails: SelectedProductDetailsType = useProductDetails(
-    catalogPageVariable as string
+    catalogPageVariable as string,
   );
 
   // Get details of currently plotted variable
   const plottedProductDetails: SelectedProductDetailsType = useProductDetails(
-    ctxParams.variable
+    ctxParams.variable,
   );
 
   const currentProductTimeInterval =
     plottedProductDetails?.dataProductTimeInterval;
 
+  // FIXME: SEEMS LIKE THIS IS CAUSING A WEIRD BUG...THAT PREVENTS TIME-SERIES COMPONENT FROM PLOTTING
   // Plot latest cached data
-  useEffect(() => {
-    if (!isEmpty(metadata)) return;
+  // useEffect(() => {
+  //   if (!isEmpty(metadata)) return;
 
-    getLatestCached();
-  }, []);
+  //   getLatestCached();
+  // }, []);
 
-  const getLatestCached = async () => {
-    try {
-      const data = await getLatestCachedData(IndexedDbStores.TIME_SERIES);
+  // const getLatestCached = async () => {
+  //   try {
+  //     const data = await getLatestCachedData(IndexedDbStores.TIME_SERIES);
 
-      if (isEmpty(data)) return;
+  //     if (isEmpty(data)) return;
 
-      const coords = extractLatLonFromCacheKey(data.key);
+  //     const coords = extractLatLonFromCacheKey(data.key);
 
-      if (!coords) return;
+  //     if (!coords) return;
 
-      updateParams({
-        lat: coords.lat,
-        lon: coords.lon,
-        begin_time: data.metadata.begin_time,
-        end_time: data.metadata.end_time,
-        variable: data.variableEntryId,
-      });
-    } catch (error) {
-      console.error("ERROR: ", error);
-    }
-  };
+  //     updateParams({
+  //       lat: coords.lat,
+  //       lon: coords.lon,
+  //       begin_time: data.metadata.begin_time,
+  //       end_time: data.metadata.end_time,
+  //       variable: data.variableEntryId,
+  //     });
+  //   } catch (error) {
+  //     console.error("ERROR: ", error);
+  //   }
+  // };
 
   useEffect(() => {
     if (!plottedProductDetails) return;
     setSelectedTimeInterval(
-      plottedProductDetails?.dataProductTimeInterval as TimeIntervalKey
+      plottedProductDetails?.dataProductTimeInterval as TimeIntervalKey,
     );
   }, [plottedProductDetails]);
 
@@ -124,7 +125,7 @@ const Plot: React.FC = () => {
       getDefaultDateRange(
         dayjs(selectedProductDetails?.dataProductBeginDateTime),
         dayjs(selectedProductDetails?.dataProductEndDateTime),
-        selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
+        selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey,
       );
 
     updateParams({
@@ -153,9 +154,9 @@ const Plot: React.FC = () => {
         prevNum -
           convertTimeInterval(
             currentProductTimeInterval as TimeIntervalKey,
-            selectedTimeInterval
-          )
-      )
+            selectedTimeInterval,
+          ),
+      ),
     );
   };
 
@@ -169,9 +170,9 @@ const Plot: React.FC = () => {
         prevNum +
           convertTimeInterval(
             currentProductTimeInterval as TimeIntervalKey,
-            selectedTimeInterval
-          )
-      )
+            selectedTimeInterval,
+          ),
+      ),
     );
   };
 
@@ -203,13 +204,13 @@ const Plot: React.FC = () => {
             <IonIcon aria-hidden="true" size="medium" icon={server} />
           </IonButton>
         </Banner>
-        <div className="ion-padding">
+        <div>
           <StorageManager
             onPlot={plotCachedItemHandler}
             isOpen={isStorageOpen}
             onModalClose={() => setIsStorageOpen(false)}
           />
-          <IonGrid fixed>
+          <IonGrid>
             <IonRow>
               <IonCol size="12">
                 <TerraTimeSeries
@@ -217,11 +218,11 @@ const Plot: React.FC = () => {
                   variableEntryId={ctxParams.variable}
                   start-date={ctxParams.begin_time.replace(
                     /(\d{4})-(\d{2})-(\d{2}).*/,
-                    "$2/$3/$1"
+                    "$2/$3/$1",
                   )}
                   end-date={ctxParams.end_time.replace(
                     /(\d{4})-(\d{2})-(\d{2}).*/,
-                    "$2/$3/$1"
+                    "$2/$3/$1",
                   )}
                   location={`${ctxParams.lat},${ctxParams.lon}`}
                 ></TerraTimeSeries>
@@ -244,7 +245,7 @@ const Plot: React.FC = () => {
                   disabled={isEmpty(metadata) && stateData.length === 0}
                   startDate={toLocalShortDateTime(stateData[0]?.timestamp)}
                   endDate={toLocalShortDateTime(
-                    stateData[stateData.length - 1]?.timestamp
+                    stateData[stateData.length - 1]?.timestamp,
                   )}
                 />
               </IonCol>
