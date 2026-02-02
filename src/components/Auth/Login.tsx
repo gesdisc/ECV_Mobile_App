@@ -2,7 +2,9 @@ import React, { useRef } from "react";
 import { TOKEN_KEY, useAuth } from "../../store/AuthContext";
 
 import TerraLoader from "@nasa-terra/components/dist/react/loader";
-import TerraLogin from "@nasa-terra/components/dist/react/login";
+import TerraLogin, {
+  TerraLoginEvent,
+} from "@nasa-terra/components/dist/react/login";
 import TerraButton from "@nasa-terra/components/dist/react/button";
 
 const EDL_DOMAIN = "https://uat.urs.earthdata.nasa.gov";
@@ -12,7 +14,7 @@ const Login: React.FC = () => {
   const hydratedRef = useRef(false);
 
   // Emitted when a bearer token has been received from EDL.
-  const terraLoginHandler = (e: any) => {
+  const terraLoginHandler = (e: TerraLoginEvent) => {
     const { user, token, error, isLoading } = e.detail;
 
     if (isLoading || error || !user) return;
