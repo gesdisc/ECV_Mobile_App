@@ -2,26 +2,33 @@ import React, { createContext, useContext, useState } from "react";
 
 export const TOKEN_KEY = "terra-token";
 
+// there are more properties not typed here, see https://urs.earthdata.nasa.gov/documentation/for_integrators/api_documentation#/api/users/%7Buserid%7D
+export type User = {
+  uid: string;
+  first_name: string;
+  last_name: string;
+  // email_address: string;
+};
+
 type AuthState = {
   token: string | null;
-  user: any | null;
+  user: User | null;
   isAuthenticated: boolean;
-  login: (token: string, user: any) => void;
+  login: (token: string | null, user: User) => void;
   logout: () => void;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
 
-// TODO: add user type
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [token, setToken] = useState<string | null>(() =>
     localStorage.getItem(TOKEN_KEY),
   );
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
-  const login = (token: string, user: any) => {
+  const login = (token: string | null, user: User) => {
     setToken(token);
     setUser(user);
   };
