@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 
-const TOKEN_KEY = "terra-token";
+export const TOKEN_KEY = "terra-token";
 
 type AuthState = {
   token: string | null;
@@ -28,7 +28,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = () => {
     if (!localStorage.getItem(TOKEN_KEY)) return;
-    console.log("logout");
     localStorage.removeItem(TOKEN_KEY);
     setToken(null);
     setUser(null);
