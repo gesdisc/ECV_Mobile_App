@@ -14,7 +14,7 @@ type AuthState = {
   token: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  login: (token: string | null, user: User) => void;
+  login: (token: string, user: User) => void;
   logout: () => void;
 };
 
@@ -28,7 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const [user, setUser] = useState<User | null>(null);
 
-  const login = (token: string | null, user: User) => {
+  const login = (token: string, user: User) => {
     setToken(token);
     setUser(user);
   };

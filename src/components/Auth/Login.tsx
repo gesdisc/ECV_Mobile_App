@@ -17,13 +17,14 @@ const Login: React.FC = () => {
   const terraLoginHandler = (e: TerraLoginEvent) => {
     const { user, token, error, isLoading } = e.detail;
 
-    if (isLoading || error || !user) return;
+    if (isLoading || error || !user || !token) return;
 
     if (hydratedRef.current) return;
 
     hydratedRef.current = true;
 
-    if (localStorage.getItem(TOKEN_KEY)) return;
+    // if (localStorage.getItem(TOKEN_KEY)) return;
+
     login(token, user);
   };
 
@@ -33,7 +34,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <TerraLogin onTerraLogin={terraLoginHandler}>
+    <TerraLogin onTerraLogin={terraLoginHandler} buttonLabel="Login">
       <TerraLoader
         slot="loading"
         indeterminate
@@ -42,7 +43,7 @@ const Login: React.FC = () => {
       ></TerraLoader>
       <TerraButton
         slot="logged-in"
-        variant="text"
+        variant="primary"
         href={`${EDL_DOMAIN}/logout?redirect_uri=${window.location.href}`}
         onClick={logoutHandler}
       >
