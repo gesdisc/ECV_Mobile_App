@@ -23,14 +23,14 @@ const CoordinateInput: React.FC<CoordinateInputProps> = ({
   onLngChange,
 }) => {
   return (
-    <IonFooter>
+    <IonFooter id="location-footer">
       <IonToolbar>
         <div className={`${styles["input-container"]}`}>
           <IonItem>
             <IonLabel position="floating">Latitude:</IonLabel>
             <IonInput
               type="number"
-              value={latitude.toString()}
+              value={latitude}
               onIonChange={onLatChange}
             />
           </IonItem>
@@ -38,7 +38,7 @@ const CoordinateInput: React.FC<CoordinateInputProps> = ({
             <IonLabel position="floating">Longitude:</IonLabel>
             <IonInput
               type="number"
-              value={longitude.toString()}
+              value={longitude}
               onIonChange={onLngChange}
             />
           </IonItem>

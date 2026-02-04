@@ -2,6 +2,7 @@ import React from "react";
 import { IonApp, setupIonicReact } from "@ionic/react";
 
 import { DataParamsProvider } from "./store/DataParamsContext";
+import { useCatalogQuery } from "./data/useCatalogQuery";
 
 import TabBar from "./navigation/TabMenu";
 
@@ -35,6 +36,8 @@ setBasePath("https://cdn.jsdelivr.net/npm/@nasa-terra/components@0.0.105/cdn/");
 setupIonicReact();
 
 const App: React.FC = () => {
+  useCatalogQuery();
+
   return (
     <IonApp>
       <DataParamsProvider>

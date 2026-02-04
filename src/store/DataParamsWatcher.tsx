@@ -1,12 +1,13 @@
 import React from "react";
-import { useHistory } from "react-router";
+import { useHistory, useLocation } from "react-router";
+import { IonToast } from "@ionic/react";
 import isEmpty from "lodash/isEmpty";
 
 import { TabMenuLabels } from "../constants/ui";
 import { useDataParams } from "./DataParamsContext";
 import { DefaultParams } from "../constants/time-series";
 
-import { IonToast } from "@ionic/react";
+import catalog from "../data/catalog.json";
 
 const DataParamsWatcher: React.FC = () => {
   const {
@@ -17,6 +18,18 @@ const DataParamsWatcher: React.FC = () => {
     cancelRequest,
   } = useDataParams();
   const history = useHistory();
+  const location = useLocation();
+
+  const variableDetails = catalog.find(
+    (data) => data.dataFieldId === DefaultParams.VARIABLE
+  );
+
+  // default position anchor: "tab-bar"
+  // Toast position anchor should change on location page
+  const anchor = () =>
+    location.pathname === `/${TabMenuLabels.LOCATION}`
+      ? "location-footer"
+      : "tab-bar";
 
   const buttons = [
     {
@@ -41,16 +54,17 @@ const DataParamsWatcher: React.FC = () => {
 
   return (
     <IonToast
+      key={anchor()}
       isOpen={!isEmpty(staged)}
       message={
         !isEmpty(metadata)
           ? "Parameters have been modified."
-          : `Do you want to plot "${DefaultParams.VARIABLE}"?`
+          : `Do you want to plot "${variableDetails?.label}"?`
       }
       color={"primary"}
       position={"bottom"}
       buttons={buttons}
-      positionAnchor="tab-bar"
+      positionAnchor={anchor()}
     />
   );
 };

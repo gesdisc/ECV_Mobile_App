@@ -5,7 +5,7 @@ import { trash } from "ionicons/icons";
 import { DataParams, VariableDbEntry } from "../../../types/time-series.types";
 import { extractLatLonFromCacheKey } from "../helpers";
 import { toLocalShortDateTime } from "../../../utils/date";
-import catalog from "../../Catalog/catalog.json";
+import catalog from "../../../data/catalog.json";
 
 import styles from "./StorageItem.module.css";
 

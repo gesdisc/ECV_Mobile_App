@@ -2,9 +2,9 @@ import React from "react";
 import { IonContent, IonPage, IonGrid, IonRow, IonCol } from "@ionic/react";
 import { IonDatetime, DatetimeChangeEventDetail } from "@ionic/react";
 
-import catalog from "../Catalog/catalog.json";
 import { useDataParams } from "../../store/DataParamsContext";
 import { toStartOfDay } from "../../utils/date";
+import useProductDetails from "../../hooks/useProductDetails";
 
 import Banner from "../UI/Banner";
 
@@ -15,7 +15,6 @@ import styles from "./Date.module.css";
  * The component restricts selecting a start date that is after the end date
  * AND end date that is before the start date
  *
- * Minimum allowed date of a variable can be found in catalog.json
  *
  */
 const Date = () => {
@@ -25,9 +24,7 @@ const Date = () => {
     requestUpdateParams,
   } = useDataParams();
 
-  const currentVariableData = catalog.find(
-    (data) => data.dataFieldId === ctxParams.variable
-  );
+  const selectedProductDetails = useProductDetails(ctxParams.variable);
 
   const beginDateUpdateHandler = (
     event: CustomEvent<DatetimeChangeEventDetail>
@@ -54,7 +51,7 @@ const Date = () => {
                   stagedParams.begin_time || ctxParams.begin_time
                 )}
                 onIonChange={beginDateUpdateHandler}
-                min={currentVariableData?.dataProductBeginDateTime}
+                min={selectedProductDetails?.dataProductBeginDateTime}
                 max={toStartOfDay(stagedParams.end_time || ctxParams.end_time)}
                 style={{ width: "100%" }}
               >
