@@ -1,0 +1,10 @@
+terra-button.logout::part(base) {
+  color: white;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.popover {
+  --width: auto;
+  --height: auto;
+}
