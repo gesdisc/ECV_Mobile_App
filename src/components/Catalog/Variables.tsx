@@ -18,7 +18,7 @@ interface VariablesProps {
   catalog: VariableWithLabel[];
 }
 
-const topics = ["Atmosphere", "Land", "Ocean"];
+const topics = ["Atmosphere", "Land"];
 
 const Variables: React.FC<VariablesProps> = ({
   onVariableChange,
