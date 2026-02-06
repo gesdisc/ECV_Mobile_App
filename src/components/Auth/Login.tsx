@@ -12,7 +12,7 @@ import TerraButton from "@nasa-terra/components/dist/react/button";
 
 import styles from "./Login.module.css";
 
-const EDL_DOMAIN = "https://uat.urs.earthdata.nasa.gov";
+const EDL_DOMAIN = "https://urs.earthdata.nasa.gov";
 
 const Login: React.FC = () => {
   const { login, logout, user } = useAuth();
