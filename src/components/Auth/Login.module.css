@@ -7,4 +7,5 @@ terra-button.logout::part(base) {
 .popover {
   --width: auto;
   --height: auto;
+  --offset-x: -30px;
 }
