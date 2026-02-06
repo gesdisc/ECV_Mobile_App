@@ -188,12 +188,9 @@ const Plot: React.FC = () => {
 
   // Emitted whenever time series data has been fetched from Giovanni. Or zoomed in/out.
   const timeSeriesDataChangeHandler = (e: TerraTimeSeriesDataChangeEvent) => {
-    console.log(e.detail);
     setStateData(e.detail.data.data);
     setMetadata(e.detail.data.metadata);
   };
-
-  console.log(toLocalShortDateTime(stateData[0]?.timestamp));
 
   return (
     <IonPage>
