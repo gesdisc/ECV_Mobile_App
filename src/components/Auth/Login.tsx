@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { IonContent, IonIcon, IonPopover } from "@ionic/react";
-import { caretDownOutline } from "ionicons/icons";
+import { person } from "ionicons/icons";
 
 import { useAuth } from "../../store/AuthContext";
 
@@ -43,7 +43,7 @@ const Login: React.FC = () => {
           slot="loading"
           indeterminate
           variant="small"
-          style={{ height: "auto" }}
+          className={styles.spinner}
         ></TerraLoader>
         <TerraButton
           slot="logged-in"
@@ -51,25 +51,28 @@ const Login: React.FC = () => {
           id="popover-button"
           className={styles.logout}
         >
-          {user?.uid}
-          <IonIcon slot="suffix" icon={caretDownOutline} size="small"></IonIcon>
+          <IonIcon icon={person} size="small"></IonIcon>
         </TerraButton>
       </TerraLogin>
 
       <IonPopover
         trigger="popover-button"
         dismissOnSelect={true}
-        arrow={true}
+        arrow={false}
         className={styles.popover}
+        alignment="center"
       >
-        <IonContent class="ion-padding">
-          <TerraButton
-            variant="primary"
-            href={`${EDL_DOMAIN}/logout?redirect_uri=${window.location.href}`}
-            onClick={logoutHandler}
-          >
-            Logout
-          </TerraButton>
+        <IonContent className="ion-padding">
+          <div className={styles.popoverContent}>
+            <p>{user?.uid}:</p>
+            <TerraButton
+              variant="primary"
+              href={`${EDL_DOMAIN}/logout?redirect_uri=${window.location.href}`}
+              onClick={logoutHandler}
+            >
+              Logout
+            </TerraButton>
+          </div>
         </IonContent>
       </IonPopover>
     </>

@@ -4,8 +4,19 @@ terra-button.logout::part(base) {
   font-size: 16px;
 }
 
+.spinner {
+  height: auto;
+}
+
 .popover {
   --width: auto;
   --height: auto;
-  --offset-x: -30px;
+  --offset-x: -160px;
+}
+
+.popoverContent {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
 }
