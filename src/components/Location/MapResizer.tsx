@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useMap } from "react-leaflet";
 
 import { useDataParams } from "../../store/DataParamsContext";
+import { SpatialAreaType } from "../../types/time-series.types";
 
 /**
  *
@@ -20,11 +21,25 @@ const MapResizer: React.FC = () => {
       map.invalidateSize();
     }, 250);
 
-    map.setView([ctxParams.lat, ctxParams.lon], map.getZoom(), {
-      animate: true,
-    });
+    // TODO: SUPPORT STAGED PARAMS???
+    // TODO: SUPPORT BBOX???
+    if (ctxParams.spatialArea.type === SpatialAreaType.COORDINATES) {
+      map.setView(
+        [
+          parseFloat(ctxParams.spatialArea.value.lat),
+          parseFloat(ctxParams.spatialArea.value.lng),
+        ],
+        // map.getZoom(), // FIXME: PRODUCED ERROR (use fixed integer instead)
+        2,
+        {
+          animate: true,
+        },
+      );
+    }
+    map.setZoom(map.getZoom());
+
     return () => clearTimeout(timeoutId);
-  }, [map, ctxParams.lat, ctxParams.lon]);
+  }, [map]);
 
   return null;
 };

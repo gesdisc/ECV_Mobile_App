@@ -5,7 +5,11 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import { DataParams, TimeSeriesMetadata } from "../types/time-series.types";
+import {
+  DataParams,
+  TimeSeriesMetadata,
+  SpatialAreaType,
+} from "../types/time-series.types";
 import { DefaultParams } from "../constants/time-series";
 import { convertToFixedFloat } from "../utils/converter";
 import { isValidUTC } from "../utils/date";
@@ -26,8 +30,15 @@ const initialContextValue: DataParamsContextType = {
     variable: "",
     begin_time: DefaultParams.BEGIN_TIME,
     end_time: DefaultParams.END_TIME,
-    lat: DefaultParams.LATITUDE,
-    lon: DefaultParams.LONGITUDE,
+    spatialArea: {
+      type: SpatialAreaType.COORDINATES,
+      value: {
+        lat: DefaultParams.LATITUDE.toString(),
+        lng: DefaultParams.LONGITUDE.toString(),
+      },
+    },
+    // lat: DefaultParams.LATITUDE,
+    // lon: DefaultParams.LONGITUDE,
   },
   staged: {},
   metadata: {},
@@ -61,8 +72,13 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
     variable: "",
     begin_time: DefaultParams.BEGIN_TIME,
     end_time: DefaultParams.END_TIME,
-    lat: DefaultParams.LATITUDE,
-    lon: DefaultParams.LONGITUDE,
+    spatialArea: {
+      type: SpatialAreaType.COORDINATES,
+      value: {
+        lat: DefaultParams.LATITUDE.toString(),
+        lng: DefaultParams.LONGITUDE.toString(),
+      },
+    },
   });
   const [staged, setStaged] = useState<Partial<DataParams>>({});
   const [metadata, setMetadata] = useState<Partial<TimeSeriesMetadata>>({});
@@ -78,8 +94,13 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
         if (!deviceLat || !deviceLon) return;
 
         updateParams({
-          lat: convertToFixedFloat(deviceLat, 4),
-          lon: convertToFixedFloat(deviceLon, 4),
+          spatialArea: {
+            type: SpatialAreaType.COORDINATES,
+            value: {
+              lat: convertToFixedFloat(deviceLat, 4).toString(),
+              lng: convertToFixedFloat(deviceLon, 4).toString(),
+            },
+          },
         });
       } catch (error) {
         console.error(error);

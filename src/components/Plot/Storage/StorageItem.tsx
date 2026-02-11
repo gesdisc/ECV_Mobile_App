@@ -2,7 +2,11 @@ import React from "react";
 import { IonButton, IonIcon, IonItem, IonLabel, IonText } from "@ionic/react";
 import { trash } from "ionicons/icons";
 
-import { DataParams, VariableDbEntry } from "../../../types/time-series.types";
+import {
+  DataParams,
+  VariableDbEntry,
+  SpatialAreaType,
+} from "../../../types/time-series.types";
 import { extractLatLonFromCacheKey } from "../helpers";
 import { toLocalShortDateTime } from "../../../utils/date";
 import catalog from "../../../data/catalog.json";
@@ -12,7 +16,7 @@ import styles from "./StorageItem.module.css";
 interface StorageItemProps {
   item: Partial<VariableDbEntry>;
   onDelete: (key: string) => void;
-  onPlot: ({ lat, lon, begin_time, end_time, variable }: DataParams) => void;
+  onPlot: (cachedItem: DataParams) => void;
 }
 
 const StorageItem: React.FC<StorageItemProps> = ({
@@ -21,25 +25,58 @@ const StorageItem: React.FC<StorageItemProps> = ({
   onPlot,
 }) => {
   const itemMetadataFromCatalog = catalog.find(
-    (data) => data.dataFieldId === item.variableEntryId
+    (data) => data.dataFieldId === item.variableEntryId,
   );
 
   const plotCachedItemHandler = () => {
     if (!item.key) return;
 
+    // TODO: WILL NOT WORK IN CASE OF BBOX AREA
     const coords = extractLatLonFromCacheKey(item.key);
 
     if (!coords || !item.metadata || !item.variableEntryId) return;
 
-    const cachedDataParams = {
-      lat: coords.lat,
-      lon: coords.lon,
-      begin_time: item.metadata.begin_time,
-      end_time: item.metadata.end_time,
-      variable: item.variableEntryId,
-    };
+    if (item.metadata.lat && item.metadata.lon) {
+      // TODO: USE convertToFixedFloat to convert lat,lon into fixed float
+      const cachedDataParams: DataParams = {
+        // lat: coords.lat,
+        // lon: coords.lon,
+        variable: item.variableEntryId,
+        begin_time: item.metadata.begin_time,
+        end_time: item.metadata.end_time,
+        spatialArea: {
+          type: SpatialAreaType.COORDINATES,
+          value: {
+            // lat: convertToFixedFloat(deviceLat, 4).toString(),
+            // lng: convertToFixedFloat(deviceLon, 4).toString(),
+            lat: `${coords.lat}`,
+            lng: `${coords.lon}`,
+          },
+        },
+      };
 
-    onPlot(cachedDataParams);
+      onPlot(cachedDataParams);
+    } else {
+      // TODO: USE convertToFixedFloat to convert lat,lon into fixed float
+      const cachedDataParams: DataParams = {
+        // lat: coords.lat,
+        // lon: coords.lon,
+        spatialArea: {
+          type: SpatialAreaType.BOUNDING_BOX,
+          value: {
+            west: "10",
+            south: "10",
+            east: "10",
+            north: "10",
+          },
+        },
+        begin_time: item.metadata.begin_time,
+        end_time: item.metadata.end_time,
+        variable: item.variableEntryId,
+      };
+
+      onPlot(cachedDataParams);
+    }
   };
 
   return (

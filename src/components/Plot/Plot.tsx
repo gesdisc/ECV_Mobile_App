@@ -14,7 +14,11 @@ import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import { isEmpty } from "lodash";
 
-import { TimeSeriesDataRow, DataParams } from "../../types/time-series.types";
+import {
+  TimeSeriesDataRow,
+  DataParams,
+  SpatialAreaType,
+} from "../../types/time-series.types";
 import { TimeIntervalKey } from "../../constants/time-series";
 import { useDataParams } from "../../store/DataParamsContext";
 import { toLocalShortDateTime } from "../../utils/date";
@@ -60,12 +64,12 @@ const Plot: React.FC = () => {
 
   // Get details of the variable selected by the user on the catalog page.
   const selectedProductDetails: SelectedProductDetailsType = useProductDetails(
-    catalogPageVariable as string,
+    catalogPageVariable as string
   );
 
   // Get details of currently plotted variable
   const plottedProductDetails: SelectedProductDetailsType = useProductDetails(
-    ctxParams.variable,
+    ctxParams.variable
   );
 
   const currentProductTimeInterval =
@@ -104,7 +108,7 @@ const Plot: React.FC = () => {
   useEffect(() => {
     if (!plottedProductDetails) return;
     setSelectedTimeInterval(
-      plottedProductDetails?.dataProductTimeInterval as TimeIntervalKey,
+      plottedProductDetails?.dataProductTimeInterval as TimeIntervalKey
     );
   }, [plottedProductDetails]);
 
@@ -125,7 +129,7 @@ const Plot: React.FC = () => {
       getDefaultDateRange(
         dayjs(selectedProductDetails?.dataProductBeginDateTime),
         dayjs(selectedProductDetails?.dataProductEndDateTime),
-        selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey,
+        selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
       );
 
     updateParams({
@@ -154,9 +158,9 @@ const Plot: React.FC = () => {
         prevNum -
           convertTimeInterval(
             currentProductTimeInterval as TimeIntervalKey,
-            selectedTimeInterval,
-          ),
-      ),
+            selectedTimeInterval
+          )
+      )
     );
   };
 
@@ -170,20 +174,14 @@ const Plot: React.FC = () => {
         prevNum +
           convertTimeInterval(
             currentProductTimeInterval as TimeIntervalKey,
-            selectedTimeInterval,
-          ),
-      ),
+            selectedTimeInterval
+          )
+      )
     );
   };
 
   const plotCachedItemHandler = (newParams: DataParams) => {
-    updateParams({
-      lat: newParams.lat,
-      lon: newParams.lon,
-      begin_time: newParams.begin_time,
-      end_time: newParams.end_time,
-      variable: newParams.variable,
-    });
+    updateParams(newParams);
   };
 
   // Emitted whenever time series data has been fetched from Giovanni. Or zoomed in/out.
@@ -218,13 +216,15 @@ const Plot: React.FC = () => {
                   variableEntryId={ctxParams.variable}
                   start-date={ctxParams.begin_time.replace(
                     /(\d{4})-(\d{2})-(\d{2}).*/,
-                    "$2/$3/$1",
+                    "$2/$3/$1"
                   )}
                   end-date={ctxParams.end_time.replace(
                     /(\d{4})-(\d{2})-(\d{2}).*/,
-                    "$2/$3/$1",
+                    "$2/$3/$1"
                   )}
-                  location={`${ctxParams.lat},${ctxParams.lon}`}
+                  location={Object.values(ctxParams.spatialArea.value).join(
+                    ","
+                  )}
                 ></TerraTimeSeries>
               </IonCol>
               <IonCol size="12">
@@ -245,7 +245,7 @@ const Plot: React.FC = () => {
                   disabled={isEmpty(metadata) && stateData.length === 0}
                   startDate={toLocalShortDateTime(stateData[0]?.timestamp)}
                   endDate={toLocalShortDateTime(
-                    stateData[stateData.length - 1]?.timestamp,
+                    stateData[stateData.length - 1]?.timestamp
                   )}
                 />
               </IonCol>
