@@ -1,7 +1,8 @@
-import React, { useRef } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { IonContent, IonPage } from "@ionic/react";
-import { MapContainer, TileLayer } from "react-leaflet";
-import L from "leaflet";
+import { MapContainer, Rectangle, TileLayer, useMap } from "react-leaflet";
+// import { EditControl } from 'react-leaflet-draw';
+import L, { LatLngBoundsExpression } from "leaflet";
 
 import { useDataParams } from "../../store/DataParamsContext";
 import { convertToFixedFloat } from "../../utils/converter";
@@ -18,6 +19,58 @@ import CoordinateInput from "./CoordinateInput";
 
 import "leaflet/dist/leaflet.css";
 import styles from "./Location.module.css";
+import BBoxHandler from "./BBoxHandler";
+
+const innerBounds: LatLngBoundsExpression = [
+  [49.505, -2.09],
+  [53.505, 2.09],
+];
+const outerBounds: LatLngBoundsExpression = [
+  [50.505, -29.09],
+  [52.505, 29.09],
+];
+
+const redColor = { color: "red" };
+const whiteColor = { color: "white" };
+
+function SetBoundsRectangles() {
+  const [bounds, setBounds] = useState(outerBounds);
+  const map = useMap();
+
+  const innerHandlers = useMemo(
+    () => ({
+      click() {
+        setBounds(innerBounds);
+        map.fitBounds(innerBounds);
+      },
+    }),
+    [map],
+  );
+  const outerHandlers = useMemo(
+    () => ({
+      click() {
+        setBounds(outerBounds);
+        map.fitBounds(outerBounds);
+      },
+    }),
+    [map],
+  );
+
+  return (
+    <>
+      <Rectangle
+        bounds={outerBounds}
+        eventHandlers={outerHandlers}
+        pathOptions={bounds === outerBounds ? redColor : whiteColor}
+      />
+      <Rectangle
+        bounds={innerBounds}
+        eventHandlers={innerHandlers}
+        pathOptions={bounds === innerBounds ? redColor : whiteColor}
+      />
+    </>
+  );
+}
 
 // Fix default marker icon issues
 L.Icon.Default.mergeOptions({
@@ -40,6 +93,8 @@ const Location: React.FC = () => {
     requestUpdateParams({ lon: convertToFixedFloat(newLng, 4) });
   };
 
+  const [selection, setSelection] = useState<any>();
+
   return (
     <IonPage>
       <Banner />
@@ -55,8 +110,20 @@ const Location: React.FC = () => {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" // tile source
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' // attribution
             />
-            <LocationMarker />
+            {/* <SetBoundsRectangles /> */}
+            <BBoxHandler setSelection={setSelection} />
+            {!selection?.minLat && <LocationMarker />}
             <MapResizer />
+            {selection?.minLat && (
+              <Rectangle
+                bounds={[
+                  [selection.minLat, selection.minLng],
+                  [selection.maxLat, selection.maxLng],
+                ]}
+                // eventHandlers={outerHandlers}
+                // pathOptions={bounds === outerBounds ? redColor : whiteColor}
+              />
+            )}
           </MapContainer>
         </div>
       </IonContent>
