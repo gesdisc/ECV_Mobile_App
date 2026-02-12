@@ -13,3 +13,9 @@
 .input-container ion-item {
   flex: 1;
 }
+
+/* TODO: CHECK IF THIS AFFECTS */
+ion-fab {
+  margin-top: var(--ion-safe-area-top, 0);
+  margin-bottom: 50px;
+}

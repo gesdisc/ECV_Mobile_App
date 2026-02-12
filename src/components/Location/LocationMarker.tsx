@@ -22,22 +22,30 @@ const LocationMarker: React.FC = () => {
     },
   });
 
-  // TODO: ADD THIS CONDITIONS IN Location.tsx????
-  if (ctxParams.spatialArea.type !== SpatialAreaType.COORDINATES) return null;
-  if (staged.spatialArea?.type !== SpatialAreaType.COORDINATES) return null;
+  if (staged.spatialArea?.type === SpatialAreaType.COORDINATES) {
+    return (
+      <Marker
+        position={[
+          parseFloat(staged.spatialArea.value.lat),
+          parseFloat(staged.spatialArea.value.lng),
+        ]}
+      ></Marker>
+    );
+  }
 
-  return (
-    <Marker
-      position={[
-        parseFloat(
-          staged.spatialArea.value.lat || ctxParams.spatialArea.value.lat,
-        ),
-        parseFloat(
-          staged.spatialArea.value.lng || ctxParams.spatialArea.value.lng,
-        ),
-      ]}
-    ></Marker>
-  );
+  // TODO: ADD THIS CONDITIONS IN Location.tsx????
+  if (ctxParams.spatialArea.type === SpatialAreaType.COORDINATES) {
+    return (
+      <Marker
+        position={[
+          parseFloat(ctxParams.spatialArea.value.lat),
+          parseFloat(ctxParams.spatialArea.value.lng),
+        ]}
+      ></Marker>
+    );
+  }
+
+  return null;
 };
 
 export default LocationMarker;
