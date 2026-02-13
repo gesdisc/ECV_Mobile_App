@@ -10,7 +10,6 @@ import TerraLoader from "@nasa-terra/components/dist/react/loader";
 import Banner from "../UI/Banner";
 import Variables from "./Variables";
 import InfoPanel from "../UI/InfoPanel";
-import Login from "../Auth/Login";
 
 const Catalog: React.FC = () => {
   const [variableId, setVariableId] = useState("");
@@ -78,10 +77,7 @@ const Catalog: React.FC = () => {
   return (
     <IonPage>
       <IonContent>
-        <Banner>
-          <Login />
-        </Banner>
-
+        <Banner />
         <InfoPanel
           dataList={variableInfo}
           isOpen={!!variableId}
