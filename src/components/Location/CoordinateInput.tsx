@@ -7,6 +7,8 @@ import {
   IonInput,
 } from "@ionic/react";
 
+import { SpatialAreaType } from "../../types/time-series.types";
+
 import styles from "./Location.module.css";
 
 interface CoordinateInputProps {
@@ -14,6 +16,7 @@ interface CoordinateInputProps {
   longitude: number;
   onLatChange: (e: CustomEvent) => void;
   onLngChange: (e: CustomEvent) => void;
+  mapOption?: SpatialAreaType;
 }
 
 const CoordinateInput: React.FC<CoordinateInputProps> = ({
@@ -21,13 +24,18 @@ const CoordinateInput: React.FC<CoordinateInputProps> = ({
   longitude,
   onLatChange,
   onLngChange,
+  mapOption,
 }) => {
   return (
     <IonFooter id="location-footer">
       <IonToolbar>
         <div className={`${styles["input-container"]}`}>
           <IonItem>
-            <IonLabel position="floating">Latitude:</IonLabel>
+            <IonLabel position="floating">
+              {mapOption === SpatialAreaType.COORDINATES
+                ? "Latitude:"
+                : "South:"}
+            </IonLabel>
             <IonInput
               type="number"
               value={latitude}
@@ -35,13 +43,38 @@ const CoordinateInput: React.FC<CoordinateInputProps> = ({
             />
           </IonItem>
           <IonItem>
-            <IonLabel position="floating">Longitude:</IonLabel>
+            <IonLabel position="floating">
+              {mapOption === SpatialAreaType.COORDINATES
+                ? "Longitude:"
+                : "west:"}
+            </IonLabel>
             <IonInput
               type="number"
               value={longitude}
               onIonChange={onLngChange}
+              clearOnEdit={true}
             />
           </IonItem>
+          {mapOption === SpatialAreaType.BOUNDING_BOX && (
+            <>
+              <IonItem>
+                <IonLabel position="floating">north:</IonLabel>
+                <IonInput
+                  type="number"
+                  value={longitude}
+                  onIonChange={onLngChange}
+                />
+              </IonItem>
+              <IonItem>
+                <IonLabel position="floating">east:</IonLabel>
+                <IonInput
+                  type="number"
+                  value={longitude}
+                  onIonChange={onLngChange}
+                />
+              </IonItem>
+            </>
+          )}
         </div>
       </IonToolbar>
     </IonFooter>

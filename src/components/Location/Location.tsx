@@ -24,7 +24,7 @@ import Banner from "../UI/Banner";
 import MapResizer from "./MapResizer";
 import LocationMarker from "./LocationMarker";
 import CoordinateInput from "./CoordinateInput";
-import BBoxHandler from "./BBoxHandler";
+import BoundingBox from "./BoundingBox";
 
 import "leaflet/dist/leaflet.css";
 import styles from "./Location.module.css";
@@ -104,18 +104,21 @@ const Location: React.FC = () => {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" // tile source
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' // attribution
             />
-            {mapOption === SpatialAreaType.BOUNDING_BOX && <BBoxHandler />}
+            {mapOption === SpatialAreaType.BOUNDING_BOX && <BoundingBox />}
             {mapOption === SpatialAreaType.COORDINATES && <LocationMarker />}
             <MapResizer />
           </MapContainer>
         </div>
       </IonContent>
-      {/* <CoordinateInput
-        latitude={staged.lat || ctxParams.lat}
-        longitude={staged.lon || ctxParams.lon}
+      <CoordinateInput
+        // latitude={staged.lat || ctxParams.lat}
+        // longitude={staged.lon || ctxParams.lon}
+        latitude={15}
+        longitude={15}
         onLatChange={handleLatChange}
         onLngChange={handleLngChange}
-      /> */}
+        mapOption={mapOption}
+      />
     </IonPage>
   );
 };

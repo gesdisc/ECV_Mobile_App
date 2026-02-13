@@ -6,10 +6,19 @@ import { useDataParams } from "../../store/DataParamsContext";
 import { SpatialAreaType } from "../../types/time-series.types";
 import { convertToFixedFloat } from "../../utils/converter";
 
-const BBoxHandler: React.FC = () => {
+const BoundingBox: React.FC = () => {
   const map = useMap();
+
+  /**
+   * Starting coordinate of the drag.
+   */
   const startRef = useRef<L.LatLng | null>(null);
-  const drawingRef = useRef(false);
+
+  /**
+   * Tracks whether we are currently drawing without triggering React renders on every pixel move.
+   */
+  const isDrawingRef = useRef(false);
+
   const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
 
   useMapEvents({
@@ -17,15 +26,23 @@ const BBoxHandler: React.FC = () => {
     mousedown(e: any) {
       //   if (mode !== "bbox") return;
 
-      drawingRef.current = true;
+      // Mark drawing session as started
+      isDrawingRef.current = true;
+
+      // Save the starting coordinate of the rectangle
       startRef.current = e.latlng;
+
+      // Disable map panning while drawing
       map.dragging.disable();
     },
 
     // TODO: replace type any
     mousemove(e: any) {
-      if (!drawingRef.current || !startRef.current) return;
+      // If we are not actively drawing, ignore movement.
+      if (!isDrawingRef.current || !startRef.current) return;
 
+      // Leaflet automatically normalizes direction
+      // (dragging any diagonal still produces valid bounds).
       const bounds = L.latLngBounds(startRef.current, e.latlng);
 
       requestUpdateParams({
@@ -42,10 +59,15 @@ const BBoxHandler: React.FC = () => {
     },
 
     mouseup() {
-      if (!drawingRef.current) return;
+      // If drawing never started, do nothing.
+      if (!isDrawingRef.current) return;
 
-      drawingRef.current = false;
+      // End drawing session
+      isDrawingRef.current = false;
+
+      // Clear stored starting coordinate
       startRef.current = null;
+
       map.dragging.enable();
     },
   });
@@ -87,4 +109,4 @@ const BBoxHandler: React.FC = () => {
   return null;
 };
 
-export default BBoxHandler;
+export default BoundingBox;
