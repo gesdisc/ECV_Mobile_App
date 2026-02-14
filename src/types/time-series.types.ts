@@ -65,10 +65,19 @@ export enum SpatialAreaType {
   BOUNDING_BOX = "bounding_box",
 }
 
+export type Coordinates = { lat: string; lng: string };
+
+export type BoundingBox = {
+  west: string;
+  south: string;
+  east: string;
+  north: string;
+};
+
 export type SpatialArea =
   // | { type: SpatialAreaType.GLOBAL }
-  | { type: SpatialAreaType.COORDINATES; value: { lat: string; lng: string } }
+  | { type: SpatialAreaType.COORDINATES; value: Coordinates }
   | {
       type: SpatialAreaType.BOUNDING_BOX;
-      value: { west: string; south: string; east: string; north: string };
+      value: BoundingBox;
     };

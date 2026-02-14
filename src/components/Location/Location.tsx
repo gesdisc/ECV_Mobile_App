@@ -7,7 +7,7 @@ import {
   IonFabList,
   IonIcon,
 } from "@ionic/react";
-import { location, square, chevronDownCircle } from "ionicons/icons";
+import { location, square, chevronUpCircle } from "ionicons/icons";
 import { MapContainer, TileLayer } from "react-leaflet";
 import L from "leaflet";
 
@@ -41,30 +41,38 @@ L.Icon.Default.mergeOptions({
 // TODO: RESTRICT AREA COORDINATES???
 const Location: React.FC = () => {
   const mapRef = useRef(null);
+  const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
+
   const [mapOption, setMapOption] = useState<SpatialAreaType>(
     SpatialAreaType.COORDINATES,
   );
 
-  const handleLatChange = (e: CustomEvent) => {
-    const newLat = e.detail.value; // get new latitude
-    // requestUpdateParams({ lat: convertToFixedFloat(newLat, 4) });
-    // requestUpdateParams({
-    //   spatialArea: {
-    //     type: SpatialAreaType.COORDINATES,
-    //     value: {
-    //       lat: convertToFixedFloat(newLat, 4).toString(),
-    //       lng: convertToFixedFloat(
-    //         ctxParams.spatialArea.value.lng,
-    //         4,
-    //       ).toString(),
-    //     },
-    //   },
-    // });
-  };
+  const handleInputChange = (value: any) => {
+    if (mapOption === SpatialAreaType.COORDINATES) {
+      requestUpdateParams({
+        spatialArea: {
+          type: SpatialAreaType.COORDINATES,
+          value: {
+            lat: convertToFixedFloat(value[0], 4).toString(),
+            lng: convertToFixedFloat(value[1], 4).toString(),
+          },
+        },
+      });
+    }
 
-  const handleLngChange = (e: CustomEvent) => {
-    const newLng = e.detail.value; // get new longitude
-    // requestUpdateParams({ lon: convertToFixedFloat(newLng, 4) });
+    if (mapOption === SpatialAreaType.BOUNDING_BOX) {
+      requestUpdateParams({
+        spatialArea: {
+          type: SpatialAreaType.BOUNDING_BOX,
+          value: {
+            west: convertToFixedFloat(value[0], 4).toString(),
+            south: convertToFixedFloat(value[1], 4).toString(),
+            east: convertToFixedFloat(value[2], 4).toString(),
+            north: convertToFixedFloat(value[3], 4).toString(),
+          },
+        },
+      });
+    }
   };
 
   const pointOptionHandler = () => {
@@ -81,7 +89,7 @@ const Location: React.FC = () => {
       <IonContent scrollY={false} fullscreen={false}>
         <IonFab slot="fixed" vertical="bottom" horizontal="start" edge={true}>
           <IonFabButton>
-            <IonIcon icon={chevronDownCircle}></IonIcon>
+            <IonIcon icon={chevronUpCircle}></IonIcon>
           </IonFabButton>
           <IonFabList side="top">
             <IonFabButton onClick={bboxOptionHandler}>
@@ -111,12 +119,8 @@ const Location: React.FC = () => {
         </div>
       </IonContent>
       <CoordinateInput
-        // latitude={staged.lat || ctxParams.lat}
-        // longitude={staged.lon || ctxParams.lon}
-        latitude={15}
-        longitude={15}
-        onLatChange={handleLatChange}
-        onLngChange={handleLngChange}
+        value={staged.spatialArea || ctxParams.spatialArea}
+        onInputChange={handleInputChange}
         mapOption={mapOption}
       />
     </IonPage>
