@@ -25,6 +25,8 @@ import useCheckIndexedDBUsage from "../../../hooks/useCheckIndexedDBUsage";
 
 import StorageItem from "./StorageItem";
 import InfoPanel from "../../UI/InfoPanel";
+import { useCatalogQuery } from "../../../data/useCatalogQuery";
+import { getDate } from "../../../utils/date";
 
 interface StorageManagerProps {
   onPlot: (newParams: DataParams) => void;
@@ -50,6 +52,61 @@ const StorageManager: React.FC<StorageManagerProps> = ({
   );
   const [presentToast, dismissToast] = useIonToast();
   const [presentAlert] = useIonAlert();
+
+  const { data: catalog, isLoading, isFetching } = useCatalogQuery();
+  const [variableId, setVariableId] = useState("");
+  const currentVariable = catalog?.find(
+    (data) => data.dataFieldId === variableId,
+  );
+
+  const variableInfoHandler = (dataFieldId: string) =>
+    setVariableId(dataFieldId);
+
+  const variableInfo = {
+    title: currentVariable?.label || "Invalid label",
+    list: [
+      {
+        label: "Longname",
+        value: currentVariable?.dataFieldLongName ?? "",
+      },
+      {
+        label: "Shortname",
+        value: currentVariable?.dataFieldShortName ?? "",
+      },
+      {
+        label: "Units",
+        value: currentVariable?.dataFieldUnits ?? "",
+      },
+      {
+        label: "Spatial Resolution",
+        value: currentVariable?.dataProductSpatialResolution ?? "",
+      },
+      {
+        label: "Product Name",
+        value: currentVariable?.dataProductShortName ?? "",
+      },
+      {
+        label: "Product Version",
+        value: currentVariable?.dataProductVersion ?? "",
+      },
+      {
+        label: "Begin Datetime",
+        value: currentVariable?.dataProductBeginDateTime
+          ? getDate(currentVariable?.dataProductBeginDateTime)
+          : "",
+      },
+      {
+        label: "End Datetime",
+        value: currentVariable?.dataProductEndDateTime
+          ? getDate(currentVariable?.dataProductEndDateTime)
+          : "",
+      },
+      {
+        label: "Dataset Information",
+        link: currentVariable?.dataProductDescriptionUrl,
+      },
+    ],
+  };
 
   useEffect(() => {
     if (!isOpen) {
@@ -154,11 +211,6 @@ const StorageManager: React.FC<StorageManagerProps> = ({
     }
   };
 
-  const variableInfoHandler = (dataFieldId: string) => {
-    return;
-    // setVariableId(dataFieldId);
-  };
-
   const displayCachedItems = () => {
     if (cachedItems.length === 0) {
       return <p>No data in storage!</p>;
@@ -188,6 +240,8 @@ const StorageManager: React.FC<StorageManagerProps> = ({
     });
   };
 
+  const afterInfoPanelDismiss = () => setVariableId("");
+
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onModalClose}>
       <IonHeader id="storage-header">
@@ -199,11 +253,11 @@ const StorageManager: React.FC<StorageManagerProps> = ({
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        {/* <InfoPanel
-          // dataList={variableInfo}
-          // isOpen={!!variableId}
-          // afterDismiss={afterInfoPanelDismiss}
-        /> */}
+        <InfoPanel
+          dataList={variableInfo}
+          isOpen={!!variableId}
+          afterDismiss={afterInfoPanelDismiss}
+        />
         <IonCol>
           {usedSpace && totalSpace && (
             <div>

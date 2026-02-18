@@ -56,7 +56,6 @@ const StorageItem: React.FC<StorageItemProps> = ({
               size="small"
               fill="clear"
               onClick={(e) => {
-                // e.stopPropagation();
                 if (!itemMetadataFromCatalog) return;
                 onRequestInfo(itemMetadataFromCatalog.dataFieldId);
               }}
