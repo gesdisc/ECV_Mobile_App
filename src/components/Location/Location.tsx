@@ -38,6 +38,7 @@ import DrawingFeatures from "./DrawingFeatures";
 import "leaflet/dist/leaflet.css";
 import styles from "./Location.module.css";
 import "leaflet-draw/dist/leaflet.draw.css";
+import MapInput from "./MapInput";
 
 // Fix default marker icon issues
 L.Icon.Default.mergeOptions({
@@ -55,10 +56,10 @@ const Location: React.FC = () => {
   const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
   const featureGroupRef = useRef<L.FeatureGroup>(null);
   const [mapOption, setMapOption] = useState<SpatialAreaType>(
-    ctxParams.spatialArea.type,
+    ctxParams.spatialArea.type
   );
 
-  const handleInputChange = (value: any) => {
+  const handleInputChange = (value: number[]) => {
     if (mapOption === SpatialAreaType.COORDINATES) {
       requestUpdateParams({
         spatialArea: {
@@ -69,6 +70,7 @@ const Location: React.FC = () => {
           },
         },
       });
+      return;
     }
 
     if (mapOption === SpatialAreaType.BOUNDING_BOX) {
@@ -136,10 +138,14 @@ const Location: React.FC = () => {
           </MapContainer>
         </div>
       </IonContent>
-      <CoordinateInput
+      {/* <CoordinateInput
         value={staged.spatialArea || ctxParams.spatialArea}
         onInputChange={handleInputChange}
         mapOption={mapOption}
+      /> */}
+      <MapInput
+        mapOption={mapOption}
+        value={staged.spatialArea?.value || ctxParams.spatialArea.value}
       />
     </IonPage>
   );

@@ -15,10 +15,10 @@
 }
 
 /* TODO: CHECK IF THIS AFFECTS */
-ion-fab {
+/* ion-fab {
   margin-top: var(--ion-safe-area-top, 0);
   margin-bottom: 50px;
-}
+} */
 
 .ion-like-input {
   width: 100%;

@@ -28,6 +28,7 @@ const CoordinateInput: React.FC<CoordinateInputProps> = ({
   onInputChange,
   mapOption,
 }) => {
+  console.log("render");
   const maskConfig = useMemo(() => {
     const numberMask = {
       mask: Number,
@@ -63,18 +64,20 @@ const CoordinateInput: React.FC<CoordinateInputProps> = ({
 
   // parse values
   const handleAccept = (value: string) => {
+    console.log("checking");
     const nums = value
       .split(",")
       .map((v) => Number(v.trim()))
       .filter((v) => !Number.isNaN(v));
 
+    // if (nums.length < 2) return;
     console.log("nums: ", nums);
 
     // FIXME: when switching from COORD to BBOX, nums array has length 1 with value of 0, which causes NaN errors. This is a quick fix, but should be properly debugged and fixed.
-    if (mapOption === SpatialAreaType.BOUNDING_BOX && nums.length !== 4) {
-      onInputChange([-16, 2.0703, 47.9899, -19.3359]); // use default bbox values for now to prevent NaN errors
-      return;
-    }
+    // if (mapOption === SpatialAreaType.BOUNDING_BOX && nums.length !== 4) {
+    //   onInputChange([-16, 2.0703, 47.9899, -19.3359]); // use default bbox values for now to prevent NaN errors
+    //   return;
+    // }
 
     onInputChange(nums);
   };
@@ -92,6 +95,7 @@ const CoordinateInput: React.FC<CoordinateInputProps> = ({
               : "south, west, north, east"
           }
           onAccept={handleAccept}
+          // onComplete={handleAccept}
           className={styles["ion-like-input"]}
           value={formatSelection(value)}
         />
