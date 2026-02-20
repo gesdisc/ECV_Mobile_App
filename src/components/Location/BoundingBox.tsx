@@ -21,23 +21,21 @@ const BoundingBox: React.FC = () => {
 
   const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
 
-  useMapEvents({
-    // TODO: pointerdown not working?
-    mousedown(e: any) {
-      //   if (mode !== "bbox") return;
+  const startDrawing = (e: L.LeafletMouseEvent) => {
+    // if (mode !== 'bbox') return;
 
-      // Mark drawing session as started
-      isDrawingRef.current = true;
+    // Mark drawing session as started
+    isDrawingRef.current = true;
 
-      // Save the starting coordinate of the rectangle
-      startRef.current = e.latlng;
+    // Save the starting coordinate of the rectangle
+    startRef.current = e.latlng;
 
-      // Disable map panning while drawing
-      map.dragging.disable();
-    },
+    // Disable map panning while drawing
+    map.dragging.disable();
+  };
 
-    // TODO: replace type any
-    mousemove(e: any) {
+  const updateDrawing = (e: L.LeafletMouseEvent) => {
+    {
       // If we are not actively drawing, ignore movement.
       if (!isDrawingRef.current || !startRef.current) return;
 
@@ -56,20 +54,28 @@ const BoundingBox: React.FC = () => {
           },
         },
       });
-    },
+    }
+  };
 
-    mouseup() {
-      // If drawing never started, do nothing.
-      if (!isDrawingRef.current) return;
+  const finishDrawing = () => {
+    // If drawing never started, do nothing.
+    if (!isDrawingRef.current) return;
 
-      // End drawing session
-      isDrawingRef.current = false;
+    // End drawing session
+    isDrawingRef.current = false;
 
-      // Clear stored starting coordinate
-      startRef.current = null;
+    // Clear stored starting coordinate
+    startRef.current = null;
 
-      map.dragging.enable();
-    },
+    map.dragging.enable();
+  };
+
+  useMapEvents({
+    mousedown: startDrawing,
+
+    mousemove: updateDrawing,
+
+    mouseup: finishDrawing,
   });
 
   if (staged.spatialArea?.type === SpatialAreaType.BOUNDING_BOX) {

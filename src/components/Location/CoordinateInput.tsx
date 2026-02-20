@@ -95,60 +95,6 @@ const CoordinateInput: React.FC<CoordinateInputProps> = ({
           className={styles["ion-like-input"]}
           value={formatSelection(value)}
         />
-        {/* <div className={`${styles["input-container"]}`}>
-          <IonItem>
-            <IonLabel position="floating">
-              {mapOption === SpatialAreaType.COORDINATES
-                ? "Latitude:"
-                : "South:"}
-            </IonLabel>
-            <IonInput
-              type="number"
-              value={
-                mapOption === SpatialAreaType.COORDINATES
-                  ? value.lat
-                  : value.south
-              }
-              onIonChange={onInputChange}
-              name={mapOption === SpatialAreaType.COORDINATES ? "lat" : "south"}
-            />
-          </IonItem>
-          <IonItem>
-            <IonLabel position="floating">
-              {mapOption === SpatialAreaType.COORDINATES
-                ? "Longitude:"
-                : "West:"}
-            </IonLabel>
-            <IonInput
-              type="number"
-              value={value.lng}
-              onIonChange={onInputChange}
-              name={mapOption === SpatialAreaType.COORDINATES ? "lng" : "west"}
-            />
-          </IonItem>
-          {mapOption === SpatialAreaType.BOUNDING_BOX && (
-            <>
-              <IonItem>
-                <IonLabel position="floating">north:</IonLabel>
-                <IonInput
-                  type="number"
-                  value={value.north}
-                  onIonChange={onInputChange}
-                  name="north"
-                />
-              </IonItem>
-              <IonItem>
-                <IonLabel position="floating">east:</IonLabel>
-                <IonInput
-                  type="number"
-                  value={value.east}
-                  onIonChange={onInputChange}
-                  name="east"
-                />
-              </IonItem>
-            </>
-          )}
-        </div> */}
       </IonToolbar>
     </IonFooter>
   );
