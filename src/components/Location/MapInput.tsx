@@ -7,6 +7,7 @@ import {
   IonText,
   IonToolbar,
 } from "@ionic/react";
+
 import {
   Coordinates,
   BoundingBox,
@@ -27,9 +28,6 @@ const CoordinateInput: React.FC<CoordinateInputProps> = ({
   const [isTouched, setIsTouched] = useState(false);
   const [isValid, setIsValid] = useState<boolean>();
 
-  // -------------------------------
-  // Regex for validation
-  // -------------------------------
   const regexCoordinate =
     /^-?(90(\.0+)?|[1-8]?\d(\.\d+)?),\s*-?(180(\.0+)?|(1[0-7]\d|[1-9]?\d)(\.\d+)?)$/;
 

@@ -56,7 +56,7 @@ const Location: React.FC = () => {
   const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
   const featureGroupRef = useRef<L.FeatureGroup>(null);
   const [mapOption, setMapOption] = useState<SpatialAreaType>(
-    ctxParams.spatialArea.type
+    staged.spatialArea?.type || ctxParams.spatialArea.type
   );
 
   const handleInputChange = (value: number[]) => {
@@ -146,6 +146,7 @@ const Location: React.FC = () => {
       <MapInput
         mapOption={mapOption}
         value={staged.spatialArea?.value || ctxParams.spatialArea.value}
+        onChange={handleInputChange}
       />
     </IonPage>
   );
