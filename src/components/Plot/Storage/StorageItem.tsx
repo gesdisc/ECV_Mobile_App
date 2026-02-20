@@ -1,10 +1,6 @@
 import React from "react";
 import { IonButton, IonIcon, IonItem, IonLabel, IonText } from "@ionic/react";
-import {
-  trash,
-  informationCircleOutline,
-  notificationsOff,
-} from "ionicons/icons";
+import { trash, informationCircleOutline } from "ionicons/icons";
 
 import { DataParams, VariableDbEntry } from "../../../types/time-series.types";
 import { extractLatLonFromCacheKey } from "../helpers";
