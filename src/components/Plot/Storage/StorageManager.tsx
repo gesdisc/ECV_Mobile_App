@@ -22,11 +22,11 @@ import {
   getDataByKey,
 } from "../../../services/indexDBService";
 import useCheckIndexedDBUsage from "../../../hooks/useCheckIndexedDBUsage";
+import { useCatalogQuery } from "../../../data/useCatalogQuery";
+import { getDate } from "../../../utils/date";
 
 import StorageItem from "./StorageItem";
 import InfoPanel from "../../UI/InfoPanel";
-import { useCatalogQuery } from "../../../data/useCatalogQuery";
-import { getDate } from "../../../utils/date";
 
 interface StorageManagerProps {
   onPlot: (newParams: DataParams) => void;
@@ -48,19 +48,20 @@ const StorageManager: React.FC<StorageManagerProps> = ({
   } = useCheckIndexedDBUsage();
 
   const [cachedItems, setCachedItems] = useState<Partial<VariableDbEntry>[]>(
-    [],
+    []
   );
   const [presentToast, dismissToast] = useIonToast();
   const [presentAlert] = useIonAlert();
 
-  const { data: catalog, isLoading, isFetching } = useCatalogQuery();
-  const [variableId, setVariableId] = useState("");
+  const { data: catalog } = useCatalogQuery();
+  const [infoPanelVariableId, setInfoPanelVariableId] = useState("");
+
   const currentVariable = catalog?.find(
-    (data) => data.dataFieldId === variableId,
+    (data) => data.dataFieldId === infoPanelVariableId
   );
 
   const variableInfoHandler = (dataFieldId: string) =>
-    setVariableId(dataFieldId);
+    setInfoPanelVariableId(dataFieldId);
 
   const variableInfo = {
     title: currentVariable?.label || "Invalid label",
@@ -120,7 +121,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({
   const toastPresenter = (
     message: string,
     position: "top" | "middle" | "bottom",
-    color: "success" | "danger",
+    color: "success" | "danger"
   ) => {
     presentToast({
       message: message,
@@ -136,7 +137,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({
     message?: string,
     subHeader?: string,
     cancel?: () => void,
-    confirm?: (item?: string) => void,
+    confirm?: (item?: string) => void
   ) => {
     presentAlert({
       header: header,
@@ -170,7 +171,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({
       toastPresenter(
         "Something went wrong while retrieving cached data!",
         "top",
-        "danger",
+        "danger"
       );
     }
   };
@@ -190,7 +191,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({
       toastPresenter(
         "Something went wrong while deleting an item!",
         "top",
-        "danger",
+        "danger"
       );
     }
   };
@@ -206,7 +207,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({
       toastPresenter(
         "Something went wrong while deleting items!",
         "top",
-        "danger",
+        "danger"
       );
     }
   };
@@ -231,7 +232,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({
               undefined,
               undefined,
               undefined,
-              () => item.key && deleteCachedItemHandler(item.key),
+              () => item.key && deleteCachedItemHandler(item.key)
             );
           }}
           onRequestInfo={variableInfoHandler}
@@ -239,8 +240,6 @@ const StorageManager: React.FC<StorageManagerProps> = ({
       );
     });
   };
-
-  const afterInfoPanelDismiss = () => setVariableId("");
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onModalClose}>
@@ -255,8 +254,8 @@ const StorageManager: React.FC<StorageManagerProps> = ({
       <IonContent className="ion-padding">
         <InfoPanel
           dataList={variableInfo}
-          isOpen={!!variableId}
-          afterDismiss={afterInfoPanelDismiss}
+          isOpen={!!infoPanelVariableId}
+          afterDismiss={() => setInfoPanelVariableId("")}
         />
         <IonCol>
           {usedSpace && totalSpace && (
@@ -276,7 +275,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({
                   undefined,
                   undefined,
                   undefined,
-                  deleteAllItemsHandler,
+                  deleteAllItemsHandler
                 )
               }
               disabled={!cachedItems.length}

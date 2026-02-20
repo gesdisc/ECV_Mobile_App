@@ -1,6 +1,10 @@
 import React from "react";
 import { IonButton, IonIcon, IonItem, IonLabel, IonText } from "@ionic/react";
-import { trash, informationCircleOutline } from "ionicons/icons";
+import {
+  trash,
+  informationCircleOutline,
+  notificationsOff,
+} from "ionicons/icons";
 
 import { DataParams, VariableDbEntry } from "../../../types/time-series.types";
 import { extractLatLonFromCacheKey } from "../helpers";
@@ -23,7 +27,7 @@ const StorageItem: React.FC<StorageItemProps> = ({
   onRequestInfo,
 }) => {
   const itemMetadataFromCatalog = catalog.find(
-    (data) => data.dataFieldId === item.variableEntryId,
+    (data) => data.dataFieldId === item.variableEntryId
   );
 
   const plotCachedItemHandler = () => {
@@ -44,22 +48,18 @@ const StorageItem: React.FC<StorageItemProps> = ({
     onPlot(cachedDataParams);
   };
 
-  // TODO: refactor??? IonButton onClick
+  const infoButtonHandler = () => {
+    if (!itemMetadataFromCatalog) return;
+    onRequestInfo(itemMetadataFromCatalog.dataFieldId);
+  };
+
   return (
     <IonItem>
       <IonLabel className="ion-padding-top">
         <IonText>
           <h2 className={styles["item-label"]}>
             {itemMetadataFromCatalog?.label}
-            <IonButton
-              style={{ marginLeft: "16px" }}
-              size="small"
-              fill="clear"
-              onClick={(e) => {
-                if (!itemMetadataFromCatalog) return;
-                onRequestInfo(itemMetadataFromCatalog.dataFieldId);
-              }}
-            >
+            <IonButton size="small" fill="clear" onClick={infoButtonHandler}>
               <IonIcon
                 aria-hidden="true"
                 size="large"
