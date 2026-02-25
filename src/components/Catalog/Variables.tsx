@@ -7,7 +7,6 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonBadge,
 } from "@ionic/react";
 import { informationCircleOutline } from "ionicons/icons";
 
@@ -42,19 +41,7 @@ const Variables: React.FC<VariablesProps> = ({
                   onClick={() => onVariableChange(data.dataFieldId)}
                   key={data.label}
                 >
-                  <IonLabel>
-                    {data.label}{" "}
-                    {data?.gibsProductId && (
-                      <IonBadge
-                        class="ion-margin-start"
-                        slot="start"
-                        color="success"
-                      >
-                        Time Avg
-                      </IonBadge>
-                    )}
-                  </IonLabel>
-
+                  <IonLabel>{data.label}</IonLabel>
                   <IonButton
                     size="small"
                     fill="clear"
