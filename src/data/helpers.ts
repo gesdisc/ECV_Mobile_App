@@ -19,6 +19,7 @@ export function addMissingProperties(list: Variable[]): VariableWithLabel[] {
       label: catalogItem?.label || "N/A",
       group: catalogItem?.group || "unknown",
       subgroup: catalogItem?.subgroup || "unknown",
+      gibsProductId: catalogItem?.gibsProductId || "",
     };
   });
 }

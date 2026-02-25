@@ -4,7 +4,8 @@
     "label": "Precipitation - Half Hourly",
     "param": "Precipitation Rate",
     "group": "Atmosphere",
-    "subgroup": "Surface"
+    "subgroup": "Surface",
+    "gibsProductId": "IMERG_Precipitation_Rate_30min"
   },
   {
     "dataFieldId": "M2T1NXSLV_5_12_4_SLP",
@@ -18,7 +19,8 @@
     "label": "Surface Temperature - Monthly",
     "param": "2-metter air temperature",
     "group": "Atmosphere",
-    "subgroup": "Surface"
+    "subgroup": "Surface",
+    "gibsProductId": "MERRA2_2m_Air_Temperature_Assimilated_Monthly"
   },
   {
     "dataFieldId": "M2T1NXFLX_5_12_4_SPEEDMAX",
@@ -67,14 +69,16 @@
     "label": "Carbon Monoxide",
     "param": "CO Surface Concentrate",
     "group": "Atmosphere",
-    "subgroup": "Atmospheric Composition"
+    "subgroup": "Atmospheric Composition",
+    "gibsProductId": "MERRA2_Carbon_Monoxide_Emission_Monthly"
   },
   {
     "dataFieldId": "OMDOAO3e_003_ColumnAmountO3",
     "label": "Ozone - Daily",
     "param": "Ozone - Total Column, Time Averaged",
     "group": "Atmosphere",
-    "subgroup": "Atmospheric Composition"
+    "subgroup": "Atmospheric Composition",
+    "gibsProductId": "OMI_Ozone_DOAS_Total_Column"
   },
   {
     "dataFieldId": "M2T1NXSLV_5_12_4_TO3",
@@ -95,7 +99,8 @@
     "label": "Nitrogen Dioxide - Troposphere",
     "param": "NO2 Tropospheric Column",
     "group": "Atmosphere",
-    "subgroup": "Atmospheric Composition"
+    "subgroup": "Atmospheric Composition",
+    "gibsProductId": "OMI_Nitrogen_Dioxide_Tropo_Column"
   },
   {
     "dataFieldId": "OMNO2d_003_ColumnAmountNO2CloudScreened",
