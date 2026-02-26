@@ -1,13 +1,17 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { FeatureGroup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet-draw";
 import { EditControl } from "react-leaflet-draw";
 
-import { useDataParams } from "../../store/DataParamsContext";
+import { ActionType, useDataParams } from "../../store/DataParamsContext";
 import { convertToFixedFloat } from "../../utils/converter";
 
-import { Coordinates, SpatialAreaType } from "../../types/time-series.types";
+import {
+  BoundingBox,
+  Coordinates,
+  SpatialAreaType,
+} from "../../types/time-series.types";
 
 // Import the marker images
 // import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -16,6 +20,7 @@ import { Coordinates, SpatialAreaType } from "../../types/time-series.types";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
+import { useActionListener } from "../../hooks/useActionListener";
 
 // Fix default marker icon issues
 // L.Icon.Default.mergeOptions({
@@ -23,6 +28,38 @@ import "leaflet-draw/dist/leaflet.draw.css";
 //   iconUrl: markerIcon,
 //   shadowUrl: markerShadow,
 // });
+
+interface SpatialArea {
+  type: SpatialAreaType;
+  value: Coordinates | BoundingBox;
+}
+
+/**
+ * Restore default geometry into a FeatureGroup based on spatial type.
+ */
+function restoreDefaultSpatial(fg: any, spatialArea: SpatialArea) {
+  if (!fg) return;
+
+  // Clear any existing layers
+  fg.clearLayers();
+
+  if (spatialArea.type === SpatialAreaType.COORDINATES) {
+    const { lat, lng } = spatialArea.value as Coordinates;
+
+    const marker = L.marker([parseFloat(lat), parseFloat(lng)]);
+    fg.addLayer(marker);
+  } else if (spatialArea.type === SpatialAreaType.BOUNDING_BOX) {
+    // FIXME: MAP GOES BLANK!
+    console.log("RESTORE BOUNDING BOX");
+    const { west, south, east, north } = spatialArea.value as BoundingBox;
+    console.log(spatialArea.value);
+    const rectangle = L.rectangle([
+      [parseFloat(south), parseFloat(west)],
+      [parseFloat(north), parseFloat(east)],
+    ]);
+    fg.addLayer(rectangle);
+  }
+}
 
 interface DrawingFeaturesProps {
   onMapOptionChange: (option: SpatialAreaType) => void;
@@ -35,28 +72,15 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
 
   const { params: ctxParams, requestUpdateParams } = useDataParams();
 
-  //   useMapEvents({
-  //     click(e) {
-  //       console.log("User selected POINT", e);
-  //     },
-  //   });
-
   // Initial marker
-  //   useEffect(() => {
-  //     console.log("This loaded");
-  //     const fg = featureGroupRef.current;
-  //     if (!fg) return;
-
-  //     // add default marker
-  //     // Restore default point
-  //     const { lat, lng } = ctxParams.spatialArea.value as Coordinates;
-
-  //     const marker = L.marker([parseFloat(lat), parseFloat(lng)]);
-  //     fg.addLayer(marker);
-  //   }, []);
+  useEffect(() => {
+    // console.log("This loaded");
+    const fg = featureGroupRef.current;
+    restoreDefaultSpatial(fg, ctxParams.spatialArea);
+  }, []);
 
   const handleCreated = (e: L.DrawEvents.Created) => {
-    console.log("handleCreated");
+    // console.log("handleCreated");
     const fg = featureGroupRef.current;
     if (!fg) return;
 
@@ -82,7 +106,7 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
       });
     } else if (e.layerType === "rectangle") {
       const bounds = (e.layer as L.Rectangle).getBounds();
-      console.log(bounds);
+
       onMapOptionChange(SpatialAreaType.BOUNDING_BOX);
 
       const value = {
@@ -102,22 +126,64 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
   };
 
   // override leaflet-draw "clear-all" method
-  const handleDeleted = (e: L.DrawEvents.Deleted) => {
-    // e.layers contains all deleted layers
-    console.log("Deleted layers:", e.layers.getLayers());
+  // const handleDeleted = (e: L.DrawEvents.Deleted) => {
+  //   // e.layers contains all deleted layers
+  //   console.log("Deleted layers:", e.layers.getLayers());
 
+  //   const fg = featureGroupRef.current;
+  //   if (!fg) return;
+
+  //   // remove everything manually
+  //   // fg.clearLayers();
+
+  //   // Restore default point
+  //   // const { lat, lng } = ctxParams.spatialArea.value as Coordinates;
+
+  //   // const defaultMarker = L.marker([parseFloat(lat), parseFloat(lng)]);
+
+  //   // fg.addLayer(defaultMarker);
+  // };
+
+  // listen to toast cancel action
+  useActionListener(ActionType.CANCEL, () => {
     const fg = featureGroupRef.current;
-    if (!fg) return;
+    restoreDefaultSpatial(fg, ctxParams.spatialArea);
+  });
 
-    // remove everything manually
-    // fg.clearLayers();
+  const handleEdited = (e: L.DrawEvents.Edited) => {
+    const layerArray = e.layers.getLayers();
+    const layer = layerArray[0]; // only one layer exists
 
-    // Restore default point
-    const { lat, lng } = ctxParams.spatialArea.value as Coordinates;
+    if (layer instanceof L.Marker) {
+      const { lat, lng } = layer.getLatLng();
+      // console.log(lat, lng);
+      requestUpdateParams({
+        spatialArea: {
+          type: SpatialAreaType.COORDINATES,
+          value: {
+            lat: convertToFixedFloat(lat, 4).toString(),
+            lng: convertToFixedFloat(lng, 4).toString(),
+          },
+        },
+      });
+    }
 
-    const defaultMarker = L.marker([parseFloat(lat), parseFloat(lng)]);
+    if (layer instanceof L.Rectangle) {
+      const bounds = layer.getBounds();
+      const value = {
+        west: convertToFixedFloat(bounds.getWest(), 4).toString(),
+        south: convertToFixedFloat(bounds.getSouth(), 4).toString(),
+        east: convertToFixedFloat(bounds.getEast(), 4).toString(),
+        north: convertToFixedFloat(bounds.getNorth(), 4).toString(),
+      };
 
-    fg.addLayer(defaultMarker);
+      requestUpdateParams({
+        spatialArea: {
+          type: SpatialAreaType.BOUNDING_BOX,
+          value,
+        },
+      });
+    }
   };
 
   // EditControl props (MIGHT BE USEFUL LATER)
@@ -138,8 +204,8 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
       <EditControl
         position="topleft"
         onCreated={handleCreated}
-        // onEdited={handleEdited}
-        onDeleted={handleDeleted}
+        onEdited={handleEdited}
+        // onDeleted={handleDeleted}
         draw={{
           rectangle: true,
           polygon: false,
@@ -150,6 +216,7 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
         }}
         edit={{
           featureGroup: featureGroupRef.current!,
+          remove: false, // hides the built-in trash button
         }}
       />
     </FeatureGroup>

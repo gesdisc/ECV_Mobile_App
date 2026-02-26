@@ -16,10 +16,13 @@ import {
 
 interface CoordinateInputProps {
   mapOption: SpatialAreaType;
-  value?: Coordinates | BoundingBox;
+  value: string;
   onChange?: (nums: number[]) => void;
 }
 
+// FIXME: Input doesn't work properly: error appears when typing a valid value
+// FIXME: typing is messed up
+// TODO: FINISH IMPLEMENTING THE INPUT
 const CoordinateInput: React.FC<CoordinateInputProps> = ({
   mapOption,
   value,
@@ -66,10 +69,10 @@ const CoordinateInput: React.FC<CoordinateInputProps> = ({
           <IonLabel position="floating">
             {mapOption === SpatialAreaType.COORDINATES
               ? "Lat, Lng"
-              : "South, West, North, East"}
+              : "West, South, East, North "}
           </IonLabel>
           <IonInput
-            // value={value}
+            value={value}
             onIonInput={handleInput}
             onIonBlur={markTouched}
             className={`${isValid ? "ion-valid" : ""} ${

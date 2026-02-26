@@ -1,27 +1,11 @@
 import React, { useRef, useState } from "react";
-import {
-  IonContent,
-  IonPage,
-  IonFab,
-  IonFabButton,
-  IonFabList,
-  IonIcon,
-} from "@ionic/react";
-import { location, square, chevronUpCircle } from "ionicons/icons";
-import {
-  MapContainer,
-  TileLayer,
-  FeatureGroup,
-  Rectangle,
-  useMapEvents,
-  Marker,
-} from "react-leaflet";
-import { EditControl } from "react-leaflet-draw";
+import { IonContent, IonPage } from "@ionic/react";
+import { MapContainer, TileLayer } from "react-leaflet";
 import L from "leaflet";
 
 import { useDataParams } from "../../store/DataParamsContext";
 import { convertToFixedFloat } from "../../utils/converter";
-import { Coordinates, SpatialAreaType } from "../../types/time-series.types";
+import { SpatialAreaType } from "../../types/time-series.types";
 
 // Import the marker images
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -30,15 +14,15 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
 import Banner from "../UI/Banner";
 import MapResizer from "./MapResizer";
-import LocationMarker from "./LocationMarker";
-import CoordinateInput from "./CoordinateInput";
-import BoundingBox from "./BoundingBox";
+// import LocationMarker from "./LocationMarker";
+// import CoordinateInput from "./CoordinateInput";
+// import BoundingBox from "./BoundingBox";
 import DrawingFeatures from "./DrawingFeatures";
+import MapInput from "./MapInput";
 
 import "leaflet/dist/leaflet.css";
-import styles from "./Location.module.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-import MapInput from "./MapInput";
+import styles from "./Location.module.css";
 
 // Fix default marker icon issues
 L.Icon.Default.mergeOptions({
@@ -54,7 +38,6 @@ L.Icon.Default.mergeOptions({
 const Location: React.FC = () => {
   const mapRef = useRef(null);
   const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
-  const featureGroupRef = useRef<L.FeatureGroup>(null);
   const [mapOption, setMapOption] = useState<SpatialAreaType>(
     staged.spatialArea?.type || ctxParams.spatialArea.type
   );
@@ -88,14 +71,6 @@ const Location: React.FC = () => {
     }
   };
 
-  // const pointOptionHandler = () => {
-  //   setMapOption(SpatialAreaType.COORDINATES);
-  // };
-
-  // const bboxOptionHandler = () => {
-  //   setMapOption(SpatialAreaType.BOUNDING_BOX);
-  // };
-
   const mapOptionChangeHandler = (option: SpatialAreaType) => {
     setMapOption(option);
   };
@@ -107,26 +82,26 @@ const Location: React.FC = () => {
         <div className={styles["map-container"]}>
           <MapContainer
             center={[20, 0]}
-            zoom={2}
-            minZoom={2}
-            maxZoom={18}
-            zoomSnap={1}
-            zoomDelta={1}
-            worldCopyJump={false}
-            maxBounds={[
-              [-90, -180],
-              [90, 180],
-            ]}
-            maxBoundsViscosity={1.0}
+            // zoom={2}
+            // minZoom={2}
+            // maxZoom={18}
+            // zoomSnap={1}
+            // zoomDelta={1}
+            // worldCopyJump={false}
+            // maxBounds={[
+            //   [-90, -180],
+            //   [90, 180],
+            // ]}
+            // maxBoundsViscosity={1.0}
             style={{ height: "100%", width: "100%" }}
             ref={mapRef}
           >
             <TileLayer
-              noWrap={true}
-              bounds={[
-                [-90, -180],
-                [90, 180],
-              ]}
+              // noWrap={true}
+              // bounds={[
+              //   [-90, -180],
+              //   [90, 180],
+              // ]}
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" // tile source
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' // attribution
             />
@@ -145,7 +120,9 @@ const Location: React.FC = () => {
       /> */}
       <MapInput
         mapOption={mapOption}
-        value={staged.spatialArea?.value || ctxParams.spatialArea.value}
+        value={Object.values(
+          staged.spatialArea?.value || ctxParams.spatialArea.value
+        ).join(",")}
         onChange={handleInputChange}
       />
     </IonPage>

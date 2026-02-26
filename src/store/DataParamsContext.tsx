@@ -4,6 +4,8 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useRef,
+  useCallback,
 } from "react";
 import {
   DataParams,
@@ -15,6 +17,12 @@ import { convertToFixedFloat } from "../utils/converter";
 import { isValidUTC } from "../utils/date";
 import useDeviceLocation from "../hooks/useDeviceLocation";
 
+export enum ActionType {
+  CANCEL = "cancel",
+  CONFIRM = "confirm",
+  STAGED = "staged",
+}
+
 interface DataParamsContextType {
   params: DataParams;
   staged: Partial<DataParams>;
@@ -23,6 +31,7 @@ interface DataParamsContextType {
   updateParams: (newParams: Partial<DataParams>) => void;
   requestUpdateParams: (newParams: Partial<DataParams>) => void;
   cancelRequest: () => void;
+  subscribeToAction: (cb: (action: ActionType) => void) => () => void;
 }
 
 const initialContextValue: DataParamsContextType = {
@@ -54,6 +63,9 @@ const initialContextValue: DataParamsContextType = {
   cancelRequest: () => {
     console.log("empty function!");
   },
+  subscribeToAction: (cb: (action: ActionType) => void) => () => {
+    console.log("empty function!");
+  },
 };
 
 const DataParamsContext =
@@ -82,6 +94,30 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   });
   const [staged, setStaged] = useState<Partial<DataParams>>({});
   const [metadata, setMetadata] = useState<Partial<TimeSeriesMetadata>>({});
+
+  /**
+   *
+   * Set of all listeners for action events
+   *
+   * We intentionally DO NOT store user actions (cancel/confirm/etc)
+   * in React state.
+   *
+   * Why?
+   * ----
+   * React state represents CURRENT state.
+   * But button clicks are EVENTS — things that happen once in time.
+   *
+   */
+  const actionListeners = useRef<Set<(action: ActionType) => void>>(new Set());
+
+  /**
+   *
+   * Emit an action event to all current subscribers.
+   *
+   */
+  const emitAction = useCallback((action: ActionType) => {
+    Array.from(actionListeners.current).forEach((cb) => cb(action));
+  }, []);
 
   // Get device's location
   useEffect(() => {
@@ -114,17 +150,35 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
     checkDateFormat(newParams, "params");
     setParams((prev) => ({ ...prev, ...newParams }));
     setStaged({});
+    emitAction(ActionType.CONFIRM);
   };
 
   // request confirmation before updating
   const requestUpdateParams = (newParams: Partial<DataParams>) => {
     checkDateFormat(newParams, "staged");
     setStaged((prev) => ({ ...prev, ...newParams }));
+    emitAction(ActionType.STAGED);
   };
 
   const cancelRequest = () => {
     setStaged({});
+    emitAction(ActionType.CANCEL);
   };
+
+  /**
+   *
+   * Subscribe to action events.
+   * Returns an unsubscribe function for cleanup.
+   * Use this only inside "useActionListener".
+   *
+   */
+  const subscribeToAction = useCallback((cb: (action: ActionType) => void) => {
+    actionListeners.current.add(cb);
+
+    return () => {
+      actionListeners.current.delete(cb);
+    };
+  }, []);
 
   const contextValue: DataParamsContextType = {
     params,
@@ -134,6 +188,7 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
     updateParams,
     requestUpdateParams,
     cancelRequest,
+    subscribeToAction,
   };
 
   return (
