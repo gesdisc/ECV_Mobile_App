@@ -82,7 +82,7 @@ const Location: React.FC = () => {
         <div className={styles["map-container"]}>
           <MapContainer
             center={[20, 0]}
-            // zoom={2}
+            zoom={2}
             // minZoom={2}
             // maxZoom={18}
             // zoomSnap={1}

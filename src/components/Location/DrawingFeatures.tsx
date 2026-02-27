@@ -35,11 +35,11 @@ interface SpatialArea {
 }
 
 /**
- * Restore default geometry into a FeatureGroup based on spatial type.
+ *
+ * Restore default geometry based on spatial type.
+ *
  */
 function restoreDefaultSpatial(fg: any, spatialArea: SpatialArea) {
-  if (!fg) return;
-
   // Clear any existing layers
   fg.clearLayers();
 
@@ -52,6 +52,7 @@ function restoreDefaultSpatial(fg: any, spatialArea: SpatialArea) {
     // FIXME: MAP GOES BLANK!
     console.log("RESTORE BOUNDING BOX");
     const { west, south, east, north } = spatialArea.value as BoundingBox;
+
     console.log(spatialArea.value);
     const rectangle = L.rectangle([
       [parseFloat(south), parseFloat(west)],
@@ -70,17 +71,34 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
 }) => {
   const featureGroupRef = useRef<L.FeatureGroup>(null);
 
-  const { params: ctxParams, requestUpdateParams } = useDataParams();
+  const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
 
-  // Initial marker
-  useEffect(() => {
-    // console.log("This loaded");
+  const drawDefaultSpatial = () => {
     const fg = featureGroupRef.current;
+    if (!fg) return;
     restoreDefaultSpatial(fg, ctxParams.spatialArea);
+    onMapOptionChange(ctxParams.spatialArea.type);
+  };
+
+  // Restore marker|bbox UI after state change (eg. Tab Switch)
+  useEffect(() => {
+    // If user changed parameters
+    if (staged.spatialArea) {
+      const fg = featureGroupRef.current;
+      if (!fg) return;
+
+      restoreDefaultSpatial(fg, staged.spatialArea);
+      onMapOptionChange(staged.spatialArea.type);
+
+      return;
+    }
+
+    // default state (no staged/changed parameters)
+    // Draw Initial marker
+    drawDefaultSpatial();
   }, []);
 
   const handleCreated = (e: L.DrawEvents.Created) => {
-    // console.log("handleCreated");
     const fg = featureGroupRef.current;
     if (!fg) return;
 
@@ -146,8 +164,8 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
 
   // listen to toast cancel action
   useActionListener(ActionType.CANCEL, () => {
-    const fg = featureGroupRef.current;
-    restoreDefaultSpatial(fg, ctxParams.spatialArea);
+    // Restore marker|bbox UI after user canceled modified parameters
+    drawDefaultSpatial();
   });
 
   const handleEdited = (e: L.DrawEvents.Edited) => {
