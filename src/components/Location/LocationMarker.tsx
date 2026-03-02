@@ -33,7 +33,6 @@ const LocationMarker: React.FC = () => {
     );
   }
 
-  // TODO: ADD THIS CONDITIONS IN Location.tsx????
   if (ctxParams.spatialArea.type === SpatialAreaType.COORDINATES) {
     return (
       <Marker

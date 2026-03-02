@@ -98,6 +98,17 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
     drawDefaultSpatial();
   }, []);
 
+  // This will make sure marker|bbox reflects map input change
+  useEffect(() => {
+    if (staged.spatialArea) {
+      const fg = featureGroupRef.current;
+      if (!fg) return;
+
+      restoreDefaultSpatial(fg, staged.spatialArea);
+      onMapOptionChange(staged.spatialArea.type);
+    }
+  }, [staged.spatialArea]);
+
   const handleCreated = (e: L.DrawEvents.Created) => {
     const fg = featureGroupRef.current;
     if (!fg) return;

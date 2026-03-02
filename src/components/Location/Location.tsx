@@ -75,13 +75,30 @@ const Location: React.FC = () => {
     setMapOption(option);
   };
 
+  // const getInitialCenter = () => {
+  //   if (ctxParams.spatialArea.type === SpatialAreaType.COORDINATES) {
+  //     const { lat, lng } = ctxParams.spatialArea.value;
+  //     return [parseFloat(lat), parseFloat(lng)];
+  //   }
+
+  //   if (ctxParams.spatialArea.type === SpatialAreaType.BOUNDING_BOX) {
+  //     const { west, south, east, north } = ctxParams.spatialArea.value;
+  //     // center of bbox
+  //     const centerLat = (parseFloat(south) + parseFloat(north)) / 2;
+  //     const centerLng = (parseFloat(west) + parseFloat(east)) / 2;
+  //     return [centerLat, centerLng];
+  //   }
+
+  //   return [0, 0];
+  // };
+  // console.log(getInitialCenter());
   return (
     <IonPage>
       <Banner />
       <IonContent scrollY={false} fullscreen={false}>
         <div className={styles["map-container"]}>
           <MapContainer
-            center={[20, 0]}
+            center={[0, 0]}
             zoom={2}
             // minZoom={2}
             // maxZoom={18}
@@ -105,9 +122,7 @@ const Location: React.FC = () => {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" // tile source
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' // attribution
             />
-            {/* {mapOption === SpatialAreaType.BOUNDING_BOX && <BoundingBox />} */}
             {/* {mapOption === SpatialAreaType.COORDINATES && <LocationMarker />} */}
-
             <DrawingFeatures onMapOptionChange={mapOptionChangeHandler} />
             <MapResizer />
           </MapContainer>
