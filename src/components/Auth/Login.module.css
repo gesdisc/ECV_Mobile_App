@@ -9,14 +9,19 @@ terra-button.logout::part(base) {
 }
 
 .popover {
-  --width: auto;
+  --width: 300px;
   --height: auto;
-  --offset-x: -160px;
+  --offset-x: -10px;
 }
 
 .popoverContent {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   gap: 15px;
+}
+
+.username {
+  width: 50%;
 }

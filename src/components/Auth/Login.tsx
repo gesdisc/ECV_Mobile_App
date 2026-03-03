@@ -64,7 +64,7 @@ const Login: React.FC = () => {
       >
         <IonContent className="ion-padding">
           <div className={styles.popoverContent}>
-            <p>{user?.uid}:</p>
+            <p className={styles.username}>{user?.uid}:</p>
             <TerraButton
               variant="primary"
               href={`${EDL_DOMAIN}/logout?redirect_uri=${window.location.href}`}
