@@ -33,4 +33,5 @@ export type VariableWithLabel = Variable & {
   label: string;
   group: string;
   subgroup: string;
+  gibsProductId: string;
 };
