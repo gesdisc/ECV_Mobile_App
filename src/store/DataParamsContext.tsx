@@ -120,30 +120,30 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   // Get device's location
-  useEffect(() => {
-    const getDeviceLocation = async () => {
-      try {
-        await getLocation();
+  // useEffect(() => {
+  //   const getDeviceLocation = async () => {
+  //     try {
+  //       await getLocation();
 
-        if (permissionError) return;
+  //       if (permissionError) return;
 
-        if (!deviceLat || !deviceLon) return;
+  //       if (!deviceLat || !deviceLon) return;
 
-        updateParams({
-          spatialArea: {
-            type: SpatialAreaType.COORDINATES,
-            value: {
-              lat: convertToFixedFloat(deviceLat, 4).toString(),
-              lng: convertToFixedFloat(deviceLon, 4).toString(),
-            },
-          },
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    getDeviceLocation();
-  }, [getLocation, deviceLat, deviceLon]);
+  //       updateParams({
+  //         spatialArea: {
+  //           type: SpatialAreaType.COORDINATES,
+  //           value: {
+  //             lat: convertToFixedFloat(deviceLat, 4).toString(),
+  //             lng: convertToFixedFloat(deviceLon, 4).toString(),
+  //           },
+  //         },
+  //       });
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+  //   getDeviceLocation();
+  // }, [getLocation, deviceLat, deviceLon]);
 
   // immediate update
   const updateParams = (newParams: Partial<DataParams>) => {

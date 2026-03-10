@@ -1,104 +1,83 @@
-import React, { useMemo } from "react";
-import { IonFooter, IonToolbar } from "@ionic/react";
+import React, { useEffect, useState } from "react";
+import {
+  IonFooter,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonText,
+  IonToolbar,
+} from "@ionic/react";
 
-import { SpatialArea, SpatialAreaType } from "../../types/time-series.types";
-
-import { IMaskInput } from "react-imask";
-
-import styles from "./Location.module.css";
-
-function formatSelection(sel: SpatialArea): string {
-  if (!sel) return "";
-
-  if (sel.type === SpatialAreaType.COORDINATES) {
-    return `${sel.value.lat}, ${sel.value.lng}`;
-  }
-
-  return `${sel.value.west}, ${sel.value.south}, ${sel.value.east}, ${sel.value.north}`;
-}
+import { SpatialAreaType } from "../../types/time-series.types";
+import { validateCoordinates } from "./helpers";
 
 interface CoordinateInputProps {
-  value: SpatialArea;
-  onInputChange: (values: number[]) => void;
-  mapOption?: SpatialAreaType;
+  mapDrawingOption: SpatialAreaType;
+  value: string;
+  onChange: (nums: string) => void;
+  error: string | null;
 }
 
+// FIXME: typing is messed up
+// FIXME: when invalid data is entered, the input will restore the previous value and print error: WE NEED TO EITHER PRINT THE ERROR AND LEAVE THE USER ENTERED VALUES OR
+// TODO: FINISH IMPLEMENTING THE INPUT
 const CoordinateInput: React.FC<CoordinateInputProps> = ({
+  mapDrawingOption,
   value,
-  onInputChange,
-  mapOption,
+  onChange,
+  error,
 }) => {
-  console.log("render");
-  const maskConfig = useMemo(() => {
-    const numberMask = {
-      mask: Number,
-      signed: true,
-      scale: 4,
-      radix: ".", // decimal is dot
-      mapToRadix: ["."],
-      thousandsSeparator: "", // disable 1,000 formatting
-      normalizeZeros: true,
-      padFractionalZeros: false,
-    };
+  // const [isTouched, setIsTouched] = useState(false);
 
-    if (mapOption === SpatialAreaType.COORDINATES) {
-      return {
-        mask: "lat, lon",
-        blocks: {
-          lat: { ...numberMask, min: -90, max: 90 },
-          lon: { ...numberMask, min: -180, max: 180 },
-        },
-      };
-    }
+  // trigers after clicking outside of input
+  // const handleInput = (event: CustomEvent) => {
+  //   const inputVal = (event.target as HTMLInputElement).value;
+  //   console.log("after input change: ", inputVal);
+  //   // const { coords, error } = validateCoordinates(inputVal, mapDrawingOption);
 
-    return {
-      mask: "south, west, north, east",
-      blocks: {
-        south: { ...numberMask, min: -90, max: 90 },
-        west: { ...numberMask, min: -180, max: 180 },
-        north: { ...numberMask, min: -90, max: 90 },
-        east: { ...numberMask, min: -180, max: 180 },
-      },
-    };
-  }, [mapOption]);
+  //   onChange(inputVal);
+  // };
 
-  // parse values
-  const handleAccept = (value: string) => {
-    console.log("checking");
-    const nums = value
-      .split(",")
-      .map((v) => Number(v.trim()))
-      .filter((v) => !Number.isNaN(v));
+  // const markTouched = () => setIsTouched(true);
 
-    // if (nums.length < 2) return;
-    console.log("nums: ", nums);
+  // trigers on input change
+  const handleChange = (event: any) => {
+    const inputVal = (event.target as HTMLInputElement).value;
 
-    // FIXME: when switching from COORD to BBOX, nums array has length 1 with value of 0, which causes NaN errors. This is a quick fix, but should be properly debugged and fixed.
-    // if (mapOption === SpatialAreaType.BOUNDING_BOX && nums.length !== 4) {
-    //   onInputChange([-16, 2.0703, 47.9899, -19.3359]); // use default bbox values for now to prevent NaN errors
-    //   return;
-    // }
-
-    onInputChange(nums);
+    onChange(inputVal);
   };
 
+  // useEffect(() => {
+  //   const valid = validateInput(value);
+  //   // setIsValid(valid);
+  // }, []);
+  // console.log("INPUT RENDER: ", error);
   return (
     <IonFooter id="location-footer">
       <IonToolbar>
-        <IMaskInput
-          {...maskConfig}
-          inputMode="decimal"
-          pattern="[0-9.,-]*"
-          placeholder={
-            mapOption === SpatialAreaType.COORDINATES
-              ? "lat, lon"
-              : "south, west, north, east"
-          }
-          onAccept={handleAccept}
-          // onComplete={handleAccept}
-          className={styles["ion-like-input"]}
-          value={formatSelection(value)}
-        />
+        <IonItem>
+          <IonLabel position="floating">
+            {mapDrawingOption === SpatialAreaType.COORDINATES
+              ? "Lat, Lng"
+              : "West, South, East, North "}
+          </IonLabel>
+          <IonInput
+            // clearInput FIXME: clears at second try
+            value={value}
+            // onIonChange={handleInput}
+            onIonInput={handleChange}
+            // onIonBlur={markTouched}
+            className={`${error ? "ion-invalid" : "ion-valid"}`}
+            placeholder={
+              mapDrawingOption === SpatialAreaType.COORDINATES
+                ? "e.g. 34.1234, -118.1234"
+                : "e.g. 33.0, -119.0, 35.0, -117.0"
+            }
+            inputMode="decimal"
+            fill="solid"
+          />
+          {error && <IonText color="danger">{error}</IonText>}
+        </IonItem>
       </IonToolbar>
     </IonFooter>
   );

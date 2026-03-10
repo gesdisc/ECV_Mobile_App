@@ -15,14 +15,18 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import Banner from "../UI/Banner";
 import MapResizer from "./MapResizer";
 // import LocationMarker from "./LocationMarker";
-// import CoordinateInput from "./CoordinateInput";
+import CoordinateInput from "./CoordinateInput";
 // import BoundingBox from "./BoundingBox";
 import DrawingFeatures from "./DrawingFeatures";
-import MapInput from "./MapInput";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import styles from "./Location.module.css";
+import {
+  ERROR_EMPTY,
+  ERROR_INCORRECT_LENGTH,
+  validateCoordinates,
+} from "./helpers";
 
 // Fix default marker icon issues
 L.Icon.Default.mergeOptions({
@@ -32,47 +36,65 @@ L.Icon.Default.mergeOptions({
 });
 
 // FIXME: dropping a pointer outside of the map bounding box drops is not wokring properly (no bug when removing coordinate input )
-// FIXME: map not dragging after switching mapOptions from COORD to BBOX
+// FIXME: map not dragging after switching mapDrawingOptions from COORD to BBOX
 // TODO: Bring back inputs
 // TODO: RESTRICT AREA COORDINATES???
 const Location: React.FC = () => {
   const mapRef = useRef(null);
   const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
-  const [mapOption, setMapOption] = useState<SpatialAreaType>(
+  const [mapDrawingOption, setMapDrawingOption] = useState<SpatialAreaType>(
     staged.spatialArea?.type || ctxParams.spatialArea.type
   );
+  const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (value: number[]) => {
-    if (mapOption === SpatialAreaType.COORDINATES) {
+  const handleInputChange = (value: string) => {
+    const { coords, error } = validateCoordinates(value, mapDrawingOption);
+    console.log("ERROR ****** ", error);
+    // if (error) {
+    //   setError(error);
+    //   // return;
+    // }
+    setError(error);
+    // setError(null);
+
+    if (error === ERROR_EMPTY || error === ERROR_INCORRECT_LENGTH) {
+      return;
+    }
+
+    if (mapDrawingOption === SpatialAreaType.COORDINATES) {
       requestUpdateParams({
         spatialArea: {
           type: SpatialAreaType.COORDINATES,
           value: {
-            lat: convertToFixedFloat(value[0], 4).toString(),
-            lng: convertToFixedFloat(value[1], 4).toString(),
+            lat: convertToFixedFloat(coords[0], 4).toString(),
+            lng: convertToFixedFloat(coords[1], 4).toString(),
           },
         },
       });
       return;
     }
 
-    if (mapOption === SpatialAreaType.BOUNDING_BOX) {
+    if (mapDrawingOption === SpatialAreaType.BOUNDING_BOX) {
       requestUpdateParams({
         spatialArea: {
           type: SpatialAreaType.BOUNDING_BOX,
           value: {
-            west: convertToFixedFloat(value[0], 4).toString(),
-            south: convertToFixedFloat(value[1], 4).toString(),
-            east: convertToFixedFloat(value[2], 4).toString(),
-            north: convertToFixedFloat(value[3], 4).toString(),
+            west: convertToFixedFloat(coords[0], 4).toString(),
+            south: convertToFixedFloat(coords[1], 4).toString(),
+            east: convertToFixedFloat(coords[2], 4).toString(),
+            north: convertToFixedFloat(coords[3], 4).toString(),
           },
         },
       });
     }
   };
 
-  const mapOptionChangeHandler = (option: SpatialAreaType) => {
-    setMapOption(option);
+  const mapDrawingOptionChangeHandler = (option: SpatialAreaType) => {
+    setMapDrawingOption(option);
+  };
+
+  const handleError = (err: string | null) => {
+    setError(err);
   };
 
   // const getInitialCenter = () => {
@@ -100,45 +122,43 @@ const Location: React.FC = () => {
           <MapContainer
             center={[0, 0]}
             zoom={2}
-            // minZoom={2}
-            // maxZoom={18}
-            // zoomSnap={1}
-            // zoomDelta={1}
-            // worldCopyJump={false}
-            // maxBounds={[
-            //   [-90, -180],
-            //   [90, 180],
-            // ]}
+            minZoom={2}
+            maxZoom={19}
+            zoomSnap={1}
+            zoomDelta={1}
+            worldCopyJump={false}
+            maxBounds={[
+              [-90, -180],
+              [90, 180],
+            ]}
             // maxBoundsViscosity={1.0}
             style={{ height: "100%", width: "100%" }}
             ref={mapRef}
           >
             <TileLayer
               // noWrap={true}
-              // bounds={[
-              //   [-90, -180],
-              //   [90, 180],
-              // ]}
+              bounds={[
+                [-90, -180],
+                [90, 180],
+              ]}
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" // tile source
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' // attribution
             />
-            {/* {mapOption === SpatialAreaType.COORDINATES && <LocationMarker />} */}
-            <DrawingFeatures onMapOptionChange={mapOptionChangeHandler} />
+            <DrawingFeatures
+              onMapDrawingOptionChange={mapDrawingOptionChangeHandler}
+              onError={handleError}
+            />
             <MapResizer />
           </MapContainer>
         </div>
       </IonContent>
-      {/* <CoordinateInput
-        value={staged.spatialArea || ctxParams.spatialArea}
-        onInputChange={handleInputChange}
-        mapOption={mapOption}
-      /> */}
-      <MapInput
-        mapOption={mapOption}
+      <CoordinateInput
+        mapDrawingOption={mapDrawingOption}
         value={Object.values(
           staged.spatialArea?.value || ctxParams.spatialArea.value
         ).join(",")}
         onChange={handleInputChange}
+        error={error}
       />
     </IonPage>
   );
