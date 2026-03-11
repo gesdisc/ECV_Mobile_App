@@ -11,6 +11,9 @@ import { extractLatLonFromCacheKey } from "../helpers";
 import { toLocalShortDateTime } from "../../../utils/date";
 import catalog from "../../../data/catalog.json";
 
+import ItemDateTime from "./ItemDateTime";
+import ItemCoords from "./ItemCoords";
+
 import styles from "./StorageItem.module.css";
 
 interface StorageItemProps {
@@ -25,58 +28,59 @@ const StorageItem: React.FC<StorageItemProps> = ({
   onPlot,
 }) => {
   const itemMetadataFromCatalog = catalog.find(
-    (data) => data.dataFieldId === item.variableEntryId,
+    (data) => data.dataFieldId === item.variableEntryId
   );
 
   const plotCachedItemHandler = () => {
     if (!item.key) return;
+    if (!item.metadata || !item.variableEntryId) return;
 
-    // TODO: WILL NOT WORK IN CASE OF BBOX AREA
-    const coords = extractLatLonFromCacheKey(item.key);
+    const coords = extractLatLonFromCacheKey(item.key, item.variableEntryId);
+    if (!coords) return;
 
-    if (!coords || !item.metadata || !item.variableEntryId) return;
+    let cachedDataParams = {} as Partial<DataParams>;
 
-    if (item.metadata.lat && item.metadata.lon) {
-      // TODO: USE convertToFixedFloat to convert lat,lon into fixed float
-      const cachedDataParams: DataParams = {
-        // lat: coords.lat,
-        // lon: coords.lon,
-        variable: item.variableEntryId,
-        begin_time: item.metadata.begin_time,
-        end_time: item.metadata.end_time,
+    // point
+    if (coords.length === 2) {
+      const [lat, lon] = coords;
+
+      cachedDataParams = {
+        begin_time: item.startDate || item.metadata.begin_time,
+        end_time: item.endDate || item.metadata.end_time,
         spatialArea: {
           type: SpatialAreaType.COORDINATES,
           value: {
-            // lat: convertToFixedFloat(deviceLat, 4).toString(),
-            // lng: convertToFixedFloat(deviceLon, 4).toString(),
-            lat: `${coords.lat}`,
-            lng: `${coords.lon}`,
+            lat: `${lat}`,
+            lng: `${lon}`,
           },
         },
       };
+    }
 
-      onPlot(cachedDataParams);
-    } else {
-      // TODO: USE convertToFixedFloat to convert lat,lon into fixed float
-      const cachedDataParams: DataParams = {
-        // lat: coords.lat,
-        // lon: coords.lon,
+    // bbox
+    if (coords.length === 4) {
+      const [w, s, e, n] = coords;
+
+      cachedDataParams = {
+        begin_time:
+          item.startDate || item.metadata["User Start Date:"].toString(),
+        end_time: item.endDate || item.metadata["User End Date:"].toString(),
         spatialArea: {
           type: SpatialAreaType.BOUNDING_BOX,
           value: {
-            west: "10",
-            south: "10",
-            east: "10",
-            north: "10",
+            west: `${w}`,
+            south: `${s}`,
+            east: `${e}`,
+            north: `${n}`,
           },
         },
-        begin_time: item.metadata.begin_time,
-        end_time: item.metadata.end_time,
-        variable: item.variableEntryId,
       };
-
-      onPlot(cachedDataParams);
     }
+
+    onPlot({
+      ...cachedDataParams,
+      variable: item.variableEntryId,
+    } as DataParams);
   };
 
   return (
@@ -89,14 +93,8 @@ const StorageItem: React.FC<StorageItemProps> = ({
           {item.metadata?.Request_time && (
             <p>Timestamp: {toLocalShortDateTime(item.metadata.Request_time)}</p>
           )}
-          {item.metadata?.begin_time && (
-            <p>Begin Time: {toLocalShortDateTime(item.metadata.begin_time)}</p>
-          )}
-          {item.metadata?.end_time && (
-            <p>End Time: {toLocalShortDateTime(item.metadata.end_time)}</p>
-          )}
-          <p>Latitude: {item.metadata?.lat}</p>
-          <p>Longitude: {item.metadata?.lon}</p>
+          <ItemDateTime item={item} />
+          <ItemCoords item={item} />
         </IonText>
         <div className={`${styles["button-group"]} ion-margin-top`}>
           <IonButton
