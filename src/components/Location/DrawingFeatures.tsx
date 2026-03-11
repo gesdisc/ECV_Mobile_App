@@ -6,70 +6,13 @@ import { EditControl } from "react-leaflet-draw";
 
 import { ActionType, useDataParams } from "../../store/DataParamsContext";
 import { convertToFixedFloat } from "../../utils/converter";
+import { useActionListener } from "../../hooks/useActionListener";
+import { restoreDefaultSpatial, validateCoordinates } from "./helpers";
 
-import {
-  BoundingBox,
-  Coordinates,
-  SpatialAreaType,
-} from "../../types/time-series.types";
+import { Coordinates, SpatialAreaType } from "../../types/time-series.types";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-import { useActionListener } from "../../hooks/useActionListener";
-import { validateCoordinates } from "./helpers";
-
-interface SpatialArea {
-  type: SpatialAreaType;
-  value: Coordinates | BoundingBox;
-}
-
-/**
- *
- * Restore default geometry based on spatial type.
- *
- */
-function restoreDefaultSpatial(
-  fg: any,
-  spatialArea: SpatialArea,
-  onError: (err: string | null) => void
-) {
-  // Clear any existing layers
-  fg.clearLayers();
-
-  if (spatialArea.type === SpatialAreaType.COORDINATES) {
-    const { lat, lng } = spatialArea.value as Coordinates;
-
-    const stringifiedCoords = `${lat},${lng}`;
-
-    const { coords, error } = validateCoordinates(
-      stringifiedCoords,
-      SpatialAreaType.COORDINATES
-    );
-
-    onError(error);
-
-    const marker = L.marker([parseFloat(lat), parseFloat(lng)]);
-    fg.addLayer(marker);
-  } else if (spatialArea.type === SpatialAreaType.BOUNDING_BOX) {
-    // FIXME: MAP GOES BLANK!
-    const { west, south, east, north } = spatialArea.value as BoundingBox;
-
-    const stringifiedBounds = `${west},${south},${east},${north}`;
-
-    const { coords, error } = validateCoordinates(
-      stringifiedBounds,
-      SpatialAreaType.BOUNDING_BOX
-    );
-
-    onError(error);
-
-    const rectangle = L.rectangle([
-      [parseFloat(south), parseFloat(west)],
-      [parseFloat(north), parseFloat(east)],
-    ]);
-    fg.addLayer(rectangle);
-  }
-}
 
 interface DrawingFeaturesProps {
   onMapDrawingOptionChange: (option: SpatialAreaType) => void;
@@ -120,7 +63,6 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
   });
 
   const drawPoint = (layer: L.Marker) => {
-    // ...
     const { lat, lng } = layer.getLatLng();
 
     onMapDrawingOptionChange(SpatialAreaType.COORDINATES);
@@ -146,7 +88,6 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
   };
 
   const drawBbox = (layer: L.Rectangle) => {
-    // ...
     const bounds = layer.getBounds();
 
     onMapDrawingOptionChange(SpatialAreaType.BOUNDING_BOX);
@@ -234,17 +175,3 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
 };
 
 export default DrawingFeatures;
-
-// EditControl props (MIGHT BE USEFUL LATER)
-//     onEdited?: (v: DrawEvents.Edited) => void;
-//     onDrawStart?: (v: DrawEvents.DrawStart) => void;
-//     onDrawStop?: (v: DrawEvents.DrawStop) => void;
-//     onDrawVertex?: (v: DrawEvents.DrawVertex) => void;
-//     onEditStart?: (v: DrawEvents.EditStart) => void;
-//     onEditMove?: (v: DrawEvents.EditMove) => void;
-//     onEditResize?: (v: DrawEvents.EditResize) => void;
-//     onEditVertex?: (v: DrawEvents.EditVertex) => void;
-//     onEditStop?: (v: DrawEvents.EditStop) => void;
-//     onDeleted?: (v: DrawEvents.Deleted) => void;
-//     onDeleteStart?: (v: DrawEvents.DeleteStart) => void;
-//     onDeleteStop?: (v: DrawEvents.DeleteStop) => void;

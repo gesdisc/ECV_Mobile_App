@@ -6,6 +6,7 @@ import L from "leaflet";
 import { useDataParams } from "../../store/DataParamsContext";
 import { convertToFixedFloat } from "../../utils/converter";
 import { SpatialAreaType } from "../../types/time-series.types";
+import { validateCoordinates } from "./helpers";
 
 // Import the marker images
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -14,19 +15,12 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
 import Banner from "../UI/Banner";
 import MapResizer from "./MapResizer";
-// import LocationMarker from "./LocationMarker";
 import CoordinateInput from "./CoordinateInput";
-// import BoundingBox from "./BoundingBox";
 import DrawingFeatures from "./DrawingFeatures";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import styles from "./Location.module.css";
-import {
-  ERROR_EMPTY,
-  ERROR_INCORRECT_LENGTH,
-  validateCoordinates,
-} from "./helpers";
 
 // Fix default marker icon issues
 L.Icon.Default.mergeOptions({
@@ -35,31 +29,20 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-// FIXME: dropping a pointer outside of the map bounding box drops is not wokring properly (no bug when removing coordinate input )
-// FIXME: map not dragging after switching mapDrawingOptions from COORD to BBOX
-// TODO: Bring back inputs
-// TODO: RESTRICT AREA COORDINATES???
 const Location: React.FC = () => {
+  const [error, setError] = useState<string | null>(null);
   const mapRef = useRef(null);
   const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
   const [mapDrawingOption, setMapDrawingOption] = useState<SpatialAreaType>(
     staged.spatialArea?.type || ctxParams.spatialArea.type
   );
-  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (value: string) => {
     const { coords, error } = validateCoordinates(value, mapDrawingOption);
-    console.log("ERROR ****** ", error);
-    // if (error) {
-    //   setError(error);
-    //   // return;
-    // }
-    setError(error);
-    // setError(null);
 
-    if (error === ERROR_EMPTY || error === ERROR_INCORRECT_LENGTH) {
-      return;
-    }
+    setError(error);
+
+    if (error) return;
 
     if (mapDrawingOption === SpatialAreaType.COORDINATES) {
       requestUpdateParams({
@@ -89,7 +72,7 @@ const Location: React.FC = () => {
     }
   };
 
-  const mapDrawingOptionChangeHandler = (option: SpatialAreaType) => {
+  const handleMapDrawingOptionChange = (option: SpatialAreaType) => {
     setMapDrawingOption(option);
   };
 
@@ -97,23 +80,6 @@ const Location: React.FC = () => {
     setError(err);
   };
 
-  // const getInitialCenter = () => {
-  //   if (ctxParams.spatialArea.type === SpatialAreaType.COORDINATES) {
-  //     const { lat, lng } = ctxParams.spatialArea.value;
-  //     return [parseFloat(lat), parseFloat(lng)];
-  //   }
-
-  //   if (ctxParams.spatialArea.type === SpatialAreaType.BOUNDING_BOX) {
-  //     const { west, south, east, north } = ctxParams.spatialArea.value;
-  //     // center of bbox
-  //     const centerLat = (parseFloat(south) + parseFloat(north)) / 2;
-  //     const centerLng = (parseFloat(west) + parseFloat(east)) / 2;
-  //     return [centerLat, centerLng];
-  //   }
-
-  //   return [0, 0];
-  // };
-  // console.log(getInitialCenter());
   return (
     <IonPage>
       <Banner />
@@ -145,7 +111,7 @@ const Location: React.FC = () => {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' // attribution
             />
             <DrawingFeatures
-              onMapDrawingOptionChange={mapDrawingOptionChangeHandler}
+              onMapDrawingOptionChange={handleMapDrawingOptionChange}
               onError={handleError}
             />
             <MapResizer />
@@ -153,6 +119,7 @@ const Location: React.FC = () => {
         </div>
       </IonContent>
       <CoordinateInput
+        onMapDrawingOptionChange={handleMapDrawingOptionChange}
         mapDrawingOption={mapDrawingOption}
         value={Object.values(
           staged.spatialArea?.value || ctxParams.spatialArea.value

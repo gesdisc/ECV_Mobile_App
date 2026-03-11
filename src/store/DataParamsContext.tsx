@@ -119,6 +119,7 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
     Array.from(actionListeners.current).forEach((cb) => cb(action));
   }, []);
 
+  // TODO: Map doesn't show correct coordinate after the first render
   // Get device's location
   // useEffect(() => {
   //   const getDeviceLocation = async () => {

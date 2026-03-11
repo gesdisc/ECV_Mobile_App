@@ -89,6 +89,7 @@ const Plot: React.FC = () => {
 
   //     if (isEmpty(data)) return;
 
+  // TODO: WILL NOT WORK IN CASE OF BBOX AREA
   //     const coords = extractLatLonFromCacheKey(data.key);
 
   //     if (!coords) return;

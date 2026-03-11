@@ -9,49 +9,68 @@ import {
 } from "@ionic/react";
 
 import { SpatialAreaType } from "../../types/time-series.types";
-import { validateCoordinates } from "./helpers";
+import { useActionListener } from "../../hooks/useActionListener";
+import { ActionType, useDataParams } from "../../store/DataParamsContext";
 
 interface CoordinateInputProps {
   mapDrawingOption: SpatialAreaType;
   value: string;
-  onChange: (nums: string) => void;
   error: string | null;
+  onChange: (nums: string) => void;
+  onMapDrawingOptionChange: (option: SpatialAreaType) => void;
 }
 
-// FIXME: typing is messed up
-// FIXME: when invalid data is entered, the input will restore the previous value and print error: WE NEED TO EITHER PRINT THE ERROR AND LEAVE THE USER ENTERED VALUES OR
-// TODO: FINISH IMPLEMENTING THE INPUT
 const CoordinateInput: React.FC<CoordinateInputProps> = ({
   mapDrawingOption,
   value,
-  onChange,
   error,
+  onChange,
+  onMapDrawingOptionChange,
 }) => {
-  // const [isTouched, setIsTouched] = useState(false);
-
-  // trigers after clicking outside of input
-  // const handleInput = (event: CustomEvent) => {
-  //   const inputVal = (event.target as HTMLInputElement).value;
-  //   console.log("after input change: ", inputVal);
-  //   // const { coords, error } = validateCoordinates(inputVal, mapDrawingOption);
-
-  //   onChange(inputVal);
-  // };
-
-  // const markTouched = () => setIsTouched(true);
+  const [rawInput, setRawInput] = useState<string>(value);
+  const [isFocused, setIsFocused] = useState(false);
+  const { params: ctxParams } = useDataParams();
 
   // trigers on input change
-  const handleChange = (event: any) => {
+  const handleChange = (event: CustomEvent) => {
     const inputVal = (event.target as HTMLInputElement).value;
 
+    const parts = inputVal.split(",").map((v) => v.trim());
+    const coords = parts.map((v) => Number(v));
+
+    if (coords.length > 2) {
+      // switch to bbox if user entered more than 2 coordinates
+      onMapDrawingOptionChange(SpatialAreaType.BOUNDING_BOX);
+    } else {
+      // switch to coordinates if user entered 2 or less coordinates
+      onMapDrawingOptionChange(SpatialAreaType.COORDINATES);
+    }
+
+    setRawInput(inputVal);
     onChange(inputVal);
   };
 
-  // useEffect(() => {
-  //   const valid = validateInput(value);
-  //   // setIsValid(valid);
-  // }, []);
-  // console.log("INPUT RENDER: ", error);
+  const handleBlur = () => {
+    // if input is empty, reset to last valid value
+    if (rawInput.trim() === "") {
+      setRawInput(value);
+    }
+    setIsFocused(false);
+  };
+
+  // listen to toast cancel action
+  useActionListener(ActionType.CANCEL, () => {
+    // Restore input value after user canceled modified parameters
+    setRawInput(Object.values(ctxParams.spatialArea.value).join(","));
+  });
+
+  // Update value when external changes happen (eg. Map Drawing)
+  useEffect(() => {
+    if (isFocused) return;
+    setRawInput(value);
+  }, [value]);
+
+  // TODO: When user clears bbox input, wrong error is shown. E.g. if user cleares the last two coordinates (east,north) of "-117.0703,-9.1021,86.1328,76.3519", leaving "-117.0703,-9.1021" in the input, error message "Input must contain exactly 2 or 4 numbers" is shown, which is wrong. In this case, the correct error message should be "Coordinates must be within valid range (lat: -90 to 90, lng: -180 to 180)" because the remaining coordiantes are out of range. No error if the remaining coordinates are valid.
   return (
     <IonFooter id="location-footer">
       <IonToolbar>
@@ -59,22 +78,23 @@ const CoordinateInput: React.FC<CoordinateInputProps> = ({
           <IonLabel position="floating">
             {mapDrawingOption === SpatialAreaType.COORDINATES
               ? "Lat, Lng"
-              : "West, South, East, North "}
+              : "West, South, East, North"}
           </IonLabel>
           <IonInput
-            // clearInput FIXME: clears at second try
-            value={value}
-            // onIonChange={handleInput}
+            clearInput
+            value={rawInput}
             onIonInput={handleChange}
-            // onIonBlur={markTouched}
+            onIonFocus={() => setIsFocused(true)}
+            onIonBlur={handleBlur}
             className={`${error ? "ion-invalid" : "ion-valid"}`}
             placeholder={
               mapDrawingOption === SpatialAreaType.COORDINATES
-                ? "e.g. 34.1234, -118.1234"
-                : "e.g. 33.0, -119.0, 35.0, -117.0"
+                ? "e.g. 34.12, -18.12"
+                : "e.g. 33.0, -19.0, 35.0, -17.0"
             }
-            inputMode="decimal"
+            inputMode="text"
             fill="solid"
+            pattern="[0-9.,\-]*"
           />
           {error && <IonText color="danger">{error}</IonText>}
         </IonItem>
