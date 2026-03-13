@@ -17,7 +17,7 @@ const Catalog: React.FC = () => {
   const { data: catalog, isLoading, isFetching } = useCatalogQuery();
 
   const currentVariable = catalog?.find(
-    (data) => data.dataFieldId === variableId,
+    (data) => data.dataFieldId === variableId
   );
 
   const variableChangeHandler = (variable: string) =>

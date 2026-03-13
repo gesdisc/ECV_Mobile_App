@@ -8,8 +8,7 @@ import { ActionType, useDataParams } from "../../store/DataParamsContext";
 import { convertToFixedFloat } from "../../utils/converter";
 import { useActionListener } from "../../hooks/useActionListener";
 import { restoreDefaultSpatial, validateCoordinates } from "./helpers";
-
-import { Coordinates, SpatialAreaType } from "../../types/time-series.types";
+import { SpatialAreaType } from "../../types/time-series.types";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";

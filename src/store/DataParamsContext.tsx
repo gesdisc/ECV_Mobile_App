@@ -46,8 +46,6 @@ const initialContextValue: DataParamsContextType = {
         lng: DefaultParams.LONGITUDE.toString(),
       },
     },
-    // lat: DefaultParams.LATITUDE,
-    // lon: DefaultParams.LONGITUDE,
   },
   staged: {},
   metadata: {},
