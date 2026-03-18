@@ -26,8 +26,7 @@ export type DataParams = {
   variable: string;
   begin_time: string;
   end_time: string;
-  lat: number;
-  lon: number;
+  spatialArea: SpatialArea;
 };
 
 export type TimeAvgDataRow = {
@@ -59,3 +58,26 @@ export type VariableDbEntry = TimeSeriesData & {
   /** timestamp when the data was cached */
   cachedAt: number;
 };
+
+export enum SpatialAreaType {
+  GLOBAL = "global",
+  COORDINATES = "coordinates",
+  BOUNDING_BOX = "bounding_box",
+}
+
+export type Coordinates = { lat: string; lng: string };
+
+export type BoundingBox = {
+  west: string;
+  south: string;
+  east: string;
+  north: string;
+};
+
+export type SpatialArea =
+  // | { type: SpatialAreaType.GLOBAL }
+  | { type: SpatialAreaType.COORDINATES; value: Coordinates }
+  | {
+      type: SpatialAreaType.BOUNDING_BOX;
+      value: BoundingBox;
+    };

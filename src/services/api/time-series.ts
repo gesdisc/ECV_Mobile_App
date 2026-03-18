@@ -1,6 +1,7 @@
-import type {
-  MaybeBearerToken,
-  DataParams,
+import {
+  type MaybeBearerToken,
+  type DataParams,
+  SpatialAreaType,
 } from "../../types/time-series.types";
 
 const handleApiError = (response: Response): string => {
@@ -49,13 +50,16 @@ const handleApiError = (response: Response): string => {
  */
 export const fetchData = async (
   dataParams: DataParams,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) => {
   const bearerToken: MaybeBearerToken = null;
-  const { variable, lat, lon, begin_time, end_time } = dataParams;
+  const { variable, spatialArea, begin_time, end_time } = dataParams;
 
   // URL https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=M2T1NXSLV_5_12_4_V50M&lat=40&lon=120&time_start=2024-03-05T00%3A00%3A00&time_end=2024-03-06T00%3A00%3A00
-  const url = `https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=${variable}&lat=${lat}&lon=${lon}&time_start=${begin_time}&time_end=${end_time}`;
+  const url =
+    spatialArea.type === SpatialAreaType.COORDINATES
+      ? `https://8weebb031a.execute-api.us-east-1.amazonaws.com/SIT/?data=${variable}&lat=${spatialArea.value.lat}&lon=${spatialArea.value.lng}&time_start=${begin_time}&time_end=${end_time}`
+      : "";
 
   try {
     const response = await fetch(url, {
@@ -74,7 +78,7 @@ export const fetchData = async (
   } catch (error) {
     if (error instanceof Error) {
       throw Error(
-        error.name === "AbortError" ? "Request canceled." : error.message
+        error.name === "AbortError" ? "Request canceled." : error.message,
       );
     }
   }
