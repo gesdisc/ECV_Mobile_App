@@ -35,6 +35,7 @@ import {
   getLatestCachedData,
   IndexedDbStores,
 } from "../../services/indexDBService";
+import { useAuth } from "../../store/AuthContext";
 
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
@@ -59,6 +60,7 @@ const Plot: React.FC = () => {
     setMetadata,
     metadata,
   } = useDataParams();
+  const { login, logout, user, token } = useAuth();
 
   const location = useLocation();
   const catalogPageVariable = location.state;
@@ -220,18 +222,18 @@ const Plot: React.FC = () => {
                 <TerraTimeSeries
                   onTerraTimeSeriesDataChange={timeSeriesDataChangeHandler}
                   variableEntryId={ctxParams.variable}
-                  start-date={ctxParams.begin_time.replace(
+                  startDate={ctxParams.begin_time.replace(
                     /(\d{4})-(\d{2})-(\d{2}).*/,
                     "$2/$3/$1"
                   )}
-                  end-date={ctxParams.end_time.replace(
+                  endDate={ctxParams.end_time.replace(
                     /(\d{4})-(\d{2})-(\d{2}).*/,
                     "$2/$3/$1"
                   )}
                   location={Object.values(ctxParams.spatialArea.value).join(
                     ","
                   )}
-                  bearerToken="bearerToken"
+                  bearerToken={token || ""}
                 ></TerraTimeSeries>
               </IonCol>
               {!isEmpty(metadata) && stateData.length !== 0 && (
