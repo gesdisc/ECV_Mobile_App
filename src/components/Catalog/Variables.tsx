@@ -8,7 +8,7 @@ import {
   IonLabel,
   IonList,
 } from "@ionic/react";
-import { informationCircleOutline } from "ionicons/icons";
+import { informationCircleOutline, mapOutline } from "ionicons/icons";
 
 import { VariableWithLabel } from "../../data/browse-variables.types";
 
@@ -41,7 +41,18 @@ const Variables: React.FC<VariablesProps> = ({
                   onClick={() => onVariableChange(data.dataFieldId)}
                   key={data.label}
                 >
-                  <IonLabel>{data.label}</IonLabel>
+                  <IonLabel>
+                    {data.label}
+                    {data?.gibsProductId && (
+                      <IonIcon
+                        aria-hidden="true"
+                        size="small"
+                        icon={mapOutline}
+                        color="success"
+                        style={{ marginLeft: "16px" }}
+                      />
+                    )}
+                  </IonLabel>
                   <IonButton
                     size="small"
                     fill="clear"
