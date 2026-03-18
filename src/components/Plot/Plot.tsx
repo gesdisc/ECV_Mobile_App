@@ -45,6 +45,7 @@ import Banner from "../UI/Banner";
 import TimeInterval from "./TimeInterval";
 
 import "./Plot.css";
+import OLMap from "./OLMap/OLMap";
 
 const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
@@ -136,8 +137,7 @@ const Plot: React.FC = () => {
     updateParams({
       begin_time: defaultStartDate,
       end_time: defaultEndDate,
-      // begin_time: "2019-10-01T00:00:00Z",
-      // end_time: "2019-12-01T00:00:00Z",
+
       variable: catalogPageVariable as string,
     });
   }, [catalogPageVariable]);
@@ -211,6 +211,11 @@ const Plot: React.FC = () => {
           />
           <IonGrid>
             <IonRow>
+              {ctxParams.spatialArea.type === SpatialAreaType.BOUNDING_BOX && (
+                <IonCol size="12">
+                  <OLMap date={stateData[sliderValue]?.timestamp} />
+                </IonCol>
+              )}
               <IonCol size="12">
                 <TerraTimeSeries
                   onTerraTimeSeriesDataChange={timeSeriesDataChangeHandler}
@@ -226,30 +231,33 @@ const Plot: React.FC = () => {
                   location={Object.values(ctxParams.spatialArea.value).join(
                     ","
                   )}
+                  bearerToken="bearerToken"
                 ></TerraTimeSeries>
               </IonCol>
-              <IonCol size="12">
-                <Slider
-                  onLeftBtnClick={sliderLeftBtnHandler}
-                  onRightBtnClick={sliderRightBtnHandler}
-                  value={sliderValue}
-                  max={stateData.length - 1}
-                  min={0}
-                  onValueChange={sliderValueChangeHandler}
-                  pinFormatter={(index: number) =>
-                    stateData[index]?.timestamp
-                      ? `${toLocalShortDateTime(stateData[index].timestamp)}, ${
-                          stateData[index].value
-                        }`
-                      : ""
-                  }
-                  disabled={isEmpty(metadata) && stateData.length === 0}
-                  startDate={toLocalShortDateTime(stateData[0]?.timestamp)}
-                  endDate={toLocalShortDateTime(
-                    stateData[stateData.length - 1]?.timestamp
-                  )}
-                />
-              </IonCol>
+              {!isEmpty(metadata) && stateData.length !== 0 && (
+                <IonCol size="12">
+                  <Slider
+                    onLeftBtnClick={sliderLeftBtnHandler}
+                    onRightBtnClick={sliderRightBtnHandler}
+                    value={sliderValue}
+                    max={stateData.length - 1}
+                    min={0}
+                    onValueChange={sliderValueChangeHandler}
+                    pinFormatter={(index: number) =>
+                      stateData[index]?.timestamp
+                        ? `${toLocalShortDateTime(stateData[index].timestamp)}, ${
+                            stateData[index].value
+                          }`
+                        : ""
+                    }
+                    disabled={isEmpty(metadata) && stateData.length === 0}
+                    startDate={toLocalShortDateTime(stateData[0]?.timestamp)}
+                    endDate={toLocalShortDateTime(
+                      stateData[stateData.length - 1]?.timestamp
+                    )}
+                  />
+                </IonCol>
+              )}
               {!isEmpty(metadata) && stateData.length !== 0 && (
                 <TimeInterval
                   onIntervalChange={(intervalOption) =>
