@@ -1,6 +1,6 @@
 import React from "react";
 import { IonButton, IonIcon, IonItem, IonLabel, IonText } from "@ionic/react";
-import { trash } from "ionicons/icons";
+import { trash, informationCircleOutline } from "ionicons/icons";
 
 import {
   DataParams,
@@ -20,12 +20,14 @@ interface StorageItemProps {
   item: Partial<VariableDbEntry>;
   onDelete: (key: string) => void;
   onPlot: (cachedItem: DataParams) => void;
+  onRequestInfo: (dataFieldId: string) => void;
 }
 
 const StorageItem: React.FC<StorageItemProps> = ({
   item,
   onDelete,
   onPlot,
+  onRequestInfo,
 }) => {
   const itemMetadataFromCatalog = catalog.find(
     (data) => data.dataFieldId === item.variableEntryId
@@ -83,12 +85,24 @@ const StorageItem: React.FC<StorageItemProps> = ({
     } as DataParams);
   };
 
+  const infoButtonHandler = () => {
+    if (!itemMetadataFromCatalog) return;
+    onRequestInfo(itemMetadataFromCatalog.dataFieldId);
+  };
+
   return (
     <IonItem>
       <IonLabel className="ion-padding-top">
         <IonText>
           <h2 className={styles["item-label"]}>
             {itemMetadataFromCatalog?.label}
+            <IonButton size="small" fill="clear" onClick={infoButtonHandler}>
+              <IonIcon
+                aria-hidden="true"
+                size="large"
+                icon={informationCircleOutline}
+              />
+            </IonButton>
           </h2>
           {item.metadata?.Request_time && (
             <p>Timestamp: {toLocalShortDateTime(item.metadata.Request_time)}</p>
