@@ -10,6 +10,7 @@ import TerraLoader from "@nasa-terra/components/dist/react/loader";
 import Banner from "../UI/Banner";
 import Variables from "./Variables";
 import InfoPanel from "../UI/InfoPanel";
+import Login from "../Auth/Login";
 
 const Catalog: React.FC = () => {
   const [variableId, setVariableId] = useState("");
@@ -17,7 +18,7 @@ const Catalog: React.FC = () => {
   const { data: catalog, isLoading, isFetching } = useCatalogQuery();
 
   const currentVariable = catalog?.find(
-    (data) => data.dataFieldId === variableId
+    (data) => data.dataFieldId === variableId,
   );
 
   const variableChangeHandler = (variable: string) =>
@@ -77,7 +78,10 @@ const Catalog: React.FC = () => {
   return (
     <IonPage>
       <IonContent>
-        <Banner />
+        <Banner>
+          <Login />
+        </Banner>
+
         <InfoPanel
           dataList={variableInfo}
           isOpen={!!variableId}
