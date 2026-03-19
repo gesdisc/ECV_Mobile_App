@@ -139,7 +139,6 @@ const Plot: React.FC = () => {
     updateParams({
       begin_time: defaultStartDate,
       end_time: defaultEndDate,
-
       variable: catalogPageVariable as string,
     });
   }, [catalogPageVariable]);
@@ -222,11 +221,11 @@ const Plot: React.FC = () => {
                 <TerraTimeSeries
                   onTerraTimeSeriesDataChange={timeSeriesDataChangeHandler}
                   variableEntryId={ctxParams.variable}
-                  startDate={ctxParams.begin_time.replace(
+                  start-date={ctxParams.begin_time.replace(
                     /(\d{4})-(\d{2})-(\d{2}).*/,
                     "$2/$3/$1"
                   )}
-                  endDate={ctxParams.end_time.replace(
+                  end-date={ctxParams.end_time.replace(
                     /(\d{4})-(\d{2})-(\d{2}).*/,
                     "$2/$3/$1"
                   )}
