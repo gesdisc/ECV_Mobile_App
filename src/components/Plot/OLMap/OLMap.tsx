@@ -7,6 +7,8 @@ import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
 import TileWMS from "ol/source/TileWMS";
 import { transformExtent } from "ol/proj";
+import Graticule from "ol/layer/Graticule";
+import Stroke from "ol/style/Stroke";
 import dayjs from "dayjs";
 
 import { useDataParams } from "../../../store/DataParamsContext";
@@ -42,6 +44,29 @@ const OLMap: React.FC<OLMapProps> = ({ date }) => {
   const layerOpacityHandler = (e: CustomEvent) => {
     gibsLayerRef.current?.setOpacity(Number(e.detail.value.toFixed(2)));
   };
+
+  const coastlineLayers = new TileLayer({
+    source: new TileWMS({
+      url: GIBS_WMS_URL,
+      params: {
+        LAYERS: "Coastlines_15m,Reference_Features_15m",
+        FORMAT: "image/png",
+        TRANSPARENT: true,
+      },
+      crossOrigin: "anonymous",
+    }),
+    opacity: 0.5,
+  });
+
+  const graticuleLayer = new Graticule({
+    strokeStyle: new Stroke({
+      color: "rgba(0, 0, 0, 0.7)",
+      width: 1,
+      lineDash: [0.5, 4],
+    }),
+    showLabels: true,
+    wrapX: false,
+  });
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -92,7 +117,7 @@ const OLMap: React.FC<OLMapProps> = ({ date }) => {
 
     const map = new Map({
       target: mapRef.current,
-      layers: [defaultLayer, gibsLayer],
+      layers: [defaultLayer, gibsLayer, coastlineLayers, graticuleLayer],
       view: mapView,
     });
 
@@ -105,7 +130,7 @@ const OLMap: React.FC<OLMapProps> = ({ date }) => {
     return () => {
       map.setTarget(undefined);
     };
-  }, []);
+  }, [productDetails]);
 
   // Update TIME
   useEffect(() => {

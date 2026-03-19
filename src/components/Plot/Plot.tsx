@@ -44,9 +44,9 @@ import Slider from "./Slider";
 import StorageManager from "./Storage/StorageManager";
 import Banner from "../UI/Banner";
 import TimeInterval from "./TimeInterval";
+import OLMap from "./OLMap/OLMap";
 
 import "./Plot.css";
-import OLMap from "./OLMap/OLMap";
 
 const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
@@ -60,7 +60,7 @@ const Plot: React.FC = () => {
     setMetadata,
     metadata,
   } = useDataParams();
-  const { login, logout, user, token } = useAuth();
+  const { token } = useAuth();
 
   const location = useLocation();
   const catalogPageVariable = location.state;
@@ -149,7 +149,6 @@ const Plot: React.FC = () => {
     setSliderValue(activeIndex);
   };
 
-  /* FIXME: Slider buttons don't work when plot fully zoomed in -- check stateData */
   const sliderLeftBtnHandler = () => {
     if (stateData.length === 0) return;
     if (sliderValue === 0) return;
@@ -219,6 +218,8 @@ const Plot: React.FC = () => {
               )}
               <IonCol size="12">
                 <TerraTimeSeries
+                  // productLabel={plottedProductDetails.label}
+                  // mobileView
                   onTerraTimeSeriesDataChange={timeSeriesDataChangeHandler}
                   variableEntryId={ctxParams.variable}
                   start-date={ctxParams.begin_time.replace(
