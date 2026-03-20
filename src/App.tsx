@@ -2,6 +2,7 @@ import React from "react";
 import { IonApp, setupIonicReact } from "@ionic/react";
 
 import { DataParamsProvider } from "./store/DataParamsContext";
+import { AuthProvider } from "./store/AuthContext";
 import { useCatalogQuery } from "./data/useCatalogQuery";
 
 import TabBar from "./navigation/TabMenu";
@@ -40,9 +41,11 @@ const App: React.FC = () => {
 
   return (
     <IonApp>
-      <DataParamsProvider>
-        <TabBar />
-      </DataParamsProvider>
+      <AuthProvider>
+        <DataParamsProvider>
+          <TabBar />
+        </DataParamsProvider>
+      </AuthProvider>
     </IonApp>
   );
 };
