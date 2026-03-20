@@ -25,7 +25,7 @@ import { toLocalShortDateTime } from "../../utils/date";
 import {
   getMiddleIndex,
   convertTimeInterval,
-  getDefaultDateRange,
+  getDefaultDateRangeForTimeInterval,
   extractLatLonFromCacheKey,
 } from "./helpers";
 import useProductDetails, {
@@ -47,6 +47,8 @@ import TimeInterval from "./TimeInterval";
 import OLMap from "./OLMap/OLMap";
 
 import "./Plot.css";
+import useDeviceLocation from "../../hooks/useDeviceLocation";
+import { convertToFixedFloat } from "../../utils/converter";
 
 const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
@@ -61,6 +63,11 @@ const Plot: React.FC = () => {
     metadata,
   } = useDataParams();
   const { token } = useAuth();
+  const {
+    latitude: deviceLat,
+    longitude: deviceLon,
+    getLocation,
+  } = useDeviceLocation();
 
   const location = useLocation();
   const catalogPageVariable = location.state;
@@ -129,18 +136,33 @@ const Plot: React.FC = () => {
   useEffect(() => {
     if (!catalogPageVariable) return;
 
-    const { startDate: defaultStartDate, endDate: defaultEndDate } =
-      getDefaultDateRange(
-        dayjs(selectedProductDetails?.dataProductBeginDateTime),
-        dayjs(selectedProductDetails?.dataProductEndDateTime),
-        selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
-      );
+    const visualizeCatalogSelection = async () => {
+      const { startDate: defaultStartDate, endDate: defaultEndDate } =
+        getDefaultDateRangeForTimeInterval(
+          dayjs(selectedProductDetails?.dataProductBeginDateTime),
+          dayjs(selectedProductDetails?.dataProductEndDateTime),
+          selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
+        );
 
-    updateParams({
-      begin_time: defaultStartDate,
-      end_time: defaultEndDate,
-      variable: catalogPageVariable as string,
-    });
+      // await getLocation();
+
+      if (!deviceLat || !deviceLon) return;
+
+      updateParams({
+        begin_time: defaultStartDate,
+        end_time: defaultEndDate,
+        // spatialArea: {
+        //   type: SpatialAreaType.COORDINATES,
+        //   value: {
+        //     lat: convertToFixedFloat(deviceLat, 4).toString(),
+
+        //     lng: convertToFixedFloat(deviceLon, 4).toString(),
+        //   },
+        // },
+        variable: catalogPageVariable as string,
+      });
+    };
+    visualizeCatalogSelection();
   }, [catalogPageVariable]);
 
   const sliderValueChangeHandler = (e: RangeCustomEvent) => {

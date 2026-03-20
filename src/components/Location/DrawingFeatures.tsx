@@ -26,9 +26,8 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
 
   const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
 
-  // Restore marker|bbox UI after state change (eg. Tab Switch)
+  // This will make sure marker|bbox reflects map input change and other state changes (eg. Tab Switch)
   useEffect(() => {
-    // If user changed parameters
     if (staged.spatialArea) {
       const fg = featureGroupRef.current;
       if (!fg) return;
@@ -42,18 +41,21 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
     // default state (no staged/changed parameters)
     // Draw Initial marker
     drawDefaultSpatial();
-  }, []);
-
-  // This will make sure marker|bbox reflects map input change
-  useEffect(() => {
-    if (staged.spatialArea) {
-      const fg = featureGroupRef.current;
-      if (!fg) return;
-
-      restoreDefaultSpatial(fg, staged.spatialArea, onError);
-      onMapDrawingOptionChange(staged.spatialArea.type);
-    }
   }, [staged.spatialArea]);
+
+  useEffect(() => {
+    drawDefaultSpatial();
+    // if (staged.spatialArea) {
+    //   const fg = featureGroupRef.current;
+    //   if (!fg) return;
+    //   restoreDefaultSpatial(fg, staged.spatialArea, onError);
+    //   onMapDrawingOptionChange(staged.spatialArea.type);
+    //   return;
+    // }
+    // // default state (no staged/changed parameters)
+    // // Draw Initial marker
+    // drawDefaultSpatial();
+  }, [ctxParams.spatialArea.value]);
 
   // listen to toast cancel action
   useActionListener(ActionType.CANCEL, () => {

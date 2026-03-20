@@ -18,6 +18,7 @@ interface CoordinateInputProps {
   error: string | null;
   onChange: (nums: string) => void;
   onMapDrawingOptionChange: (option: SpatialAreaType) => void;
+  onError: (err: string | null) => void;
 }
 
 const CoordinateInput: React.FC<CoordinateInputProps> = ({
@@ -26,6 +27,7 @@ const CoordinateInput: React.FC<CoordinateInputProps> = ({
   error,
   onChange,
   onMapDrawingOptionChange,
+  onError,
 }) => {
   const [rawInput, setRawInput] = useState<string>(value);
   const [isFocused, setIsFocused] = useState(false);
@@ -54,6 +56,7 @@ const CoordinateInput: React.FC<CoordinateInputProps> = ({
     // if input is empty, reset to last valid value
     if (rawInput.trim() === "") {
       setRawInput(value);
+      onError(null);
     }
     setIsFocused(false);
   };

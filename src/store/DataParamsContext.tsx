@@ -3,7 +3,6 @@ import React, {
   useContext,
   useState,
   ReactNode,
-  useEffect,
   useRef,
   useCallback,
 } from "react";
@@ -13,9 +12,7 @@ import {
   SpatialAreaType,
 } from "../types/time-series.types";
 import { DefaultParams } from "../constants/time-series";
-import { convertToFixedFloat } from "../utils/converter";
 import { isValidUTC } from "../utils/date";
-import useDeviceLocation from "../hooks/useDeviceLocation";
 
 export enum ActionType {
   CANCEL = "cancel",
@@ -72,12 +69,6 @@ const DataParamsContext =
 export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const {
-    latitude: deviceLat,
-    longitude: deviceLon,
-    error: permissionError,
-    getLocation,
-  } = useDeviceLocation();
   const [params, setParams] = useState<DataParams>({
     variable: "",
     begin_time: DefaultParams.BEGIN_TIME,
@@ -116,33 +107,6 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
   const emitAction = useCallback((action: ActionType) => {
     Array.from(actionListeners.current).forEach((cb) => cb(action));
   }, []);
-
-  // TODO: Map doesn't show correct coordinate after the first render
-  // Get device's location
-  // useEffect(() => {
-  //   const getDeviceLocation = async () => {
-  //     try {
-  //       await getLocation();
-
-  //       if (permissionError) return;
-
-  //       if (!deviceLat || !deviceLon) return;
-
-  //       updateParams({
-  //         spatialArea: {
-  //           type: SpatialAreaType.COORDINATES,
-  //           value: {
-  //             lat: convertToFixedFloat(deviceLat, 4).toString(),
-  //             lng: convertToFixedFloat(deviceLon, 4).toString(),
-  //           },
-  //         },
-  //       });
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-  //   getDeviceLocation();
-  // }, [getLocation, deviceLat, deviceLon]);
 
   // immediate update
   const updateParams = (newParams: Partial<DataParams>) => {

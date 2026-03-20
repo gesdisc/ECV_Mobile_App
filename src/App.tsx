@@ -31,6 +31,7 @@ import "./styles.css";
 import "@nasa-terra/components/dist/themes/horizon.css";
 
 import { setBasePath } from "@nasa-terra/components/dist/utilities/base-path";
+import DeviceLocation from "./components/Location/DeviceLocation";
 
 setBasePath("https://cdn.jsdelivr.net/npm/@nasa-terra/components@0.0.162/cdn/");
 
@@ -43,6 +44,7 @@ const App: React.FC = () => {
     <IonApp>
       <AuthProvider>
         <DataParamsProvider>
+          <DeviceLocation />
           <TabBar />
         </DataParamsProvider>
       </AuthProvider>
