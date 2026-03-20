@@ -2,17 +2,24 @@ import React from "react";
 import { IonButton, IonIcon, IonItem, IonLabel, IonText } from "@ionic/react";
 import { trash, informationCircleOutline } from "ionicons/icons";
 
-import { DataParams, VariableDbEntry } from "../../../types/time-series.types";
+import {
+  DataParams,
+  VariableDbEntry,
+  SpatialAreaType,
+} from "../../../types/time-series.types";
 import { extractLatLonFromCacheKey } from "../helpers";
 import { toLocalShortDateTime } from "../../../utils/date";
 import catalog from "../../../data/catalog.json";
+
+import ItemDateTime from "./ItemDateTime";
+import ItemCoords from "./ItemCoords";
 
 import styles from "./StorageItem.module.css";
 
 interface StorageItemProps {
   item: Partial<VariableDbEntry>;
   onDelete: (key: string) => void;
-  onPlot: ({ lat, lon, begin_time, end_time, variable }: DataParams) => void;
+  onPlot: (cachedItem: DataParams) => void;
   onRequestInfo: (dataFieldId: string) => void;
 }
 
@@ -28,20 +35,54 @@ const StorageItem: React.FC<StorageItemProps> = ({
 
   const plotCachedItemHandler = () => {
     if (!item.key) return;
+    if (!item.metadata || !item.variableEntryId) return;
 
-    const coords = extractLatLonFromCacheKey(item.key);
+    const coords = extractLatLonFromCacheKey(item.key, item.variableEntryId);
+    if (!coords) return;
 
-    if (!coords || !item.metadata || !item.variableEntryId) return;
+    let cachedDataParams = {} as Partial<DataParams>;
 
-    const cachedDataParams = {
-      lat: coords.lat,
-      lon: coords.lon,
-      begin_time: item.metadata.begin_time,
-      end_time: item.metadata.end_time,
+    // point
+    if (coords.length === 2) {
+      const [lat, lon] = coords;
+
+      cachedDataParams = {
+        begin_time: item.startDate || item.metadata.begin_time,
+        end_time: item.endDate || item.metadata.end_time,
+        spatialArea: {
+          type: SpatialAreaType.COORDINATES,
+          value: {
+            lat: `${lat}`,
+            lng: `${lon}`,
+          },
+        },
+      };
+    }
+
+    // bbox
+    if (coords.length === 4) {
+      const [w, s, e, n] = coords;
+
+      cachedDataParams = {
+        begin_time:
+          item.startDate || item.metadata["User Start Date:"].toString(),
+        end_time: item.endDate || item.metadata["User End Date:"].toString(),
+        spatialArea: {
+          type: SpatialAreaType.BOUNDING_BOX,
+          value: {
+            west: `${w}`,
+            south: `${s}`,
+            east: `${e}`,
+            north: `${n}`,
+          },
+        },
+      };
+    }
+
+    onPlot({
+      ...cachedDataParams,
       variable: item.variableEntryId,
-    };
-
-    onPlot(cachedDataParams);
+    } as DataParams);
   };
 
   const infoButtonHandler = () => {
@@ -66,14 +107,8 @@ const StorageItem: React.FC<StorageItemProps> = ({
           {item.metadata?.Request_time && (
             <p>Timestamp: {toLocalShortDateTime(item.metadata.Request_time)}</p>
           )}
-          {item.metadata?.begin_time && (
-            <p>Begin Time: {toLocalShortDateTime(item.metadata.begin_time)}</p>
-          )}
-          {item.metadata?.end_time && (
-            <p>End Time: {toLocalShortDateTime(item.metadata.end_time)}</p>
-          )}
-          <p>Latitude: {item.metadata?.lat}</p>
-          <p>Longitude: {item.metadata?.lon}</p>
+          <ItemDateTime item={item} />
+          <ItemCoords item={item} />
         </IonText>
         <div className={`${styles["button-group"]} ion-margin-top`}>
           <IonButton
