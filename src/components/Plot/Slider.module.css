@@ -1,4 +1,4 @@
-ion-range {
+ion-range.ion-range {
   --bar-background: var(--ion-color-primary);
   --bar-background-active: var(--ion-color-primary);
   --bar-height: 5px;
@@ -36,7 +36,9 @@ ion-range {
   height: auto;
   border-radius: 2px;
   padding-inline: 10px;
-  transition: transform 120ms ease, background 120ms ease;
+  transition:
+    transform 120ms ease,
+    background 120ms ease;
 
   font-weight: bold;
   font-size: 14px;
