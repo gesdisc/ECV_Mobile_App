@@ -126,6 +126,7 @@ const Location: React.FC = () => {
         ).join(",")}
         onChange={handleInputChange}
         error={error}
+        onError={handleError}
       />
     </IonPage>
   );

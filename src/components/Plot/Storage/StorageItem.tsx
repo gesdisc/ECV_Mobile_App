@@ -104,8 +104,8 @@ const StorageItem: React.FC<StorageItemProps> = ({
               />
             </IonButton>
           </h2>
-          {item.metadata?.Request_time && (
-            <p>Timestamp: {toLocalShortDateTime(item.metadata.Request_time)}</p>
+          {item.cachedAt && (
+            <p>Timestamp: {toLocalShortDateTime(item.cachedAt)}</p>
           )}
           <ItemDateTime item={item} />
           <ItemCoords item={item} />

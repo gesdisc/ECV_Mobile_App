@@ -26,9 +26,8 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
 
   const { params: ctxParams, staged, requestUpdateParams } = useDataParams();
 
-  // Restore marker|bbox UI after state change (eg. Tab Switch)
+  // This will make sure marker|bbox reflects map input change and other state changes (eg. Tab Switch)
   useEffect(() => {
-    // If user changed parameters
     if (staged.spatialArea) {
       const fg = featureGroupRef.current;
       if (!fg) return;
@@ -42,17 +41,6 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
     // default state (no staged/changed parameters)
     // Draw Initial marker
     drawDefaultSpatial();
-  }, []);
-
-  // This will make sure marker|bbox reflects map input change
-  useEffect(() => {
-    if (staged.spatialArea) {
-      const fg = featureGroupRef.current;
-      if (!fg) return;
-
-      restoreDefaultSpatial(fg, staged.spatialArea, onError);
-      onMapDrawingOptionChange(staged.spatialArea.type);
-    }
   }, [staged.spatialArea]);
 
   // listen to toast cancel action
@@ -68,7 +56,7 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
 
     const stringifiedCoords = `${lat},${lng}`;
 
-    const { coords, error } = validateCoordinates(
+    const { error } = validateCoordinates(
       stringifiedCoords,
       SpatialAreaType.COORDINATES
     );

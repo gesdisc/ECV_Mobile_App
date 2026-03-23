@@ -96,7 +96,7 @@ export const convertTimeInterval = (
  * get the current date and time for now.
  *
  */
-export const getDefaultDateRange = (
+export const getDefaultDateRangeForTimeInterval = (
   minAvailableDate: Dayjs,
   maxAvailableDate: Dayjs,
   timeInterval: TimeIntervalKey

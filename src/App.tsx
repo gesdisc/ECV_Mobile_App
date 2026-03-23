@@ -3,6 +3,7 @@ import { IonApp, setupIonicReact } from "@ionic/react";
 
 import { DataParamsProvider } from "./store/DataParamsContext";
 import { AuthProvider } from "./store/AuthContext";
+// import { SettingsProvider } from "./store/SettingsContext";
 import { useCatalogQuery } from "./data/useCatalogQuery";
 
 import TabBar from "./navigation/TabMenu";
@@ -39,12 +40,15 @@ setupIonicReact();
 const App: React.FC = () => {
   useCatalogQuery();
 
+  // TODO: Commenting out SettingsProvider for now since it's not fully implemented. We can re-enable it once we have the location functionality working smoothly.
   return (
     <IonApp>
       <AuthProvider>
+        {/* <SettingsProvider> */}
         <DataParamsProvider>
           <TabBar />
         </DataParamsProvider>
+        {/* </SettingsProvider> */}
       </AuthProvider>
     </IonApp>
   );

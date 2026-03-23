@@ -15,15 +15,19 @@ const ItemDateTime: React.FC<ItemDateTimeProps> = ({ item }) => {
   if (!coords) return null;
 
   const beginTime = toLocalShortDateTime(
-    item.startDate || coords.length === 2
-      ? item.metadata.begin_time
-      : item.metadata["User Start Date:"]
+    item.startDate !== undefined
+      ? item.startDate
+      : coords.length === 2
+        ? item.metadata.begin_time
+        : item.metadata["User Start Date:"]
   );
 
   const endTime = toLocalShortDateTime(
-    item.endDate || coords.length === 2
-      ? item.metadata.end_time
-      : item.metadata["User End Date:"]
+    item.endDate !== undefined
+      ? item.endDate
+      : coords.length === 2
+        ? item.metadata.end_time
+        : item.metadata["User End Date:"]
   );
 
   return (

@@ -12,6 +12,7 @@ export interface LocationState {
   longitude: number | null;
   permission: PermissionState | "unknown";
   error?: string | undefined;
+  loading?: boolean;
 }
 
 /**
@@ -85,10 +86,12 @@ const useDeviceLocation = () => {
     longitude: null,
     permission: "unknown",
     error: undefined,
+    loading: false,
   });
 
   const getLocation = useCallback(async () => {
     try {
+      setState((prev) => ({ ...prev, loading: true }));
       const permission = await checkPermission();
 
       if (permission === "denied") {
@@ -130,6 +133,8 @@ const useDeviceLocation = () => {
         permission: "granted",
         error: (err instanceof Error && err.message) || ERROR_FAILED_TO_DETECT,
       });
+    } finally {
+      setState((prev) => ({ ...prev, loading: false }));
     }
   }, []);
 

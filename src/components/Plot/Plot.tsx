@@ -19,13 +19,14 @@ import {
   DataParams,
   SpatialAreaType,
 } from "../../types/time-series.types";
-import { TimeIntervalKey } from "../../constants/time-series";
+import { DefaultParams, TimeIntervalKey } from "../../constants/time-series";
 import { useDataParams } from "../../store/DataParamsContext";
+// import { useSettings } from "../../store/SettingsContext";
 import { toLocalShortDateTime } from "../../utils/date";
 import {
   getMiddleIndex,
   convertTimeInterval,
-  getDefaultDateRange,
+  getDefaultDateRangeForTimeInterval,
   extractLatLonFromCacheKey,
 } from "./helpers";
 import useProductDetails, {
@@ -35,6 +36,7 @@ import {
   getLatestCachedData,
   IndexedDbStores,
 } from "../../services/indexDBService";
+import { useAuth } from "../../store/AuthContext";
 
 import TerraTimeSeries, {
   TerraTimeSeriesDataChangeEvent,
@@ -43,6 +45,7 @@ import Slider from "./Slider";
 import StorageManager from "./Storage/StorageManager";
 import Banner from "../UI/Banner";
 import TimeInterval from "./TimeInterval";
+import OLMap from "./OLMap/OLMap";
 
 import "./Plot.css";
 import OLMap from "./OLMap/OLMap";
@@ -59,6 +62,8 @@ const Plot: React.FC = () => {
     setMetadata,
     metadata,
   } = useDataParams();
+  const { token } = useAuth();
+  // const { settings } = useSettings();
 
   const location = useLocation();
   const catalogPageVariable = location.state;
@@ -76,7 +81,7 @@ const Plot: React.FC = () => {
   const currentProductTimeInterval =
     plottedProductDetails?.dataProductTimeInterval;
 
-  // FIXME: SEEMS LIKE THIS IS CAUSING A WEIRD BUG...THAT PREVENTS TIME-SERIES COMPONENT FROM PLOTTING
+  // FIXME: Figure out why this is causing a weird bug that prevents time-series component from plotting
   // Plot latest cached data
   // useEffect(() => {
   //   if (!isEmpty(metadata)) return;
@@ -90,7 +95,7 @@ const Plot: React.FC = () => {
 
   //     if (isEmpty(data)) return;
 
-  // TODO: WILL NOT WORK IN CASE OF BBOX AREA
+  // TODO: WILL NOT WORK IN CASE OF BBOX.
   //     const coords = extractLatLonFromCacheKey(data.key);
 
   //     if (!coords) return;
@@ -127,16 +132,28 @@ const Plot: React.FC = () => {
   useEffect(() => {
     if (!catalogPageVariable) return;
 
+    // const { lat: deviceLat, lng: deviceLon } = settings.device.location;
+
     const { startDate: defaultStartDate, endDate: defaultEndDate } =
-      getDefaultDateRange(
+      getDefaultDateRangeForTimeInterval(
         dayjs(selectedProductDetails?.dataProductBeginDateTime),
         dayjs(selectedProductDetails?.dataProductEndDateTime),
         selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
       );
 
+    // user's device location is currently disabled until we can figure out why it's not working reliably. Using default coordinates for now. Read more in SettingsContext.tsx.
     updateParams({
       begin_time: defaultStartDate,
       end_time: defaultEndDate,
+      spatialArea: {
+        type: SpatialAreaType.COORDINATES,
+        value: {
+          // lat: deviceLat || DefaultParams.LATITUDE,
+          // lng: deviceLon || DefaultParams.LONGITUDE,
+          lat: DefaultParams.LATITUDE,
+          lng: DefaultParams.LONGITUDE,
+        },
+      },
 
       variable: catalogPageVariable as string,
     });
@@ -148,7 +165,6 @@ const Plot: React.FC = () => {
     setSliderValue(activeIndex);
   };
 
-  /* FIXME: Slider buttons don't work when plot fully zoomed in -- check stateData */
   const sliderLeftBtnHandler = () => {
     if (stateData.length === 0) return;
     if (sliderValue === 0) return;
@@ -218,6 +234,8 @@ const Plot: React.FC = () => {
               )}
               <IonCol size="12">
                 <TerraTimeSeries
+                  // productLabel={plottedProductDetails.label}
+                  // mobileView
                   onTerraTimeSeriesDataChange={timeSeriesDataChangeHandler}
                   variableEntryId={ctxParams.variable}
                   start-date={ctxParams.begin_time.replace(
@@ -231,7 +249,7 @@ const Plot: React.FC = () => {
                   location={Object.values(ctxParams.spatialArea.value).join(
                     ","
                   )}
-                  bearerToken="bearerToken"
+                  bearerToken={token || ""}
                 ></TerraTimeSeries>
               </IonCol>
               {!isEmpty(metadata) && stateData.length !== 0 && (

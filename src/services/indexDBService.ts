@@ -74,6 +74,7 @@ export async function getAllData(
       const items = await db.getAll(store);
 
       return items.map((item) => ({
+        cachedAt: item.cachedAt,
         startDate: item.startDate,
         endDate: item.endDate,
         metadata: item.metadata,
