@@ -19,8 +19,9 @@ import {
   DataParams,
   SpatialAreaType,
 } from "../../types/time-series.types";
-import { TimeIntervalKey } from "../../constants/time-series";
+import { DefaultParams, TimeIntervalKey } from "../../constants/time-series";
 import { useDataParams } from "../../store/DataParamsContext";
+// import { useSettings } from "../../store/SettingsContext";
 import { toLocalShortDateTime } from "../../utils/date";
 import {
   getMiddleIndex,
@@ -47,8 +48,6 @@ import TimeInterval from "./TimeInterval";
 import OLMap from "./OLMap/OLMap";
 
 import "./Plot.css";
-import useDeviceLocation from "../../hooks/useDeviceLocation";
-import { convertToFixedFloat } from "../../utils/converter";
 
 const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
@@ -63,11 +62,7 @@ const Plot: React.FC = () => {
     metadata,
   } = useDataParams();
   const { token } = useAuth();
-  const {
-    latitude: deviceLat,
-    longitude: deviceLon,
-    getLocation,
-  } = useDeviceLocation();
+  // const { settings } = useSettings();
 
   const location = useLocation();
   const catalogPageVariable = location.state;
@@ -85,7 +80,7 @@ const Plot: React.FC = () => {
   const currentProductTimeInterval =
     plottedProductDetails?.dataProductTimeInterval;
 
-  // FIXME: SEEMS LIKE THIS IS CAUSING A WEIRD BUG...THAT PREVENTS TIME-SERIES COMPONENT FROM PLOTTING
+  // FIXME: Figure out why this is causing a weird bug that prevents time-series component from plotting
   // Plot latest cached data
   // useEffect(() => {
   //   if (!isEmpty(metadata)) return;
@@ -99,7 +94,7 @@ const Plot: React.FC = () => {
 
   //     if (isEmpty(data)) return;
 
-  // TODO: WILL NOT WORK IN CASE OF BBOX AREA
+  // TODO: WILL NOT WORK IN CASE OF BBOX.
   //     const coords = extractLatLonFromCacheKey(data.key);
 
   //     if (!coords) return;
@@ -136,33 +131,30 @@ const Plot: React.FC = () => {
   useEffect(() => {
     if (!catalogPageVariable) return;
 
-    const visualizeCatalogSelection = async () => {
-      const { startDate: defaultStartDate, endDate: defaultEndDate } =
-        getDefaultDateRangeForTimeInterval(
-          dayjs(selectedProductDetails?.dataProductBeginDateTime),
-          dayjs(selectedProductDetails?.dataProductEndDateTime),
-          selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
-        );
+    // const { lat: deviceLat, lng: deviceLon } = settings.device.location;
 
-      // await getLocation();
+    const { startDate: defaultStartDate, endDate: defaultEndDate } =
+      getDefaultDateRangeForTimeInterval(
+        dayjs(selectedProductDetails?.dataProductBeginDateTime),
+        dayjs(selectedProductDetails?.dataProductEndDateTime),
+        selectedProductDetails?.dataProductTimeInterval as TimeIntervalKey
+      );
 
-      if (!deviceLat || !deviceLon) return;
-
-      updateParams({
-        begin_time: defaultStartDate,
-        end_time: defaultEndDate,
-        // spatialArea: {
-        //   type: SpatialAreaType.COORDINATES,
-        //   value: {
-        //     lat: convertToFixedFloat(deviceLat, 4).toString(),
-
-        //     lng: convertToFixedFloat(deviceLon, 4).toString(),
-        //   },
-        // },
-        variable: catalogPageVariable as string,
-      });
-    };
-    visualizeCatalogSelection();
+    // user's device location is currently disabled until we can figure out why it's not working reliably. Using default coordinates for now. Read more in SettingsContext.tsx.
+    updateParams({
+      begin_time: defaultStartDate,
+      end_time: defaultEndDate,
+      spatialArea: {
+        type: SpatialAreaType.COORDINATES,
+        value: {
+          // lat: deviceLat || DefaultParams.LATITUDE,
+          // lng: deviceLon || DefaultParams.LONGITUDE,
+          lat: DefaultParams.LATITUDE,
+          lng: DefaultParams.LONGITUDE,
+        },
+      },
+      variable: catalogPageVariable as string,
+    });
   }, [catalogPageVariable]);
 
   const sliderValueChangeHandler = (e: RangeCustomEvent) => {

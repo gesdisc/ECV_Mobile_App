@@ -5,6 +5,7 @@ import React, {
   ReactNode,
   useRef,
   useCallback,
+  useEffect,
 } from "react";
 import {
   DataParams,
@@ -13,6 +14,7 @@ import {
 } from "../types/time-series.types";
 import { DefaultParams } from "../constants/time-series";
 import { isValidUTC } from "../utils/date";
+// import { useSettings } from "./SettingsContext";
 
 export enum ActionType {
   CANCEL = "cancel",
@@ -39,8 +41,8 @@ const initialContextValue: DataParamsContextType = {
     spatialArea: {
       type: SpatialAreaType.COORDINATES,
       value: {
-        lat: DefaultParams.LATITUDE.toString(),
-        lng: DefaultParams.LONGITUDE.toString(),
+        lat: DefaultParams.LATITUDE,
+        lng: DefaultParams.LONGITUDE,
       },
     },
   },
@@ -76,13 +78,33 @@ export const DataParamsProvider: React.FC<{ children: ReactNode }> = ({
     spatialArea: {
       type: SpatialAreaType.COORDINATES,
       value: {
-        lat: DefaultParams.LATITUDE.toString(),
-        lng: DefaultParams.LONGITUDE.toString(),
+        lat: DefaultParams.LATITUDE,
+        lng: DefaultParams.LONGITUDE,
       },
     },
   });
   const [staged, setStaged] = useState<Partial<DataParams>>({});
   const [metadata, setMetadata] = useState<Partial<TimeSeriesMetadata>>({});
+  // const { settings } = useSettings();
+
+  // FIXME: Disable device location for now until we can figure out why it's not working reliably. Using default coordiantes for now. Read more in SettingsContext.tsx.
+  // useEffect(() => {
+  //   const { lat: deviceLat, lng: deviceLon } = settings.device.location;
+
+  //   if (!deviceLat || !deviceLon) return;
+  //   if (deviceLat && deviceLon) {
+  //     setParams((prev) => ({
+  //       ...prev,
+  //       spatialArea: {
+  //         type: SpatialAreaType.COORDINATES,
+  //         value: {
+  //           lat: deviceLat,
+  //           lng: deviceLon,
+  //         },
+  //       },
+  //     }));
+  //   }
+  // }, [settings.device.location]);
 
   /**
    *

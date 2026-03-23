@@ -1,6 +1,6 @@
 {
-  "name": "ionic-app-base",
-  "version": "0.1.0",
+  "name": "giovanni-mobile",
+  "version": "0.2.0",
   "private": true,
   "dependencies": {
     "@apollo/client": "^4.0.7",

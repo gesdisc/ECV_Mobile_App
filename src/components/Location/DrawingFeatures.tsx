@@ -43,20 +43,6 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
     drawDefaultSpatial();
   }, [staged.spatialArea]);
 
-  useEffect(() => {
-    drawDefaultSpatial();
-    // if (staged.spatialArea) {
-    //   const fg = featureGroupRef.current;
-    //   if (!fg) return;
-    //   restoreDefaultSpatial(fg, staged.spatialArea, onError);
-    //   onMapDrawingOptionChange(staged.spatialArea.type);
-    //   return;
-    // }
-    // // default state (no staged/changed parameters)
-    // // Draw Initial marker
-    // drawDefaultSpatial();
-  }, [ctxParams.spatialArea.value]);
-
   // listen to toast cancel action
   useActionListener(ActionType.CANCEL, () => {
     // Restore marker|bbox UI after user canceled modified parameters
@@ -70,7 +56,7 @@ const DrawingFeatures: React.FC<DrawingFeaturesProps> = ({
 
     const stringifiedCoords = `${lat},${lng}`;
 
-    const { coords, error } = validateCoordinates(
+    const { error } = validateCoordinates(
       stringifiedCoords,
       SpatialAreaType.COORDINATES
     );

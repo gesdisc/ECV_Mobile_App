@@ -63,6 +63,7 @@ const StorageManager: React.FC<StorageManagerProps> = ({
   const variableInfoHandler = (dataFieldId: string) =>
     setInfoPanelVariableId(dataFieldId);
 
+  // TODO: This is the same info panel as in Catalog. We can refactor to have a single component and reuse it in both places.
   const variableInfo = {
     title: currentVariable?.label || "Invalid label",
     list: [

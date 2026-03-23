@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { IonIcon, IonButton, IonModal, IonRange } from "@ionic/react";
-import { settingsSharp } from "ionicons/icons";
+import { settingsSharp, informationCircleOutline } from "ionicons/icons";
 
 import { Map, View } from "ol";
 import TileLayer from "ol/layer/Tile";
@@ -16,6 +16,8 @@ import { SpatialAreaType } from "../../../types/time-series.types";
 import useProductDetails, {
   SelectedProductDetailsType,
 } from "../../../hooks/useProductDetails";
+
+import TerraAlert from "@nasa-terra/components/dist/react/alert";
 
 import "ol/ol.css";
 import styles from "./OLMap.module.css";
@@ -142,9 +144,18 @@ const OLMap: React.FC<OLMapProps> = ({ date }) => {
 
   if (!productDetails.gibsProductId) {
     return (
-      <p>
-        <b>{productDetails.label}</b> Map visualization is not available.
-      </p>
+      // <p>
+      //   <b>{productDetails.label}</b> map visualization is not available.
+      // </p>
+      <TerraAlert open variant="primary">
+        {/* <TerraIcon slot="icon" name="outline-information-circle" library="heroicons" /> */}
+        <IonIcon
+          slot="icon"
+          aria-hidden="true"
+          icon={informationCircleOutline}
+        />
+        <b>{productDetails.label}</b> map visualization is not available.
+      </TerraAlert>
     );
   }
 
