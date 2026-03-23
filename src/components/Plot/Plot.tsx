@@ -48,6 +48,7 @@ import TimeInterval from "./TimeInterval";
 import OLMap from "./OLMap/OLMap";
 
 import "./Plot.css";
+import OLMap from "./OLMap/OLMap";
 
 const Plot: React.FC = () => {
   const [stateData, setStateData] = useState<TimeSeriesDataRow[]>([]);
@@ -153,6 +154,7 @@ const Plot: React.FC = () => {
           lng: DefaultParams.LONGITUDE,
         },
       },
+
       variable: catalogPageVariable as string,
     });
   }, [catalogPageVariable]);

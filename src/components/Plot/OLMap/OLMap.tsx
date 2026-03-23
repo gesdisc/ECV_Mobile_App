@@ -159,6 +159,22 @@ const OLMap: React.FC<OLMapProps> = ({ date }) => {
     );
   }
 
+  // Update TIME
+  useEffect(() => {
+    // YYYY-MM-DD or YYYY-MM-DDThh:mm:ssZ
+    gibsLayerRef.current?.getSource()?.updateParams({
+      TIME: dayjs(date).utc().format("YYYY-MM-DDTHH:mm:ss[Z]"),
+    });
+  }, [date]);
+
+  if (!productDetails.gibsProductId) {
+    return (
+      <p>
+        <b>{productDetails.label}</b> Map visualization is not available.
+      </p>
+    );
+  }
+
   return (
     <>
       <div ref={mapRef} className={styles["map-container"]}>
